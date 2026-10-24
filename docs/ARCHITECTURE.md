@@ -29,13 +29,18 @@ Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame 
 Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> north door)
 ├─ WorldEnvironment
 ├─ Architecture/IndustrialRoomShell   (room geometry built in code, 12x10x3.5)
-├─ BulkheadDoors/{North,East,West}BulkheadDoor   (bulkhead_door.gd: unseal())
+├─ BulkheadDoors/{North,East,West}BulkheadDoor   (bulkhead_door.gd: unseal(); DoorDisplay monitor)
 ├─ WallFixtures/NorthDoorBreakerBox   (breaker_box.gd; child PowerStation FixStation)
 ├─ WallFixtures/DoNotPressButton      (do_not_press_button.gd)
 ├─ MainConsole (components/main_console.tscn)
 │   ├─ LeftStation/O2Station          (FixStation "o2")
-│   └─ CenterStation/ReactorStation   (FixStation "reactor"), EmergencyReleaseKey
+│   ├─ CenterStation/ReactorStation   (FixStation "reactor"), EmergencyReleaseKey
+│   └─ ConsoleDisplays                (3 live MonitorDisplay screens: atmosphere / status / power)
 ├─ AlarmController                    (red lights + procedural klaxon)
+├─ Polish/StationSignage              (station signs + ">> FIX HERE <<" cues)
+├─ Polish/LightingDirector            (overhead light dimming/flicker, ambient hum, glow/fog)
+├─ Polish/Doorways                    (corridor stubs behind N/E/W openings cut by the shell)
+├─ Polish/RoomProps                   (pipes, vents, lockers, cable trays, hazard stripes)
 └─ FirstPersonPlayer (scenes/player/first_person_player.tscn)
     ├─ Head/Camera3D/Interactor
     └─ HUD (hud.gd: prompt, alert banner, shift timer)

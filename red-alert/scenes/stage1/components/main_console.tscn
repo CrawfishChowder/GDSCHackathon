@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/interaction/fix_station.gd" id="2_fix_station"]
 [ext_resource type="PackedScene" path="res://scenes/minigames/reactor_sequence.tscn" id="3_reactor_minigame"]
 [ext_resource type="PackedScene" path="res://scenes/minigames/o2_keypad.tscn" id="4_o2_minigame"]
+[ext_resource type="Script" path="res://scripts/stage1/console_displays.gd" id="5_console_displays"]
 
 [sub_resource type="BoxShape3D" id="Shape_emergency_key"]
 size = Vector3(0.22, 0.12, 0.22)
@@ -585,3 +586,7 @@ mesh = SubResource("Mesh_console_dark")
 position = Vector3(2.1, 1.49, 4.405)
 scale = Vector3(1.48, 0.12, 0.035)
 mesh = SubResource("Mesh_accent_navy")
+
+[node name="ConsoleDisplays" type="Node3D" parent="."]
+script = ExtResource("5_console_displays")
+

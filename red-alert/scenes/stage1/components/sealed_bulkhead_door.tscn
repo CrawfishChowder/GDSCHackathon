@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/stage1/bulkhead_door.gd" id="1_bulkhead_door"]
+[ext_resource type="Script" path="res://scripts/stage1/door_display.gd" id="2_door_display"]
 
 [sub_resource type="StandardMaterial3D" id="Material_door"]
 resource_name = "Bulkhead door metal"
@@ -159,3 +160,7 @@ mesh = SubResource("Mesh_monitor_screen")
 [node name="StatusStrip" type="MeshInstance3D" parent="LeftAccessMonitor"]
 position = Vector3(-2.8, 1.19, 0.258)
 mesh = SubResource("Mesh_monitor_status")
+
+[node name="DoorDisplay" type="Node3D" parent="."]
+script = ExtResource("2_door_display")
+
