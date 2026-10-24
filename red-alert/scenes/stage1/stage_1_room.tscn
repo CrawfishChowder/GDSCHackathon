@@ -9,6 +9,11 @@
 [ext_resource type="Script" path="res://scripts/stage1/alarm_controller.gd" id="6_alarm"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/do_not_press_button.tscn" id="7_button"]
 
+[ext_resource type="Script" path="res://scripts/stage1/station_signage.gd" id="8_station_signage"]
+[ext_resource type="Script" path="res://scripts/stage1/lighting_director.gd" id="9_lighting_director"]
+[ext_resource type="Script" path="res://scripts/stage1/doorways.gd" id="10_doorways"]
+[ext_resource type="Script" path="res://scripts/stage1/room_props.gd" id="11_room_props"]
+
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
 background_color = Color(0.004, 0.007, 0.012, 1)
@@ -60,3 +65,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
 
 [node name="AlarmController" type="Node3D" parent="."]
 script = ExtResource("6_alarm")
+
+[node name="Polish" type="Node3D" parent="."]
+
+[node name="StationSignage" type="Node3D" parent="Polish"]
+script = ExtResource("8_station_signage")
+
+[node name="LightingDirector" type="Node3D" parent="Polish"]
+script = ExtResource("9_lighting_director")
+
+[node name="Doorways" type="Node3D" parent="Polish"]
+script = ExtResource("10_doorways")
+
+[node name="RoomProps" type="Node3D" parent="Polish"]
+script = ExtResource("11_room_props")
