@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/main_console.tscn" id="4_console"]
 [ext_resource type="Script" path="res://scripts/stage1/stage1_controller.gd" id="5_controller"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
+[ext_resource type="Script" path="res://scripts/stage1/alarm_controller.gd" id="6_alarm"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -52,3 +53,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
 
 [node name="FirstPersonPlayer" parent="." unique_id=1815492691 instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
+
+[node name="AlarmController" type="Node3D" parent="."]
+script = ExtResource("6_alarm")

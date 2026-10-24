@@ -3,6 +3,11 @@ extends Node
 signal malfunction_started(id: String, display_name: String, time_limit: float)
 signal malfunction_fixed(id: String)
 signal player_died(cause_id: String, display_name: String)
+signal shift_completed
+signal run_started
+
+# One demo "shift". Survive this long (with nothing broken) to win.
+const SHIFT_LENGTH := 300.0
 
 const MALFUNCTIONS := {
 	"reactor": {"name": "Reactor meltdown", "time_limit": 45.0},
@@ -10,11 +15,20 @@ const MALFUNCTIONS := {
 	"o2": {"name": "O2 depletion", "time_limit": 50.0},
 }
 
+# Deaths that are not a malfunction timing out.
+const OTHER_CAUSES := {
+	"do_not_press": "Pressed the button",
+}
+
 var running: bool = false
 var active_id: String = ""
 var time_left: float = 0.0
 var survived_seconds: float = 0.0
 var fixes_count: int = 0
+# How the last run ended: "timeout" (countdown ran out), "mistake" (failed a
+# minigame) or "button". death_detail is a short player-facing explanation.
+var death_kind: String = ""
+var death_detail: String = ""
 
 var _next_in: float = 0.0
 
@@ -32,12 +46,10 @@ func _process(delta: float) -> void:
 	if active_id != "":
 		time_left -= delta
 		if time_left <= 0.0:
-			time_left = 0.0
-			running = false
-			var cause_id := active_id
-			var dname := display_name(cause_id)
-			player_died.emit(cause_id, dname)
-			active_id = ""
+			kill(active_id, "timeout", "The countdown ran out.")
+	elif survived_seconds >= SHIFT_LENGTH:
+		running = false
+		shift_completed.emit()
 	else:
 		_next_in -= delta
 		if _next_in <= 0.0:
@@ -53,7 +65,10 @@ func start_run() -> void:
 	time_left = 0.0
 	survived_seconds = 0.0
 	fixes_count = 0
+	death_kind = ""
+	death_detail = ""
 	_next_in = 10.0
+	run_started.emit()
 
 
 func stop_run() -> void:
@@ -84,6 +99,22 @@ func fix(id: String) -> void:
 	malfunction_fixed.emit(fixed_id)
 
 
+# Ends the run immediately. kind: "timeout", "mistake" or "button".
+func kill(cause_id: String, kind: String, detail: String = "") -> void:
+	if not running:
+		return
+	running = false
+	death_kind = kind
+	death_detail = detail
+	active_id = ""
+	time_left = 0.0
+	player_died.emit(cause_id, display_name(cause_id))
+
+
+func shift_time_left() -> float:
+	return max(0.0, SHIFT_LENGTH - survived_seconds)
+
+
 func is_active(id: String) -> bool:
 	return active_id == id and not id.is_empty()
 
@@ -92,4 +123,4 @@ static func display_name(id: String) -> String:
 	if MALFUNCTIONS.has(id):
 		var info: Dictionary = MALFUNCTIONS[id]
 		return String(info.get("name", ""))
-	return ""
+	return String(OTHER_CAUSES.get(id, ""))

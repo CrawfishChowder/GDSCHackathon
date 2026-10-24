@@ -17,8 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+SaveData="*res://scripts/systems/save_data.gd"
 MalfunctionManager="*res://scripts/systems/malfunction_manager.gd"
 MinigameHost="*res://scenes/ui/minigame_host.tscn"
+MissionLog="*res://scripts/systems/mission_log.gd"
+Voice="*res://scripts/systems/voice.gd"
 
 [display]
 

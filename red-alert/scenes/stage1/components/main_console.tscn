@@ -1,9 +1,18 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/interaction/interactable.gd" id="1_interactable"]
+[ext_resource type="Script" path="res://scripts/interaction/fix_station.gd" id="2_fix_station"]
+[ext_resource type="PackedScene" path="res://scenes/minigames/reactor_sequence.tscn" id="3_reactor_minigame"]
+[ext_resource type="PackedScene" path="res://scenes/minigames/o2_keypad.tscn" id="4_o2_minigame"]
 
 [sub_resource type="BoxShape3D" id="Shape_emergency_key"]
 size = Vector3(0.22, 0.12, 0.22)
+
+[sub_resource type="BoxShape3D" id="Shape_reactor_station"]
+size = Vector3(1, 0.15, 0.35)
+
+[sub_resource type="BoxShape3D" id="Shape_o2_station"]
+size = Vector3(0.9, 0.15, 0.35)
 
 [sub_resource type="StandardMaterial3D" id="Material_console_metal"]
 resource_name = "Main console industrial steel"
@@ -316,6 +325,16 @@ position = Vector3(-2.1, 1.49, 4.405)
 scale = Vector3(1.48, 0.12, 0.035)
 mesh = SubResource("Mesh_accent_navy")
 
+[node name="O2Station" type="Area3D" parent="LeftStation"]
+position = Vector3(-2.13, 1.17, 3.94)
+rotation = Vector3(-0.18, 0, 0)
+script = ExtResource("2_fix_station")
+malfunction_id = "o2"
+minigame_scene = ExtResource("4_o2_minigame")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LeftStation/O2Station"]
+shape = SubResource("Shape_o2_station")
+
 [node name="CenterStation" type="Node3D" parent="."]
 
 [node name="LowerEquipmentCabinetPanel" type="MeshInstance3D" parent="CenterStation"]
@@ -449,6 +468,16 @@ mesh = SubResource("Mesh_accent_navy")
 position = Vector3(0, 3.19, 4.68)
 scale = Vector3(2.18, 0.12, 0.48)
 mesh = SubResource("Mesh_accent_navy")
+
+[node name="ReactorStation" type="Area3D" parent="CenterStation"]
+position = Vector3(0, 1.2, 3.94)
+rotation = Vector3(-0.18, 0, 0)
+script = ExtResource("2_fix_station")
+malfunction_id = "reactor"
+minigame_scene = ExtResource("3_reactor_minigame")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CenterStation/ReactorStation"]
+shape = SubResource("Shape_reactor_station")
 
 [node name="RightStation" type="Node3D" parent="."]
 
