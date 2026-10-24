@@ -2,12 +2,14 @@ extends RayCast3D
 
 signal target_changed(prompt: String)
 
-var _current_target: Interactable = null
+const DEFAULT_PROMPT := "Interact"
+
+var _current_target: Node = null
 var _last_prompt: String = ""
 
 
 func _ready() -> void:
-	target_position = Vector3(0, 0, -2.2)
+	target_position = Vector3(0, 0, -3)
 	collide_with_areas = true
 	collide_with_bodies = true
 	collision_mask = 3
@@ -16,12 +18,8 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var collider := get_collider()
-	var new_target: Interactable = null
-	if collider is Interactable and (collider as Interactable).enabled:
-		new_target = collider as Interactable
-
-	var new_prompt := new_target.prompt_text if new_target != null else ""
+	var new_target := _find_interactable(get_collider() as Node)
+	var new_prompt := _prompt_for(new_target)
 	if new_target != _current_target or new_prompt != _last_prompt:
 		_current_target = new_target
 		_last_prompt = new_prompt
@@ -33,3 +31,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		_current_target.interact(owner)
 		get_viewport().set_input_as_handled()
 
+
+# Any node with an interact() method counts, so the hit collider can be a child
+# body (e.g. a breaker box's StaticBody3D) of the node that actually reacts.
+# Nodes may expose optional `prompt_text` and `enabled` properties.
+func _find_interactable(node: Node) -> Node:
+	while node != null:
+		if node.has_method("interact"):
+			return node if node.get("enabled") != false else null
+		node = node.get_parent()
+	return null
+
+
+func _prompt_for(target: Node) -> String:
+	if target == null:
+		return ""
+	var prompt: Variant = target.get("prompt_text")
+	return prompt if prompt is String and not prompt.is_empty() else DEFAULT_PROMPT

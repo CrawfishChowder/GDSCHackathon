@@ -1,0 +1,198 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/stage1/breaker_box.gd" id="1_breaker"]
+
+[sub_resource type="StandardMaterial3D" id="Material_enclosure"]
+resource_name = "Breaker box painted metal"
+albedo_color = Color(0.105, 0.125, 0.14, 1)
+metallic = 0.82
+roughness = 0.42
+
+[sub_resource type="StandardMaterial3D" id="Material_frame"]
+resource_name = "Breaker box frame"
+albedo_color = Color(0.035, 0.047, 0.058, 1)
+metallic = 0.92
+roughness = 0.32
+
+[sub_resource type="StandardMaterial3D" id="Material_breaker"]
+resource_name = "Breaker switches"
+albedo_color = Color(0.19, 0.22, 0.24, 1)
+metallic = 0.38
+roughness = 0.52
+
+[sub_resource type="StandardMaterial3D" id="Material_switch"]
+resource_name = "Breaker toggle caps"
+albedo_color = Color(0.025, 0.032, 0.038, 1)
+metallic = 0.28
+roughness = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material_warning"]
+resource_name = "Electrical warning label"
+albedo_color = Color(0.72, 0.48, 0.025, 1)
+metallic = 0.15
+roughness = 0.48
+
+[sub_resource type="StandardMaterial3D" id="Material_main_switch"]
+resource_name = "Main breaker handle"
+albedo_color = Color(0.42, 0.035, 0.022, 1)
+metallic = 0.25
+roughness = 0.48
+
+[sub_resource type="BoxMesh" id="Mesh_enclosure"]
+material = SubResource("Material_enclosure")
+
+[sub_resource type="BoxMesh" id="Mesh_frame"]
+material = SubResource("Material_frame")
+
+[sub_resource type="BoxMesh" id="Mesh_breaker"]
+material = SubResource("Material_breaker")
+
+[sub_resource type="BoxMesh" id="Mesh_switch"]
+material = SubResource("Material_switch")
+
+[sub_resource type="BoxMesh" id="Mesh_warning"]
+material = SubResource("Material_warning")
+
+[sub_resource type="BoxMesh" id="Mesh_main_switch"]
+material = SubResource("Material_main_switch")
+
+[sub_resource type="BoxShape3D" id="Shape_enclosure"]
+size = Vector3(1.45, 1.85, 0.32)
+
+[node name="BreakerBox" type="Node3D"]
+script = ExtResource("1_breaker")
+
+[node name="EnclosureBody" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EnclosureBody"]
+position = Vector3(0, 0, 0.12)
+shape = SubResource("Shape_enclosure")
+
+[node name="Backplate" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, 0, 0.04)
+scale = Vector3(1.35, 1.75, 0.16)
+mesh = SubResource("Mesh_enclosure")
+
+[node name="LeftFrame" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.68, 0, 0.18)
+scale = Vector3(0.1, 1.85, 0.36)
+mesh = SubResource("Mesh_frame")
+
+[node name="RightFrame" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.68, 0, 0.18)
+scale = Vector3(0.1, 1.85, 0.36)
+mesh = SubResource("Mesh_frame")
+
+[node name="TopFrame" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, 0.88, 0.18)
+scale = Vector3(1.35, 0.1, 0.36)
+mesh = SubResource("Mesh_frame")
+
+[node name="BottomFrame" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, -0.88, 0.18)
+scale = Vector3(1.35, 0.1, 0.36)
+mesh = SubResource("Mesh_frame")
+
+[node name="InteriorPanel" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, 0, 0.145)
+scale = Vector3(1.12, 1.5, 0.04)
+mesh = SubResource("Mesh_frame")
+
+[node name="MainBreaker" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, 0.55, 0.22)
+scale = Vector3(0.46, 0.32, 0.13)
+mesh = SubResource("Mesh_main_switch")
+
+[node name="MainBreakerHandle" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0, 0.55, 0.31)
+rotation = Vector3(-0.22, 0, 0)
+scale = Vector3(0.12, 0.25, 0.09)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerLeft01" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, 0.12, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchLeft01" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, 0.12, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerRight01" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, 0.12, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchRight01" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, 0.12, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerLeft02" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, -0.18, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchLeft02" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, -0.18, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerRight02" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, -0.18, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchRight02" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, -0.18, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerLeft03" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, -0.48, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchLeft03" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(-0.28, -0.48, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="BreakerRight03" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, -0.48, 0.22)
+scale = Vector3(0.42, 0.22, 0.13)
+mesh = SubResource("Mesh_breaker")
+
+[node name="SwitchRight03" type="MeshInstance3D" parent="EnclosureBody"]
+position = Vector3(0.28, -0.48, 0.31)
+scale = Vector3(0.09, 0.14, 0.08)
+mesh = SubResource("Mesh_switch")
+
+[node name="CoverHinge" type="Node3D" parent="."]
+position = Vector3(0.675, 0, 0.39)
+
+[node name="Cover" type="MeshInstance3D" parent="CoverHinge"]
+position = Vector3(-0.675, 0, 0)
+scale = Vector3(1.35, 1.75, 0.12)
+mesh = SubResource("Mesh_enclosure")
+
+[node name="CoverInset" type="MeshInstance3D" parent="CoverHinge"]
+position = Vector3(-0.675, 0, 0.067)
+scale = Vector3(1.08, 1.48, 0.025)
+mesh = SubResource("Mesh_frame")
+
+[node name="WarningPlate" type="MeshInstance3D" parent="CoverHinge"]
+position = Vector3(-0.675, 0.12, 0.088)
+scale = Vector3(0.58, 0.52, 0.018)
+mesh = SubResource("Mesh_warning")
+
+[node name="WarningMark" type="MeshInstance3D" parent="CoverHinge"]
+position = Vector3(-0.675, 0.12, 0.102)
+scale = Vector3(0.09, 0.34, 0.015)
+mesh = SubResource("Mesh_frame")
+
+[node name="Handle" type="MeshInstance3D" parent="CoverHinge"]
+position = Vector3(-1.17, -0.46, 0.13)
+scale = Vector3(0.1, 0.3, 0.12)
+mesh = SubResource("Mesh_frame")

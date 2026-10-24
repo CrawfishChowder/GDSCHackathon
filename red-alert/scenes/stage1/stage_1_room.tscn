@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/first_person_player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/main_console.tscn" id="4_console"]
 [ext_resource type="Script" path="res://scripts/stage1/stage1_controller.gd" id="5_controller"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -36,6 +37,11 @@ transform = Transform3D(-3.6199901e-06, 0, -1, 0, 1, 0, 1, 0, -3.6199901e-06, 5.
 
 [node name="WestBulkheadDoor" parent="BulkheadDoors" instance=ExtResource("2_door")]
 transform = Transform3D(-3.6199901e-06, 0, 1, 0, 1, 0, -1, 0, -3.6199901e-06, -5.78, 0.04, 0)
+
+[node name="WallFixtures" type="Node3D" parent="."]
+
+[node name="NorthDoorBreakerBox" parent="WallFixtures" instance=ExtResource("4_breaker")]
+position = Vector3(2.8, 1.55, -4.78)
 
 [node name="MainConsole" parent="." instance=ExtResource("4_console")]
 
