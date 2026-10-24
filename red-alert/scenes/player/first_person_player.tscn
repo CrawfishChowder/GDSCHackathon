@@ -1,6 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/first_person_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/player/interactor.gd" id="2_interactor"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.35
@@ -21,3 +23,10 @@ rotation = Vector3(0, 0, 0)
 current = true
 fov = 75.0
 near = 0.05
+
+[node name="Interactor" type="RayCast3D" parent="Head/Camera3D"]
+script = ExtResource("2_interactor")
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+
+[connection signal="target_changed" from="Head/Camera3D/Interactor" to="HUD" method="set_prompt"]
