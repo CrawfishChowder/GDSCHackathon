@@ -1,8 +1,12 @@
 class_name GameOver
 extends CanvasLayer
 
-var _cause_label: Label
 var _stats_label: Label
+var _detail_label: Label
+var _incident_title_label: Label
+var _summary_label: Label
+var _lesson_label: Label
+var _crew_lost_label: Label
 var _restart_btn: Button
 var _connected: bool = false
 
@@ -12,12 +16,12 @@ func _ready() -> void:
 	layer = 20
 	visible = false
 	_build_ui()
-	_connect_malfunction_manager()
+	_connect_mission_log()
 
 
 func _process(_delta: float) -> void:
 	if not _connected:
-		_connect_malfunction_manager()
+		_connect_mission_log()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -36,7 +40,7 @@ func is_showing() -> bool:
 func _build_ui() -> void:
 	var bg := ColorRect.new()
 	bg.name = "Background"
-	bg.color = Color(0.25, 0.0, 0.0, 0.85)
+	bg.color = Color(0.12, 0.02, 0.02, 0.92)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
@@ -49,72 +53,69 @@ func _build_ui() -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.name = "VBox"
+	vbox.custom_minimum_size = Vector2(700, 0)
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 18)
+	vbox.add_theme_constant_override("separation", 10)
 	center.add_child(vbox)
 
-	var title := Label.new()
-	title.name = "TitleLabel"
-	title.text = "YOU DIED"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 56)
-	title.add_theme_color_override("font_color", Color(1.0, 0.18, 0.18))
-	vbox.add_child(title)
-
-	_cause_label = Label.new()
-	_cause_label.name = "CauseLabel"
-	_cause_label.text = "Cause: Unknown"
-	_cause_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_cause_label.add_theme_font_size_override("font_size", 22)
-	_cause_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
-	vbox.add_child(_cause_label)
-
-	_stats_label = Label.new()
-	_stats_label.name = "StatsLabel"
-	_stats_label.text = "Survived 0:00  ·  Fixes 0"
-	_stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_stats_label.add_theme_font_size_override("font_size", 18)
-	_stats_label.add_theme_color_override("font_color", Color(0.75, 0.75, 0.75))
-	vbox.add_child(_stats_label)
+	_add_label(vbox, "YOU DIED", 44, Color(1.0, 0.18, 0.18))
+	_detail_label = _add_label(vbox, "", 18, Color(1.0, 0.85, 0.85), true)
+	_stats_label = _add_label(vbox, "Survived 0:00  ·  Fixes 0", 16, Color(0.75, 0.75, 0.75))
+	_add_label(vbox, "MISSION LOG", 18, Color(0.3, 0.8, 1.0))
+	_incident_title_label = _add_label(vbox, "", 20, Color(1.0, 0.9, 0.4))
+	_summary_label = _add_label(vbox, "", 14, Color(0.9, 0.9, 0.9), true)
+	_lesson_label = _add_label(vbox, "", 14, Color(0.65, 0.65, 0.65), true)
+	_crew_lost_label = _add_label(vbox, "", 15, Color(0.85, 0.45, 0.45))
 
 	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 8)
+	spacer.custom_minimum_size = Vector2(0, 6)
 	vbox.add_child(spacer)
 
 	_restart_btn = Button.new()
 	_restart_btn.name = "RestartButton"
 	_restart_btn.text = "Restart [R]"
-	_restart_btn.custom_minimum_size = Vector2(220, 48)
-	_restart_btn.add_theme_font_size_override("font_size", 20)
+	_restart_btn.custom_minimum_size = Vector2(200, 42)
+	_restart_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_restart_btn.add_theme_font_size_override("font_size", 18)
 	_restart_btn.process_mode = PROCESS_MODE_ALWAYS
 	_restart_btn.pressed.connect(_restart)
 	vbox.add_child(_restart_btn)
 
 
-func _on_player_died(cause_id: String, display_name: String) -> void:
-	var final_name := display_name
-	if final_name.is_empty():
-		var mm := _get_mm()
-		if mm != null and mm.has_method("display_name"):
-			final_name = mm.display_name(cause_id)
-		elif not cause_id.is_empty():
-			final_name = cause_id.capitalize()
-		else:
-			final_name = "Unknown"
+func _add_label(parent: Control, text: String, size: int, color: Color, wrap: bool = false) -> Label:
+	var lbl := Label.new()
+	lbl.text = text
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", size)
+	lbl.add_theme_color_override("font_color", color)
+	if wrap:
+		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		lbl.custom_minimum_size = Vector2(700, 0)
+	parent.add_child(lbl)
+	return lbl
 
-	_cause_label.text = "Cause: %s" % final_name
 
-	var surv_mins := 0
-	var surv_secs := 0
-	var fixes := 0
-	var mm := _get_mm()
-	if mm != null:
-		var surv_total := int(mm.survived_seconds)
-		surv_mins = surv_total / 60
-		surv_secs = surv_total % 60
-		fixes = int(mm.fixes_count)
+func _on_entry_added(entry: Dictionary) -> void:
+	var detail := String(entry.get("detail", ""))
+	_detail_label.text = detail
+	_detail_label.visible = not detail.is_empty()
 
-	_stats_label.text = "Survived %d:%02d  ·  Fixes %d" % [surv_mins, surv_secs, fixes]
+	var surv := int(entry.get("survived_seconds", 0.0))
+	_stats_label.text = "Survived %d:%02d  ·  Fixes %d" % [surv / 60, surv % 60, int(entry.get("fixes", 0))]
+
+	var yr := String(entry.get("year", ""))
+	var title_str := String(entry.get("title", "")) + (" (%s)" % yr if not yr.is_empty() else "")
+	_incident_title_label.text = title_str
+	_incident_title_label.visible = not title_str.is_empty()
+
+	_summary_label.text = String(entry.get("summary", ""))
+	_summary_label.visible = not _summary_label.text.is_empty()
+	_lesson_label.text = String(entry.get("lesson", ""))
+	_lesson_label.visible = not _lesson_label.text.is_empty()
+
+	var ml := _get_mission_log()
+	var count := (ml.entries as Array).size() if ml != null and "entries" in ml else 1
+	_crew_lost_label.text = "Crew lost on this station: %d" % count
 
 	visible = true
 	get_tree().paused = true
@@ -126,16 +127,16 @@ func _restart() -> void:
 	get_tree().reload_current_scene()
 
 
-func _connect_malfunction_manager() -> void:
+func _connect_mission_log() -> void:
 	if _connected:
 		return
-	var mm := _get_mm()
-	if mm != null:
-		mm.player_died.connect(_on_player_died)
+	var ml := _get_mission_log()
+	if ml != null and ml.has_signal("entry_added"):
+		ml.entry_added.connect(_on_entry_added)
 		_connected = true
 
 
-func _get_mm() -> Node:
-	if has_node("/root/MalfunctionManager"):
-		return get_node("/root/MalfunctionManager")
+func _get_mission_log() -> Node:
+	if has_node("/root/MissionLog"):
+		return get_node("/root/MissionLog")
 	return null

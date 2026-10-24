@@ -99,6 +99,7 @@ func press_key(key: String) -> void:
 				entered = ""
 				if display_label != null:
 					display_label.text = "ERROR"
+				fail("You entered the wrong code and vented the oxygen supply.")
 		_:
 			if key.length() == 1 and key >= "0" and key <= "9":
 				if entered.length() < 5:

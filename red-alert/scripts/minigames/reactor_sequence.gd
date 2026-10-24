@@ -80,10 +80,7 @@ func press(index: int) -> void:
 			complete()
 	else:
 		accepting_input = false
-		_current_step = 0
-		if _status_label != null:
-			_status_label.text = "Wrong: watch again"
-		_replay()
+		fail("You pressed the wrong control in the sequence and pulled the core out of safe limits.")
 
 
 func _play_sequence() -> void:
@@ -108,13 +105,6 @@ func _play_sequence() -> void:
 	accepting_input = true
 	if _status_label != null:
 		_status_label.text = "Repeat the pattern"
-
-
-func _replay() -> void:
-	await get_tree().create_timer(0.6, true, false, true).timeout
-	if not is_inside_tree():
-		return
-	_play_sequence()
 
 
 func _create_style(color: Color, border: bool) -> StyleBoxFlat:

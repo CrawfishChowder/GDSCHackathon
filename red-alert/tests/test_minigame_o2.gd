@@ -1,6 +1,9 @@
 extends SceneTree
 
 var _completed_fired: bool = false
+var _fail_test_completed_fired: bool = false
+var _failed_fired: bool = false
+var _fail_reason: String = ""
 
 
 func _initialize() -> void:
@@ -10,55 +13,85 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	var keypad := keypad_scene.instantiate() as O2Keypad
+	# --- Success Path ---
+	var keypad: Node = keypad_scene.instantiate()
 	if keypad == null:
 		print("FAIL: Failed to instantiate o2_keypad scene")
 		quit(1)
 		return
 
 	root.add_child(keypad)
+	await process_frame
 
-	keypad.completed.connect(func() -> void: _completed_fired = true)
+	keypad.connect("completed", func() -> void: _completed_fired = true)
 
-	if keypad.code.length() != 5:
-		print("FAIL: Keypad code is not 5 digits: %s" % keypad.code)
+	var code: String = keypad.get("code")
+	if code.length() != 5:
+		print("FAIL: Keypad code is not 5 digits: %s" % code)
 		quit(1)
 		return
 
 	# Test CLR key functionality
-	keypad.press_key("1")
-	keypad.press_key("2")
-	keypad.press_key("CLR")
-	if not keypad.entered.is_empty():
+	keypad.call("press_key", "1")
+	keypad.call("press_key", "2")
+	keypad.call("press_key", "CLR")
+	if not String(keypad.get("entered")).is_empty():
 		print("FAIL: CLR did not clear entered buffer")
 		quit(1)
 		return
 
-	# Build a wrong code that is guaranteed to differ from keypad.code
-	var wrong_code := "00000" if keypad.code != "00000" else "11111"
-	for i in range(wrong_code.length()):
-		keypad.press_key(wrong_code[i])
-
-	keypad.press_key("ENTER")
-
-	if _completed_fired:
-		print("FAIL: Minigame completed on wrong code")
-		quit(1)
-		return
-
-	if not keypad.entered.is_empty():
-		print("FAIL: Entered buffer was not cleared on wrong code ENTER")
-		quit(1)
-		return
-
 	# Enter correct code
-	for i in range(keypad.code.length()):
-		keypad.press_key(keypad.code[i])
+	for i in range(code.length()):
+		keypad.call("press_key", code[i])
 
-	keypad.press_key("ENTER")
+	keypad.call("press_key", "ENTER")
 
 	if not _completed_fired:
 		print("FAIL: Minigame did not complete on correct code")
+		quit(1)
+		return
+
+	keypad.queue_free()
+	await process_frame
+
+	# --- Failure Path ---
+	var keypad_fail: Node = keypad_scene.instantiate()
+	if keypad_fail == null:
+		print("FAIL: Failed to instantiate second o2_keypad scene")
+		quit(1)
+		return
+
+	root.add_child(keypad_fail)
+	await process_frame
+
+	keypad_fail.connect("completed", func() -> void: _fail_test_completed_fired = true)
+	keypad_fail.connect("failed", func(reason: String) -> void:
+		_failed_fired = true
+		_fail_reason = reason
+	)
+
+	var target_code: String = keypad_fail.get("code")
+	var wrong_code := "00000" if target_code != "00000" else "11111"
+	for i in range(wrong_code.length()):
+		keypad_fail.call("press_key", wrong_code[i])
+
+	keypad_fail.call("press_key", "ENTER")
+
+	if not _failed_fired:
+		await create_timer(0.05).timeout
+
+	if not _failed_fired:
+		print("FAIL: failed signal did not fire on wrong code ENTER")
+		quit(1)
+		return
+
+	if _fail_test_completed_fired:
+		print("FAIL: completed signal fired on wrong code ENTER")
+		quit(1)
+		return
+
+	if _fail_reason.is_empty():
+		print("FAIL: failed reason was empty")
 		quit(1)
 		return
 

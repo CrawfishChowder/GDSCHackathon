@@ -43,10 +43,10 @@ func _process(_delta: float) -> void:
 	else:
 		alert_label.visible = false
 
-	var surv_total := int(mm.survived_seconds)
-	var surv_mins := surv_total / 60
-	var surv_secs := surv_total % 60
-	stats_label.text = "SURVIVED %d:%02d   FIXES %d" % [surv_mins, surv_secs, mm.fixes_count]
+	var shift_total := int(ceil(maxf(0.0, mm.shift_time_left())))
+	var shift_mins := shift_total / 60
+	var shift_secs := shift_total % 60
+	stats_label.text = "SHIFT %d:%02d LEFT   FIXES %d" % [shift_mins, shift_secs, mm.fixes_count]
 
 
 func set_prompt(text: String) -> void:
@@ -92,7 +92,7 @@ func _setup_stats_label() -> void:
 	stats_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stats_label.add_theme_font_size_override("font_size", 16)
 	stats_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-	stats_label.text = "SURVIVED 0:00   FIXES 0"
+	stats_label.text = "SHIFT 5:00 LEFT   FIXES 0"
 	add_child(stats_label)
 
 

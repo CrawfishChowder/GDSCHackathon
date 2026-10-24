@@ -6,6 +6,7 @@ extends Control
 
 signal completed
 signal cancelled
+signal failed(reason: String)
 
 
 func complete() -> void:
@@ -14,6 +15,10 @@ func complete() -> void:
 
 func cancel() -> void:
 	cancelled.emit()
+
+
+func fail(reason: String) -> void:
+	failed.emit(reason)
 
 
 ## Builds the standard centered minigame modal panel.

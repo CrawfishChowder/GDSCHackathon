@@ -1,6 +1,9 @@
 extends SceneTree
 
 var _completed_fired: bool = false
+var _fail_test_completed_fired: bool = false
+var _failed_fired: bool = false
+var _fail_reason: String = ""
 
 
 func _initialize() -> void:
@@ -10,7 +13,8 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	var minigame := scene.instantiate() as PowerSwitches
+	# --- Success Path ---
+	var minigame: Node = scene.instantiate()
 	if minigame == null:
 		print("FAIL: Failed to instantiate power switches scene")
 		quit(1)
@@ -19,18 +23,21 @@ func _initialize() -> void:
 	root.add_child(minigame)
 	await process_frame
 
-	if minigame.target.size() != 6:
+	var target: Array = minigame.get("target")
+	var switches: Array = minigame.get("switches")
+
+	if target.size() != 6:
 		print("FAIL: target size should be 6")
 		quit(1)
 		return
 
-	if minigame.switches.size() != 6:
+	if switches.size() != 6:
 		print("FAIL: switches size should be 6")
 		quit(1)
 		return
 
 	var true_count: int = 0
-	for val: bool in minigame.target:
+	for val: bool in target:
 		if val:
 			true_count += 1
 	if true_count < 2 or true_count > 4:
@@ -38,22 +45,73 @@ func _initialize() -> void:
 		quit(1)
 		return
 
-	for val: bool in minigame.switches:
+	for val: bool in switches:
 		if val:
 			print("FAIL: switches should start all false")
 			quit(1)
 			return
 
-	minigame.completed.connect(func() -> void: _completed_fired = true)
+	minigame.connect("completed", func() -> void: _completed_fired = true)
 
-	for i in range(minigame.target.size()):
-		if minigame.target[i]:
-			minigame.toggle(i)
+	for i in range(target.size()):
+		if target[i]:
+			minigame.call("toggle", i)
 
 	await create_timer(0.5).timeout
 
 	if not _completed_fired:
 		print("FAIL: completed signal did not fire")
+		quit(1)
+		return
+
+	minigame.queue_free()
+	await process_frame
+
+	# --- Failure Path ---
+	var minigame_fail: Node = scene.instantiate()
+	if minigame_fail == null:
+		print("FAIL: Failed to instantiate second power switches scene")
+		quit(1)
+		return
+
+	root.add_child(minigame_fail)
+	await process_frame
+
+	minigame_fail.connect("completed", func() -> void: _fail_test_completed_fired = true)
+	minigame_fail.connect("failed", func(reason: String) -> void:
+		_failed_fired = true
+		_fail_reason = reason
+	)
+
+	var target_fail: Array = minigame_fail.get("target")
+	var wrong_idx: int = -1
+	for i in range(target_fail.size()):
+		if not target_fail[i]:
+			wrong_idx = i
+			break
+
+	if wrong_idx == -1:
+		print("FAIL: No false switch found in target")
+		quit(1)
+		return
+
+	minigame_fail.call("toggle", wrong_idx)
+
+	if not _failed_fired:
+		await create_timer(0.05).timeout
+
+	if not _failed_fired:
+		print("FAIL: failed signal did not fire on wrong switch toggle")
+		quit(1)
+		return
+
+	if _fail_test_completed_fired:
+		print("FAIL: completed signal fired on wrong switch toggle")
+		quit(1)
+		return
+
+	if _fail_reason.is_empty():
+		print("FAIL: failed reason was empty")
 		quit(1)
 		return
 

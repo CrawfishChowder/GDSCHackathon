@@ -36,6 +36,13 @@ func open(scene: PackedScene, malfunction_id: String) -> void:
 	current.cancelled.connect(func() -> void:
 		close()
 	)
+	current.failed.connect(func(reason: String) -> void:
+		if current != null:
+			var to_free := current
+			current = null
+			to_free.queue_free()
+		MalfunctionManager.kill(malfunction_id, "mistake", reason)
+	)
 
 	var tree := get_tree()
 	if tree != null:

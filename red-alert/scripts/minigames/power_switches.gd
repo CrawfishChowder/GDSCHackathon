@@ -84,6 +84,10 @@ func toggle(i: int) -> void:
 		btn.button_pressed = switches[i]
 		btn.text = "ON" if switches[i] else "OFF"
 
+	if switches[i] != target[i]:
+		fail("You energized the wrong circuit in an oxygen-rich cabin.")
+		return
+
 	if switches == target:
 		_completed = true
 		for btn: Button in buttons:

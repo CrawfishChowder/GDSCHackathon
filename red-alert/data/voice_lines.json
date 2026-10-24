@@ -1,0 +1,74 @@
+{
+	"hal_wake": {
+		"speaker": "hal",
+		"text": "Habitat systems online. Shift duration is 300 seconds."
+	},
+	"hal_welcome_back": {
+		"speaker": "hal",
+		"text": "Warning. Previous shift records indicate unauthorized button activation."
+	},
+	"hal_alarm_reactor": {
+		"speaker": "hal",
+		"text": "Warning. Reactor core anomaly detected. Meltdown in 45 seconds."
+	},
+	"hal_alarm_power": {
+		"speaker": "hal",
+		"text": "Warning. Main electrical failure. Total blackout in 40 seconds."
+	},
+	"hal_alarm_o2": {
+		"speaker": "hal",
+		"text": "Warning. Oxygen depletion detected. Atmospheric loss in 50 seconds."
+	},
+	"hal_warning_10": {
+		"speaker": "hal",
+		"text": "Critical alert. 10 seconds remaining until catastrophic failure."
+	},
+	"hal_death": {
+		"speaker": "hal",
+		"text": "Life support terminated. Crew member deceased."
+	},
+	"hal_button_1": {
+		"speaker": "hal",
+		"text": "Notice. You have pressed the prohibited control."
+	},
+	"hal_button_2": {
+		"speaker": "hal",
+		"text": "Notice. You have pressed the prohibited control again despite explicit warnings."
+	},
+	"hal_button_3": {
+		"speaker": "hal",
+		"text": "Notice. Repeated activation of the prohibited control indicates total disregard for protocol."
+	},
+	"crew_wake": {
+		"speaker": "crew",
+		"text": "Hey, I'm Sam, stuck over in module B! I'll guide you through this shift over the radio."
+	},
+	"crew_hint_reactor": {
+		"speaker": "crew",
+		"text": "Reactor trouble! Get to the center console and match the sequence."
+	},
+	"crew_hint_power": {
+		"speaker": "crew",
+		"text": "Power is failing! Head to the breaker box beside the north door, open the cover first."
+	},
+	"crew_hint_o2": {
+		"speaker": "crew",
+		"text": "Oxygen leak! Hurry to the left console and enter the override code."
+	},
+	"crew_fixed_reactor": {
+		"speaker": "crew",
+		"text": "Reactor core stabilized! Fantastic job under pressure."
+	},
+	"crew_fixed_power": {
+		"speaker": "crew",
+		"text": "Power grid restored! Nice work resetting those breakers."
+	},
+	"crew_fixed_o2": {
+		"speaker": "crew",
+		"text": "Oxygen pressure normalized! Good breathing room again."
+	},
+	"crew_shift_done": {
+		"speaker": "crew",
+		"text": "Shift complete! You kept us alive for the whole five minutes, excellent work!"
+	}
+}

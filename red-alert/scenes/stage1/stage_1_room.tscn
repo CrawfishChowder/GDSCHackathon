@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/stage1/stage1_controller.gd" id="5_controller"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
 [ext_resource type="Script" path="res://scripts/stage1/alarm_controller.gd" id="6_alarm"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/do_not_press_button.tscn" id="7_button"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -43,6 +44,9 @@ transform = Transform3D(-3.6199901e-06, 0, 1, 0, 1, 0, -1, 0, -3.6199901e-06, -5
 
 [node name="NorthDoorBreakerBox" parent="WallFixtures" instance=ExtResource("4_breaker")]
 position = Vector3(2.8, 1.55, -4.78)
+
+[node name="DoNotPressButton" parent="WallFixtures" instance=ExtResource("7_button")]
+position = Vector3(4.8, 0, 3.8)
 
 [node name="MainConsole" parent="." instance=ExtResource("4_console")]
 

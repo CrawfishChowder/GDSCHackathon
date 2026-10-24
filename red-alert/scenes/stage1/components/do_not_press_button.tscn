@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/stage1/do_not_press_button.gd" id="1_button"]
+
+[node name="DoNotPressButton" type="Node3D"]
+script = ExtResource("1_button")
