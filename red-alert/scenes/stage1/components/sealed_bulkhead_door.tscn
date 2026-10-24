@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=20 format=3]
 
 [sub_resource type="StandardMaterial3D" id="Material_door"]
 resource_name = "Bulkhead door metal"
@@ -26,6 +26,15 @@ roughness = 0.28
 emission_enabled = true
 emission = Color(0.9, 0.025, 0.012, 1)
 emission_energy_multiplier = 2.4
+
+[sub_resource type="StandardMaterial3D" id="Material_monitor_screen"]
+resource_name = "Bulkhead access monitor display"
+albedo_color = Color(0.012, 0.11, 0.14, 1)
+metallic = 0.08
+roughness = 0.18
+emission_enabled = true
+emission = Color(0.025, 0.58, 0.72, 1)
+emission_energy_multiplier = 2.1
 
 [sub_resource type="BoxMesh" id="Mesh_door"]
 material = SubResource("Material_door")
@@ -58,6 +67,22 @@ size = Vector3(4, 0.16, 0.46)
 [sub_resource type="BoxMesh" id="Mesh_status"]
 material = SubResource("Material_status")
 size = Vector3(0.28, 0.08, 0.05)
+
+[sub_resource type="BoxMesh" id="Mesh_monitor_mount"]
+material = SubResource("Material_inset")
+size = Vector3(0.72, 0.16, 0.28)
+
+[sub_resource type="BoxMesh" id="Mesh_monitor_frame"]
+material = SubResource("Material_frame")
+size = Vector3(1.35, 0.95, 0.16)
+
+[sub_resource type="BoxMesh" id="Mesh_monitor_screen"]
+material = SubResource("Material_monitor_screen")
+size = Vector3(1.1, 0.68, 0.035)
+
+[sub_resource type="BoxMesh" id="Mesh_monitor_status"]
+material = SubResource("Material_status")
+size = Vector3(0.32, 0.055, 0.035)
 
 [sub_resource type="BoxShape3D" id="Shape_door"]
 size = Vector3(4, 2.8, 0.4)
@@ -113,3 +138,21 @@ mesh = SubResource("Mesh_brace")
 [node name="SealedIndicator" type="MeshInstance3D" parent="."]
 position = Vector3(1.42, 2.67, 0.22)
 mesh = SubResource("Mesh_status")
+
+[node name="LeftAccessMonitor" type="Node3D" parent="."]
+
+[node name="WallMount" type="MeshInstance3D" parent="LeftAccessMonitor"]
+position = Vector3(-2.8, 1.62, 0.03)
+mesh = SubResource("Mesh_monitor_mount")
+
+[node name="Frame" type="MeshInstance3D" parent="LeftAccessMonitor"]
+position = Vector3(-2.8, 1.62, 0.16)
+mesh = SubResource("Mesh_monitor_frame")
+
+[node name="Screen" type="MeshInstance3D" parent="LeftAccessMonitor"]
+position = Vector3(-2.8, 1.64, 0.258)
+mesh = SubResource("Mesh_monitor_screen")
+
+[node name="StatusStrip" type="MeshInstance3D" parent="LeftAccessMonitor"]
+position = Vector3(-2.8, 1.19, 0.258)
+mesh = SubResource("Mesh_monitor_status")

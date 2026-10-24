@@ -16,6 +16,7 @@ extends CharacterBody3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
+@onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _target_yaw: float = 0.0
@@ -50,6 +51,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_mouse_look_active(not _mouse_look_active)
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("interact"):
+		_try_interact()
+		get_viewport().set_input_as_handled()
+		return
 
 	if event is InputEventMouseMotion and _mouse_look_active:
 		if _mouse_look_mode == MouseLookMode.CAPTURED:
@@ -74,6 +79,15 @@ func _process(delta: float) -> void:
 	var smoothing_weight := 1.0 - exp(-look_smoothing * delta)
 	rotation.y = lerp_angle(rotation.y, _target_yaw, smoothing_weight)
 	head.rotation.x = lerp_angle(head.rotation.x, _target_pitch, smoothing_weight)
+
+
+func _try_interact() -> void:
+	var interaction_target := interaction_ray.get_collider() as Node
+	while interaction_target:
+		if interaction_target.has_method("interact"):
+			interaction_target.interact(self)
+			return
+		interaction_target = interaction_target.get_parent()
 
 
 func _apply_captured_mouse_motion(event: InputEventMouseMotion) -> void:
