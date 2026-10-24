@@ -1,7 +1,7 @@
 # GDSCHackathon
-Team TBD
-Calvin Gavin
-Gerald Lê
-Scott Sonnier
-Eddie Summitt
-Brandon Braswell
+| Team TBD |
+Calvin Gavin |
+Gerald Lê |
+Scott Sonnier |
+Eddie Summitt |
+Brandon Braswell |
