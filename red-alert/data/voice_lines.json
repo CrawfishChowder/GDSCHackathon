@@ -27,6 +27,10 @@
 		"speaker": "hal",
 		"text": "Life support terminated. Crew member deceased."
 	},
+	"hal_flare_hit": {
+		"speaker": "hal",
+		"text": "Solar particle event in progress. Radiation has disrupted the power grid."
+	},
 	"hal_button_1": {
 		"speaker": "hal",
 		"text": "Notice. You have pressed the prohibited control."

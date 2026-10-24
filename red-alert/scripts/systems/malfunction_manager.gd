@@ -84,7 +84,11 @@ func trigger(id: String) -> void:
 		return
 	active_id = id
 	var info: Dictionary = MALFUNCTIONS[id]
-	time_left = float(info["time_limit"])
+	var limit: float = float(info["time_limit"])
+	var sw: Node = get_node_or_null("/root/SpaceWeather") if is_inside_tree() else null
+	if sw != null and sw.has_method("difficulty_multiplier"):
+		limit *= float(sw.difficulty_multiplier())
+	time_left = limit
 	malfunction_started.emit(id, String(info["name"]), time_left)
 
 

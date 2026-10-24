@@ -8,7 +8,7 @@ var caption_panel: PanelContainer
 var caption_label: Label
 
 var _audio_player: AudioStreamPlayer
-var _queue: Array[String] = []
+var _queue: Array[Dictionary] = []
 var _is_playing: bool = false
 var _play_token: int = 0
 var _warning_10_fired: bool = false
@@ -36,11 +36,15 @@ func _process(_delta: float) -> void:
 
 # Queue a line from data/voice_lines.json. Unknown ids are ignored.
 func say(line_id: String) -> void:
-	if not lines.has(line_id):
-		return
-	_queue.append(line_id)
-	if not _is_playing:
-		_play_next()
+	if not lines.has(line_id): return
+	var data: Dictionary = lines.get(line_id, {})
+	_queue.append({"id": line_id, "speaker": String(data.get("speaker", "hal")), "text": String(data.get("text", ""))})
+	if not _is_playing: _play_next()
+
+func say_text(speaker: String, text: String) -> void:
+	if text.is_empty(): return
+	_queue.append({"id": "", "speaker": speaker, "text": text})
+	if not _is_playing: _play_next()
 
 func is_speaking() -> bool:
 	return _is_playing or not _queue.is_empty()
@@ -117,10 +121,9 @@ func _play_next() -> void:
 		return
 	_is_playing = true
 	var token := _play_token
-	var id: String = _queue.pop_front()
-	var data: Dictionary = lines.get(id, {})
-	var speaker: String = String(data.get("speaker", "hal"))
-	var text: String = String(data.get("text", ""))
+	var item: Dictionary = _queue.pop_front()
+	var id: String = String(item.get("id", "")); var speaker: String = String(item.get("speaker", "hal"))
+	var text: String = String(item.get("text", ""))
 
 	caption_label.text = ("HAL: " if speaker == "hal" else "SAM (radio): ") + text
 	var color := Color(0.55, 0.85, 1.0) if speaker == "hal" else Color(1.0, 0.8, 0.45)
@@ -128,16 +131,18 @@ func _play_next() -> void:
 	caption_panel.visible = true
 
 	var wait_sec := 1.2 + 0.06 * float(text.length())
-	var mp3 := "res://assets/voice/%s.mp3" % id
-	if ResourceLoader.exists(mp3):
-		var stream := load(mp3) as AudioStream
-		if stream != null:
-			_audio_player.stream = stream
-			_audio_player.play()
-			await _audio_player.finished
-		else:
-			await get_tree().create_timer(wait_sec, true).timeout
-	else:
+	var played_audio := false
+	if id != "":
+		var mp3 := "res://assets/voice/%s.mp3" % id
+		if ResourceLoader.exists(mp3):
+			var stream := load(mp3) as AudioStream
+			if stream != null:
+				played_audio = true
+				_audio_player.stream = stream
+				_audio_player.play()
+				await _audio_player.finished
+
+	if not played_audio:
 		await get_tree().create_timer(wait_sec, true).timeout
 
 	if token == _play_token:

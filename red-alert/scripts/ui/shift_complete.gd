@@ -9,6 +9,7 @@ const COMPARISONS := [
 
 var _summary_label: Label
 var _o2_label: Label
+var _people_label: Label
 var _lost_label: Label
 var _restart_btn: Button
 var _connected: bool = false
@@ -65,6 +66,9 @@ func _build_ui() -> void:
 	_o2_label = _create_label("You breathed about 0.0 g of oxygen. NASA plans for about 0.82 kg per crew member per day.", 16, Color(0.75, 0.85, 0.9))
 	vbox.add_child(_o2_label)
 
+	_people_label = _create_label("", 16, Color(0.75, 0.75, 0.75))
+	vbox.add_child(_people_label)
+
 	vbox.add_child(_create_label("HOW REAL CREWS COMPARE", 22, Color(0.6, 0.9, 1.0)))
 	for fact in COMPARISONS:
 		vbox.add_child(_create_label(fact, 15, Color(0.8, 0.8, 0.8)))
@@ -116,6 +120,10 @@ func _update_stats() -> void:
 	var grams: float = 820.0 * surv_secs_float / 86400.0
 	_o2_label.text = "You breathed about %.1f g of oxygen. NASA plans for about 0.82 kg per crew member per day." % grams
 
+	var pis: Node = get_node_or_null("/root/PeopleInSpace")
+	if pis != null:
+		_people_label.text = pis.summary_line()
+
 	var lost_count := 0
 	var mlog := _get_mission_log()
 	if mlog != null and "entries" in mlog:
@@ -127,7 +135,6 @@ func _restart() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
-
 func _connect_malfunction_manager() -> void:
 	if _connected:
 		return
@@ -136,10 +143,8 @@ func _connect_malfunction_manager() -> void:
 		mm.shift_completed.connect(_on_shift_completed)
 		_connected = true
 
-
 func _get_mm() -> Node:
 	return get_node_or_null("/root/MalfunctionManager")
-
 
 func _get_mission_log() -> Node:
 	return get_node_or_null("/root/MissionLog")

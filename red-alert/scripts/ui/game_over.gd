@@ -2,6 +2,7 @@ class_name GameOver
 extends CanvasLayer
 
 var _stats_label: Label
+var _people_label: Label
 var _detail_label: Label
 var _incident_title_label: Label
 var _summary_label: Label
@@ -61,6 +62,7 @@ func _build_ui() -> void:
 	_add_label(vbox, "YOU DIED", 44, Color(1.0, 0.18, 0.18))
 	_detail_label = _add_label(vbox, "", 18, Color(1.0, 0.85, 0.85), true)
 	_stats_label = _add_label(vbox, "Survived 0:00  ·  Fixes 0", 16, Color(0.75, 0.75, 0.75))
+	_people_label = _add_label(vbox, "", 16, Color(0.75, 0.75, 0.75), true)
 	_add_label(vbox, "MISSION LOG", 18, Color(0.3, 0.8, 1.0))
 	_incident_title_label = _add_label(vbox, "", 20, Color(1.0, 0.9, 0.4))
 	_summary_label = _add_label(vbox, "", 14, Color(0.9, 0.9, 0.9), true)
@@ -102,6 +104,10 @@ func _on_entry_added(entry: Dictionary) -> void:
 
 	var surv := int(entry.get("survived_seconds", 0.0))
 	_stats_label.text = "Survived %d:%02d  ·  Fixes %d" % [surv / 60, surv % 60, int(entry.get("fixes", 0))]
+
+	var pis: Node = get_node_or_null("/root/PeopleInSpace")
+	if pis != null:
+		_people_label.text = pis.summary_line()
 
 	var yr := String(entry.get("year", ""))
 	var title_str := String(entry.get("title", "")) + (" (%s)" % yr if not yr.is_empty() else "")
