@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://4qvr2hc8f2k0"]
+
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/industrial_room_shell.tscn" id="1_shell"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/sealed_bulkhead_door.tscn" id="2_door"]
+[ext_resource type="PackedScene" path="res://scenes/player/first_person_player.tscn" id="3_player"]
+
+[sub_resource type="Environment" id="Environment_stage1"]
+background_mode = 1
+background_color = Color(0.004, 0.007, 0.012, 1)
+background_energy_multiplier = 0.5
+ambient_light_source = 3
+ambient_light_color = Color(0.44, 0.5, 0.56, 1)
+ambient_light_energy = 1.4
+reflected_light_source = 2
+tonemap_mode = 2
+
+[node name="Stage1IndustrialRoom" type="Node3D" unique_id=1576666426]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1478731389]
+environment = SubResource("Environment_stage1")
+
+[node name="Architecture" type="Node3D" parent="." unique_id=184199953]
+
+[node name="IndustrialRoomShell" parent="Architecture" unique_id=1657129037 instance=ExtResource("1_shell")]
+
+[node name="BulkheadDoors" type="Node3D" parent="." unique_id=2141006145]
+
+[node name="NorthBulkheadDoor" parent="BulkheadDoors" unique_id=1997556052 instance=ExtResource("2_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, -4.78)
+
+[node name="EastBulkheadDoor" parent="BulkheadDoors" unique_id=60606277 instance=ExtResource("2_door")]
+transform = Transform3D(-3.6199901e-06, 0, -1, 0, 1, 0, 1, 0, -3.6199901e-06, 5.78, 0.04, 0)
+
+[node name="WestBulkheadDoor" parent="BulkheadDoors" instance=ExtResource("2_door")]
+transform = Transform3D(-3.6199901e-06, 0, 1, 0, 1, 0, -1, 0, -3.6199901e-06, -5.78, 0.04, 0)
+
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=1809252709]
+
+[node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=1109936878]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 3.2)
+
+[node name="FirstPersonPlayer" parent="." unique_id=1815492691 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 3.2)
