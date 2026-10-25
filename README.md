@@ -5,8 +5,8 @@ A first-person survival game in a habitat module. Over one five-minute shift, li
 - [Gerald Lê](https://github.com/g34rmeister)
 - [Brandon Braswell](https://github.com/brandonBraswell)
 - [Eddie Summitt](https://github.com/EdwardSummitt)
-- Calvin Gavin (GitHub link: TODO)
-- Scott Sonnier (GitHub link: TODO)
+- [Calvin Gavin](https://github.com/CrawfishChowder)
+- [Scott Sonnier](https://github.com/scotty2hottyy)
 
 ## About
 **What we built.** Red Alert is a Godot 4.7 game, in GDScript. You keep a habitat alive through one shift while its systems break. Each crisis is fixed at its own station:
@@ -41,7 +41,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Sound:** recorded effects from the Sonniss GDC bundle (credited), a 3D alarm ping at the broken station, room reverb, and Sam on a filtered radio channel.
 - **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle and a **Performance mode** for slow laptops (suggested automatically below 55 FPS), hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, PS5 DualSense controller support, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
 - **Replay value:** six achievements, an A–F shift grade with best saved, a mission log of every crew member lost, and a shift timeline on the end screens.
-- **Tests:** 69 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
+- **Tests:** 70 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
 
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*
@@ -112,7 +112,7 @@ There are no other dependencies to install; Godot runs the project directly.
 
 **PS Vita (optional):** the `vita-controller/` app sends sticks and buttons to the game over UDP port 27300 and shows live ship telemetry. Both devices must be on the same network, and the port must be allowed through the firewall. Protocol: [`red-alert/docs/vita_controller_protocol.md`](red-alert/docs/vita_controller_protocol.md).
 
-**PS5 DualSense / gamepad:** left stick or D-pad to move, right stick to look, Cross or R2 to interact, Square to jump, Triangle to breathe, Options to pause, Circle to go back. Menus and minigames can be navigated with the D-pad.
+**PS5 DualSense / gamepad:** left stick or D-pad to move, right stick to look, Cross or R2 to interact, Square to jump, Triangle to breathe, Options to pause, Circle to go back. Menus and minigames can be navigated with the D-pad. The controller rumbles on alarms, mistakes and death, and thumps with your heartbeat above 120 BPM.
 
 **Demo keys (for judges)**
 | Key | Action |

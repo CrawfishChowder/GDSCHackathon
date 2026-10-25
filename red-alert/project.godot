@@ -31,6 +31,7 @@ Sfx="*res://scripts/systems/sfx.gd"
 Achievements="*res://scripts/systems/achievements.gd"
 SpaceWeather="*res://scripts/systems/space_weather.gd"
 PeopleInSpace="*res://scripts/systems/people_in_space.gd"
+Haptics="*res://scripts/systems/haptics.gd"
 
 [display]
 

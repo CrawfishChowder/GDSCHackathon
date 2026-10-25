@@ -19,6 +19,7 @@ All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_
 | `Sfx` | `scripts/systems/sfx.gd` | Sound library (`assets/sfx/*.ogg` + procedural), SFX/Voice/Radio buses, heartbeat, footsteps. |
 | `ControllerSupport` | `scripts/systems/controller_support.gd` | Scott: adds DualSense/gamepad bindings to the input map; `focus_buttons(root, grab_first)` makes menus and minigames navigable by D-pad. |
 | `VitaBridge` | `scripts/systems/vita_bridge.gd` | Brandon: UDP port 27300. Receives PS Vita stick/button JSON (pressed as input actions, released after 1.5 s of silence) and sends back ship telemetry 4×/s. |
+| `Haptics` | `scripts/systems/haptics.gd` | Controller rumble from manager signals (alarm, mistake, fix, death) and heartbeat thumps above 120 BPM; no-op without a controller. Loaded last. |
 | `Achievements` | `scripts/systems/achievements.gd` | Six achievements, toasts, persisted in SaveData. |
 
 Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame or end screen pauses the tree.
