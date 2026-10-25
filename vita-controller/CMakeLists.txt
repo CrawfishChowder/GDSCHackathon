@@ -12,6 +12,7 @@ set(VITA_TITLE_ID "VITACTRL1" CACHE STRING "Vita application title ID")
 
 add_executable(vita_lan_controller
 	src/main.c
+	src/host_config.c
 	src/protocol.c
 )
 
@@ -28,6 +29,7 @@ target_link_libraries(vita_lan_controller
 	ScePgf_stub
 	ScePvf_stub
 	SceSysmodule_stub
+	SceIofilemgr_stub
 	SceCommonDialog_stub
 	SceAppMgr_stub
 	freetype

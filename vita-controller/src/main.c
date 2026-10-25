@@ -1,4 +1,5 @@
 #include <psp2/ctrl.h>
+#include <psp2/io/fcntl.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
@@ -6,6 +7,7 @@
 #include <vita2d.h>
 
 #include "protocol.h"
+#include "host_config.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -19,6 +21,7 @@
 #define SEND_INTERVAL_USEC 33333
 #define DEADZONE 0.18f
 #define NET_MEMORY_SIZE (1024 * 1024)
+#define HOST_CONFIG_PATH "ux0:data/VitaLANControllerHost.txt"
 
 static unsigned char net_memory[NET_MEMORY_SIZE];
 static vita2d_pgf *status_font;
@@ -27,12 +30,12 @@ static int net_state = -1;
 static int last_send_result = -1;
 static int last_send_error = 0;
 
-static void draw_status(bool connected) {
+static void draw_status(bool connected, const char *host_ip) {
 	vita2d_start_drawing();
 	vita2d_clear_screen();
 	if (status_font != NULL) {
 		vita2d_pgf_draw_textf(status_font, 48, 64, RGBA8(238, 242, 236, 255), 1.0f, "VITA LAN CONTROLLER");
-		vita2d_pgf_draw_textf(status_font, 48, 112, RGBA8(150, 166, 170, 255), 1.0f, "PC: %s:%d", VITA_HOST_IP, GAME_PORT);
+		vita2d_pgf_draw_textf(status_font, 48, 112, RGBA8(150, 166, 170, 255), 1.0f, "PC: %s:%d", host_ip, GAME_PORT);
 		vita2d_pgf_draw_textf(status_font, 48, 148, RGBA8(150, 166, 170, 255), 1.0f, "VITA IP: %s  WIFI STATE: %d", vita_ip, net_state);
 		vita2d_pgf_draw_textf(status_font, 48, 188, connected ? RGBA8(92, 224, 162, 255) : RGBA8(242, 174, 86, 255), 1.0f, "STATUS: %s", connected ? "CONNECTED" : "WAITING FOR GAME");
 		if (last_send_result < 0) {
@@ -48,6 +51,106 @@ static void draw_status(bool connected) {
 	}
 	vita2d_end_drawing();
 	vita2d_swap_buffers();
+}
+
+static void load_host_ip(char *host_ip) {
+	unsigned int octets[4];
+	snprintf(host_ip, 16, "%s", VITA_HOST_IP);
+	int file = sceIoOpen(HOST_CONFIG_PATH, SCE_O_RDONLY, 0);
+	if (file < 0) {
+		return;
+	}
+	char saved_ip[32];
+	int length = sceIoRead(file, saved_ip, sizeof(saved_ip) - 1);
+	sceIoClose(file);
+	if (length <= 0) {
+		return;
+	}
+	saved_ip[length] = '\0';
+	while (length > 0 && (saved_ip[length - 1] == '\n' || saved_ip[length - 1] == '\r')) {
+		saved_ip[--length] = '\0';
+	}
+	if (host_config_parse_ipv4(saved_ip, octets)) {
+		host_config_format_ipv4(octets, host_ip, 16);
+	}
+}
+
+static bool save_host_ip(const char *host_ip) {
+	int file = sceIoOpen(HOST_CONFIG_PATH, SCE_O_WRONLY | SCE_O_CREAT | SCE_O_TRUNC, 0666);
+	if (file < 0) {
+		return false;
+	}
+	size_t length = strlen(host_ip);
+	int written = sceIoWrite(file, host_ip, length);
+	int close_result = sceIoClose(file);
+	return written == (int)length && close_result >= 0;
+}
+
+static void draw_host_setup(const unsigned int octets[4], unsigned int selected, bool save_failed) {
+	static const int positions[4] = {96, 252, 408, 564};
+	vita2d_start_drawing();
+	vita2d_clear_screen();
+	if (status_font != NULL) {
+		vita2d_pgf_draw_text(status_font, 48, 64, RGBA8(238, 242, 236, 255), 1.0f, "CONNECT TO GAME HOST");
+		vita2d_pgf_draw_text(status_font, 48, 112, RGBA8(208, 216, 211, 255), 1.0f, "Select the laptop's IPv4 address:");
+		for (unsigned int index = 0; index < 4; index++) {
+			uint32_t color = index == selected ? RGBA8(255, 208, 112, 255) : RGBA8(238, 242, 236, 255);
+			vita2d_pgf_draw_textf(status_font, positions[index], 220, color, 1.4f, "%u", octets[index]);
+			if (index < 3) {
+				vita2d_pgf_draw_text(status_font, positions[index] + 108, 220, RGBA8(150, 166, 170, 255), 1.4f, ".");
+			}
+		}
+		vita2d_pgf_draw_text(status_font, 48, 316, RGBA8(208, 216, 211, 255), 1.0f, "LEFT / RIGHT  Select address part");
+		vita2d_pgf_draw_text(status_font, 48, 352, RGBA8(208, 216, 211, 255), 1.0f, "UP / DOWN  Adjust by 1    L / R  Adjust by 10");
+		vita2d_pgf_draw_text(status_font, 48, 388, RGBA8(208, 216, 211, 255), 1.0f, "SQUARE  Restore default    CROSS  Save and connect");
+		if (save_failed) {
+			vita2d_pgf_draw_text(status_font, 48, 436, RGBA8(242, 128, 116, 255), 1.0f, "Could not save. CIRCLE connects for this session only.");
+		}
+	}
+	vita2d_end_drawing();
+	vita2d_swap_buffers();
+}
+
+static void configure_host_ip(char *host_ip) {
+	unsigned int octets[4];
+	host_config_parse_ipv4(host_ip, octets);
+	unsigned int selected = 0;
+	unsigned int previous_buttons = 0;
+	bool save_failed = false;
+	while (true) {
+		draw_host_setup(octets, selected, save_failed);
+		SceCtrlData controller;
+		memset(&controller, 0, sizeof(controller));
+		sceCtrlPeekBufferPositive(0, &controller, 1);
+		unsigned int pressed = controller.buttons & ~previous_buttons;
+		if (pressed & SCE_CTRL_LEFT) {
+			selected = selected == 0 ? 3 : selected - 1;
+		} else if (pressed & SCE_CTRL_RIGHT) {
+			selected = (selected + 1) % 4;
+		} else if (pressed & SCE_CTRL_UP) {
+			host_config_adjust_octet(octets, selected, 1);
+		} else if (pressed & SCE_CTRL_DOWN) {
+			host_config_adjust_octet(octets, selected, -1);
+		} else if (pressed & SCE_CTRL_LTRIGGER) {
+			host_config_adjust_octet(octets, selected, 10);
+		} else if (pressed & SCE_CTRL_RTRIGGER) {
+			host_config_adjust_octet(octets, selected, -10);
+		} else if (pressed & SCE_CTRL_SQUARE) {
+			host_config_parse_ipv4(VITA_HOST_IP, octets);
+			save_failed = false;
+		} else if (pressed & SCE_CTRL_CROSS) {
+			host_config_format_ipv4(octets, host_ip, 16);
+			if (save_host_ip(host_ip)) {
+				return;
+			}
+			save_failed = true;
+		} else if (save_failed && (pressed & SCE_CTRL_CIRCLE)) {
+			host_config_format_ipv4(octets, host_ip, 16);
+			return;
+		}
+		previous_buttons = controller.buttons;
+		sceKernelDelayThread(50000);
+	}
 }
 
 static int initialize_network(void) {
@@ -66,12 +169,12 @@ static int initialize_network(void) {
 	return sceNetCtlInit();
 }
 
-static int create_game_socket(SceNetSockaddrIn *destination) {
+static int create_game_socket(SceNetSockaddrIn *destination, const char *host_ip) {
 	memset(destination, 0, sizeof(*destination));
 	destination->sin_len = sizeof(*destination);
 	destination->sin_family = SCE_NET_AF_INET;
 	destination->sin_port = sceNetHtons(GAME_PORT);
-	if (sceNetInetPton(SCE_NET_AF_INET, VITA_HOST_IP, &destination->sin_addr) != 1) {
+	if (sceNetInetPton(SCE_NET_AF_INET, host_ip, &destination->sin_addr) != 1) {
 		return -1;
 	}
 	int socket = sceNetSocket("vita-controller", SCE_NET_AF_INET, SCE_NET_SOCK_DGRAM, 0);
@@ -119,20 +222,23 @@ static int send_json(int socket, const SceNetSockaddrIn *destination, const char
 int main(void) {
 	vita2d_init();
 	status_font = vita2d_load_default_pgf();
-	draw_status(false);
+	char host_ip[16];
+	load_host_ip(host_ip);
+	sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
+	configure_host_ip(host_ip);
+	draw_status(false, host_ip);
 
 	int result = initialize_network();
 	if (result < 0) {
-		draw_status(false);
+		draw_status(false, host_ip);
 		sceKernelDelayThread(5 * 1000 * 1000);
 		return 1;
 	}
 
-	sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
 	SceNetSockaddrIn destination;
-	int socket = create_game_socket(&destination);
+	int socket = create_game_socket(&destination, host_ip);
 	if (socket < 0) {
-		draw_status(false);
+		draw_status(false, host_ip);
 		sceKernelDelayThread(5 * 1000 * 1000);
 		return 1;
 	}
@@ -193,7 +299,7 @@ int main(void) {
 
 		if (now_ms - last_status_ms >= 500) {
 			last_status_ms = now_ms;
-			draw_status(connected);
+			draw_status(connected, host_ip);
 		}
 		sceKernelDelayThread(SEND_INTERVAL_USEC);
 	}

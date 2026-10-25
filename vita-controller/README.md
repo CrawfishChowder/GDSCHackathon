@@ -35,11 +35,14 @@ cmake -S . -B build \
 cmake --build build --parallel
 ```
 
-The host address is compiled into this POC. If the laptop uses another hotspot
-address, pass that address as `-DVITA_HOST_IP=<address>` and rebuild. The game
-must be running on the laptop and inbound UDP port `27300` must be allowed
-through its firewall. The Vita and laptop must
-be connected to the same local network; internet access and school SSO are not
+On first launch, use left/right to select an address part, up/down to adjust it,
+and L/R to adjust by ten. Cross saves the laptop address on the Vita and starts
+the controller. The saved address is reused on later launches, so changing
+networks does not require rebuilding the VPK. Square restores the build default.
+The build-time `-DVITA_HOST_IP=<address>` remains the default and is used if no
+saved address exists. The game must be running on the laptop and inbound UDP
+port `27300` must be allowed through its firewall. The Vita and laptop must be
+connected to the same local network; internet access and school SSO are not
 used by this controller protocol.
 
 The VPK is written to `build/vita_lan_controller.vpk`. Use VitaShell's built-in
