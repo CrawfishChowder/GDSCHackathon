@@ -48,6 +48,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Open Notify** (`api.open-notify.org`): the number and names of people in space right now. *External API #2.*
 - **ElevenLabs** (sponsor): text-to-speech for the HAL and Sam voice lines, generated from lines the team wrote, via `tools/generate_voices.py`.
 - **Godot Engine 4.7:** the game engine.
+- **Sonniss GDC 2015 Game Audio Bundle:** 13 royalty-free recorded sound effects, trimmed and converted by us. Sources are listed in [`red-alert/assets/sfx/CREDITS.md`](red-alert/assets/sfx/CREDITS.md).
 - **NASA life-support planning figures:** about 0.84 kg of oxygen and about 1 kg of CO2 per crew member per day.
 - **Historical facts:** summarized in our own words from public NASA and historical records.
 
@@ -59,7 +60,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 
 The team designed the game, wrote the briefs, and reviewed and tested every change. Each member owns and can explain specific systems (see [`docs/QA_SHEET.md`](docs/QA_SHEET.md)). AI-authored commits are labeled in the git history. No external source code was given to the AI tools as reference.
 
-No AI-generated images or video are used. All 3D geometry, UI and signage were built by the team from Godot primitives, and the sound effects are generated procedurally.
+No AI-generated images or video are used. All 3D geometry, UI and signage were built by the team from Godot primitives. Sound effects are recorded effects from the Sonniss GDC bundle (credited below) plus alarm, hum and heartbeat sounds generated in code.
 
 ![Godot](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)
 ![GDScript](https://img.shields.io/badge/GDScript-typed-355570)
