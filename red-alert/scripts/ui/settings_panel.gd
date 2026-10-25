@@ -15,6 +15,7 @@ var _voice_slider: HSlider
 var _voice_val_label: Label
 var _captions_btn: CheckButton
 var _contrast_btn: CheckButton
+var _perf_btn: CheckButton
 var _shadows_btn: CheckButton
 var _hide_hud_btn: CheckButton
 var _fullscreen_btn: CheckButton
@@ -54,6 +55,7 @@ func _build_ui() -> void:
 	_add_slider("voice_volume", "Voice volume", _voice_slider, _voice_val_label, 0.0, 1.0, 0.01, true)
 	_captions_btn = _add_check("captions", "Captions")
 	_contrast_btn = _add_check("high_contrast", "High contrast")
+	_perf_btn = _add_check("performance_mode", "Performance mode (slow laptops / remote desktop)")
 	_shadows_btn = _add_check("shadows", "Shadows (turn off on slow machines)")
 	_hide_hud_btn = _add_check("hide_hud", "Hide HUD (for screenshots)")
 	_fullscreen_btn = _add_check("fullscreen", "Fullscreen (F11)")
@@ -117,6 +119,7 @@ func _load_values() -> void:
 	_voice_slider.value = voice; _voice_val_label.text = "%d%%" % roundi(voice * 100.0)
 	_captions_btn.button_pressed = bool(_get_setting_val("captions", true))
 	_contrast_btn.button_pressed = bool(_get_setting_val("high_contrast", false))
+	_perf_btn.button_pressed = bool(_get_setting_val("performance_mode", false))
 	_shadows_btn.button_pressed = bool(_get_setting_val("shadows", true))
 	_hide_hud_btn.button_pressed = bool(_get_setting_val("hide_hud", false))
 	_fullscreen_btn.button_pressed = bool(_get_setting_val("fullscreen", false))

@@ -69,18 +69,29 @@ const MONITOR_DEFINITIONS: Array[Dictionary] = [
 var _slots: Dictionary = {}
 var _connected_owner_ids: Dictionary = {}
 var _refresh_accumulator: float = 0.0
+var _performance_mode: bool = false
 
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_initialize_monitors()
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null:
+		if s.has_method("get_setting"):
+			_performance_mode = bool(s.get_setting("performance_mode"))
+		if s.has_signal("settings_changed"):
+			s.connect("settings_changed", func(key: String, value: Variant) -> void:
+				if key == "performance_mode":
+					_performance_mode = bool(value)
+			)
 
 
 func _process(delta: float) -> void:
 	_refresh_accumulator += delta
-	if _refresh_accumulator < 1.0 / monitor_refresh_rate:
+	var target_interval: float = 1.0 / 15.0 if _performance_mode else 1.0 / float(monitor_refresh_rate)
+	if _refresh_accumulator < target_interval:
 		return
-	_refresh_accumulator = fmod(_refresh_accumulator, 1.0 / monitor_refresh_rate)
+	_refresh_accumulator = fmod(_refresh_accumulator, target_interval)
 	for slot: Dictionary in _slots.values():
 		(slot["viewport"] as SubViewport).render_target_update_mode = (
 			SubViewport.UPDATE_ONCE
@@ -189,6 +200,7 @@ func _initialize_monitors() -> void:
 			continue
 
 		var resolution := _resolution_for_surface(surface)
+		resolution = Vector2i(mini(resolution.x, 512), mini(resolution.y, 288))
 		var viewport := SubViewport.new()
 		viewport.name = "%sViewport" % _pascal_case(String(monitor_id))
 		viewport.size = resolution

@@ -14,6 +14,9 @@ func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_setup_audio()
 	_setup_environment()
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null and s.has_signal("settings_changed"):
+		s.connect("settings_changed", _on_settings_changed)
 	var tree := get_tree()
 	if tree != null:
 		await tree.process_frame
@@ -150,13 +153,47 @@ func _setup_audio() -> void:
 
 
 func _setup_environment() -> void:
-	var we := get_node_or_null("../../WorldEnvironment") as WorldEnvironment
+	var we := _get_world_environment()
 	if we == null or we.environment == null:
 		return
 	var env: Environment = we.environment
-	env.glow_enabled = true
+	var perf: bool = _is_performance_mode()
+	env.glow_enabled = not perf
 	env.glow_intensity = 0.6
 	env.glow_bloom = 0.05
-	env.fog_enabled = true
+	env.fog_enabled = not perf
 	env.fog_light_color = Color(0.05, 0.07, 0.09)
 	env.fog_density = 0.008
+
+
+func _on_settings_changed(key: String, value: Variant) -> void:
+	if key == "performance_mode":
+		_apply_performance_mode(bool(value))
+
+
+func _apply_performance_mode(perf: bool) -> void:
+	var we := _get_world_environment()
+	if we == null or we.environment == null:
+		return
+	we.environment.glow_enabled = not perf
+	we.environment.fog_enabled = not perf
+
+
+func _is_performance_mode() -> bool:
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null and s.has_method("get_setting"):
+		var val: Variant = s.get_setting("performance_mode")
+		if val != null:
+			return bool(val)
+	return false
+
+
+func _get_world_environment() -> WorldEnvironment:
+	var we := get_node_or_null("../../WorldEnvironment") as WorldEnvironment
+	if we != null:
+		return we
+	if get_parent() != null:
+		we = get_parent().get_node_or_null("WorldEnvironment") as WorldEnvironment
+		if we != null:
+			return we
+	return null

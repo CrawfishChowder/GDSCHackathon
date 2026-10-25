@@ -19,11 +19,15 @@ const DEFAULTS := {
 	"vsync": true,
 	"show_fps": false,
 	"ui_scale": 1.0,
+	"performance_mode": false,
 }
 
 var fps_layer: CanvasLayer
 var fps_label: Label
 var _fps_timer: float = 0.0
+var _low_fps_duration: float = 0.0
+var _low_fps_suggested: bool = false
+var _toast_panel: PanelContainer = null
 
 
 func _ready() -> void:
@@ -36,6 +40,7 @@ func _ready() -> void:
 	var v: float = float(get_setting("master_volume"))
 	AudioServer.set_bus_volume_db(0, linear_to_db(max(v, 0.0001)))
 	_apply_all_audio_volumes.call_deferred()
+	_apply_viewport_scaling.call_deferred()
 
 
 func _process(delta: float) -> void:
@@ -44,6 +49,16 @@ func _process(delta: float) -> void:
 		if _fps_timer >= 0.5:
 			_fps_timer = 0.0
 			fps_label.text = "%d FPS" % Engine.get_frames_per_second()
+	if DisplayServer.get_name() != "headless":
+		if not _low_fps_suggested and not bool(get_setting("performance_mode")):
+			var current_fps: int = Engine.get_frames_per_second()
+			if current_fps > 0 and current_fps < 55:
+				_low_fps_duration += delta
+				if _low_fps_duration >= 5.0:
+					_low_fps_suggested = true
+					_show_low_fps_toast()
+			else:
+				_low_fps_duration = 0.0
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -60,10 +75,10 @@ func _setup_fps_ui() -> void:
 	if fps_layer != null:
 		return
 	fps_layer = CanvasLayer.new()
-	fps_layer.name = "FPSLayer"
+	fps_layer.name = "SettingsLayer"
 	fps_layer.layer = 40
 	fps_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	fps_layer.visible = false
+	fps_layer.visible = true
 	add_child(fps_layer)
 
 	fps_label = Label.new()
@@ -114,9 +129,89 @@ func _apply_show_fps(enabled: bool) -> void:
 		fps_label.visible = enabled
 		if enabled:
 			fps_label.text = "%d FPS" % Engine.get_frames_per_second()
-	if fps_layer != null:
-		fps_layer.visible = enabled
 	_fps_timer = 0.0
+
+
+func _apply_viewport_scaling() -> void:
+	var perf: bool = bool(get_setting("performance_mode"))
+	var target_scale: float = 1.0
+	if perf:
+		target_scale = 0.75
+	var tree: SceneTree = get_tree()
+	if tree != null and tree.root != null:
+		tree.root.msaa_3d = Viewport.MSAA_DISABLED
+		tree.root.scaling_3d_scale = target_scale
+	var vp: Viewport = get_viewport()
+	if vp != null:
+		vp.msaa_3d = Viewport.MSAA_DISABLED
+		vp.scaling_3d_scale = target_scale
+
+
+func _apply_performance_mode(enabled: bool) -> void:
+	var target_scale: float = 1.0
+	if enabled:
+		target_scale = 0.75
+	var tree: SceneTree = get_tree()
+	if tree != null and tree.root != null:
+		tree.root.scaling_3d_scale = target_scale
+	var vp: Viewport = get_viewport()
+	if vp != null:
+		vp.scaling_3d_scale = target_scale
+	# get_setting forces shadows off in performance mode without overwriting the player's choice.
+	settings_changed.emit("shadows", get_setting("shadows"))
+
+
+func _show_low_fps_toast() -> void:
+	if fps_layer == null:
+		_setup_fps_ui()
+	if _toast_panel != null and is_instance_valid(_toast_panel):
+		return
+	_toast_panel = PanelContainer.new()
+	_toast_panel.name = "LowFPSToast"
+	_toast_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	_toast_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.1, 0.14, 0.95)
+	style.border_color = Color(0.9, 0.6, 0.2, 0.9)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(10.0)
+	_toast_panel.add_theme_stylebox_override("panel", style)
+	_toast_panel.anchors_preset = Control.PRESET_BOTTOM_RIGHT
+	_toast_panel.anchor_left = 1.0
+	_toast_panel.anchor_right = 1.0
+	_toast_panel.anchor_top = 1.0
+	_toast_panel.anchor_bottom = 1.0
+	_toast_panel.offset_left = -380.0
+	_toast_panel.offset_top = -70.0
+	_toast_panel.offset_right = -20.0
+	_toast_panel.offset_bottom = -20.0
+	_toast_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_toast_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+
+	var lbl := Label.new()
+	lbl.name = "ToastLabel"
+	lbl.text = "Low FPS: try Performance mode in Settings"
+	lbl.add_theme_font_size_override("font_size", 14)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_toast_panel.add_child(lbl)
+
+	fps_layer.add_child(_toast_panel)
+
+	var tween: Tween = create_tween()
+	if tween != null:
+		tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		_toast_panel.modulate.a = 0.0
+		tween.tween_property(_toast_panel, "modulate:a", 1.0, 0.3)
+		tween.tween_interval(4.0)
+		tween.tween_property(_toast_panel, "modulate:a", 0.0, 0.5)
+		tween.tween_callback(func() -> void:
+			if is_instance_valid(_toast_panel):
+				_toast_panel.queue_free()
+				_toast_panel = null
+		)
 
 
 func _apply_bus_volume(bus_name: String, v: float) -> void:
@@ -135,11 +230,16 @@ func _apply_all_audio_volumes() -> void:
 # Fetches a persisted setting or falls back to DEFAULTS. Unknown keys return null.
 func get_setting(key: String) -> Variant:
 	var sd: Node = get_node_or_null("/root/SaveData")
+	var val: Variant = null
 	if sd != null and sd.has_method("get_value"):
 		var settings: Variant = sd.get_value("settings")
 		if settings is Dictionary and (settings as Dictionary).has(key):
-			return (settings as Dictionary)[key]
-	return DEFAULTS.get(key, null)
+			val = (settings as Dictionary)[key]
+	if val == null:
+		val = DEFAULTS.get(key, null)
+	if key == "shadows" and bool(get_setting("performance_mode")):
+		return false
+	return val
 
 
 # Persists a preference and applies immediate side effects across audio and display servers.
@@ -169,4 +269,6 @@ func set_setting(key: String, value: Variant) -> void:
 		_apply_ui_scale(float(value))
 	elif key == "show_fps":
 		_apply_show_fps(bool(value))
+	elif key == "performance_mode":
+		_apply_performance_mode(bool(value))
 	settings_changed.emit(key, value)
