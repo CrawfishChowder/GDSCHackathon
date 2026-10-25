@@ -46,7 +46,7 @@ If a random crisis starts while you're talking, just fix it; that is the game wo
 - **Stuck or crashed:** Esc → Restart, or close and relaunch the game. Practice mode never kills you if a judge wants to play.
 
 ## 6. Likely questions
-- **Did you use AI?** Yes, disclosed in the README. Claude planned and reviewed, Gemini wrote much of the code from our tickets, and we read and tested every change. No AI art or video. The voices are ElevenLabs, a sponsor.
+- **Did you use AI?** Yes, disclosed in the README. Claude planned and reviewed, Gemini wrote much of the code from our tickets, and some of us used Codex and Copilot. We read and tested every change. No AI art or video. Voice lines can be generated with ElevenLabs, a sponsor; today you see captions.
 - **Where did the art and sound come from?** All geometry is Godot primitives placed by us. Sounds are credited Sonniss GDC bundle effects plus sounds generated in code.
 - **What if a laptop can't run it?** Performance mode (lower 3D resolution, no shadows, fog or glow), suggested automatically under 55 FPS.
 - **What's original?** Every failure is tied to a real spaceflight emergency, so a mistake becomes a history lesson. And the DO NOT PRESS button remembers you.

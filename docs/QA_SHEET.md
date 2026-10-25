@@ -48,7 +48,7 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
   - Status is never shown by color alone: there's always text such as "CRITICAL" or ">> FIX HERE <<"
   - Practice mode, where mistakes don't kill you
   - A first-run tutorial
-- **Voices:** HAL (the computer) and Sam (the crewmate) are generated with ElevenLabs by `tools/generate_voices.py` (a sponsor). If an audio file is missing, the caption still plays.
+- **Voices:** HAL (the computer) and Sam (the crewmate) have 38 written lines. `tools/generate_voices.py` generates them with ElevenLabs (a sponsor); this build ships captions only, and the game plays the audio whenever the files are present.
 - **History:** every death and survival card uses vetted text about real incidents: SL-1 (1961), Chernobyl (1986), Apollo 1 (1967), Soyuz T-10-1 (1983), Soyuz 11 (1971), Apollo 13 (1970), the Opportunity (2018) and Spirit (2010) rovers, Apollo 12 (1969), Kilopower (2018), Skylab, the Mir fire and the ISS ammonia leak. Each cause has up to two incidents, chosen at random, never the same twice in a row.
 
 ## Newer systems (assign an owner)
@@ -63,7 +63,7 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
 ---
 
 ## Questions anyone may get
-- **"Did you use AI?"** Yes, and it's disclosed in the README. Claude planned and reviewed; Gemini (Antigravity) wrote much of the implementation from our tickets. We read and tested all of it, and each of us owns and can explain our part. There's no AI-generated art or video. The voices are ElevenLabs, a sponsor.
+- **"Did you use AI?"** Yes, and it's disclosed in the README. Claude planned and reviewed; Gemini (Antigravity) wrote much of the implementation from our tickets; some of us also used GPT Codex and GitHub Copilot. We read and tested all of it, and each of us owns and can explain our part. There's no AI-generated art or video. The voice pipeline uses ElevenLabs, a sponsor.
 - **"What's original here?"** Every failure is tied to a real spaceflight emergency, and a mistake is a lesson rather than just a game over. Plus the DO NOT PRESS button that remembers you.
 - **"Real-world impact?"** STEM education and outreach (museums, classrooms). It makes space-safety history felt instead of memorized, and every run ends by comparing you with real crews.
 - **"What would you do next?"** A real heart-rate sensor (the code already has an `external_heart_rate` hook), more modules, and teacher-facing lesson notes for each incident.
