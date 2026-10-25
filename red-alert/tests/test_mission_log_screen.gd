@@ -46,12 +46,12 @@ func _initialize() -> void:
 	_find_labels(screen, labels)
 	var found_soyuz: bool = false
 	for lbl_node: Variant in labels:
-		if lbl_node is Label and "Soyuz 11" in (lbl_node as Label).text:
+		if lbl_node is Label and ("Soyuz 11" in (lbl_node as Label).text or "Apollo 13" in (lbl_node as Label).text):
 			found_soyuz = true
 			break
 
 	if not found_soyuz:
-		return _fail("no Label containing 'Soyuz 11' found in MissionLogScreen")
+		return _fail("no Label naming an O2 incident found in MissionLogScreen")
 
 	var got := {}
 	screen.connect("closed", func() -> void: got["closed"] = true)

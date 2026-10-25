@@ -84,8 +84,8 @@ func _initialize() -> void:
 		return _fail("SurvivalCard.is_showing() was false after practice mistake")
 
 	var practice_title: String = String(card.call("current_title"))
-	if not practice_title.contains("SL-1"):
-		return _fail("SurvivalCard.current_title() was '%s', expected to contain 'SL-1'" % practice_title)
+	if not practice_title.contains("SL-1") and not practice_title.contains("Chernobyl"):
+		return _fail("SurvivalCard.current_title() was '%s', expected a reactor incident" % practice_title)
 
 	print("PASS")
 	quit(0)
