@@ -112,6 +112,8 @@ func _build_storage() -> void:
 	var cyan_accent := Color(0.3, 0.8, 1.0)
 	var z_positions: Array[float] = [3.2, 4.0]
 	for idx in range(z_positions.size()):
+		if idx == 0:
+			continue
 		var lz: float = z_positions[idx]
 		_box("Locker_%d" % idx, Vector3(0.5, 2.0, 0.6), Vector3(-5.6, 1.0, lz), locker_color, true)
 		_box("LockerHandle_%d" % idx, Vector3(0.02, 0.25, 0.03), Vector3(-5.34, 1.0, lz + 0.18), handle_color)

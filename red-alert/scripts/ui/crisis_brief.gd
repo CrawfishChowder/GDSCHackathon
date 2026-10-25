@@ -9,8 +9,8 @@ const TEXT_COLOR := Color(0.9, 0.95, 1.0)
 
 const HOW_TO: Dictionary = {
 	"reactor": "Center console. Watch the light sequence, then repeat it. Keys 1-4.",
-	"o2": "Left console. Type the filter code shown on screen, then Enter.",
-	"co2": "Right console. Press the adapter steps in checklist order. Keys 1-4.",
+	"o2": "Right console. Type the filter code shown on screen, then Enter.",
+	"co2": "Left console. Press the adapter steps in checklist order. Keys 1-4.",
 	"power": "Breaker box by the north door. Open the cover, main breaker OFF, then ON.",
 	"dust_storm": "East-wall solar array. Keep every system at its minimum, total 90 or less, then Engage.",
 }

@@ -79,7 +79,7 @@ func _start_tutorial() -> void:
 			mm.call("start_run")
 		mm.call("trigger", "o2")
 		mm.set("countdown_frozen", true)
-	_advance_to(1, "Follow the >> FIX HERE << marker to the LEFT CONSOLE", "crew_tutorial_1")
+	_advance_to(1, "Follow the >> FIX HERE << marker to the RIGHT CONSOLE", "crew_tutorial_1")
 
 
 func _advance_to(step: int, text: String, voice_id: String) -> void:

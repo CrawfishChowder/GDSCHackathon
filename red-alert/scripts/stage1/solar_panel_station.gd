@@ -50,7 +50,7 @@ func _ready() -> void:
 	label.modulate = Color(0.3, 0.8, 1.0)
 	label.outline_size = 12
 	label.outline_modulate = Color.BLACK
-	label.position = Vector3(0.0, 2.2, 0.0)
+	label.position = Vector3(0.0, 2.65, 0.0)
 	label.rotation = Vector3.ZERO
 	label.double_sided = true
 	add_child(label)

@@ -77,6 +77,8 @@ func _initialize() -> void:
 	var text: String = String(brief.call("current_text"))
 	if not text.contains("checklist order"):
 		return _fail("CrisisBrief text was '%s', expected to contain 'checklist order'" % text)
+	if not text.contains("Left console"):
+		return _fail("CO2 crisis brief points to the wrong console")
 
 	var time_left: float = float(mm.get("time_left"))
 	if time_left <= 45.0:
@@ -96,6 +98,9 @@ func _initialize() -> void:
 
 	if brief.call("is_showing"):
 		return _fail("CrisisBrief should not show on second trigger of co2")
+	brief.call("_show_brief", "o2", "O2 depletion")
+	if not String(brief.call("current_text")).contains("Right console"):
+		return _fail("O2 crisis brief points to the wrong console")
 
 	paused = false
 	print("PASS")

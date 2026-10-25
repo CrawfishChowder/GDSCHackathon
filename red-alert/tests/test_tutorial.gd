@@ -74,6 +74,9 @@ func _initialize() -> void:
 	var step: int = int(director.call("current_step"))
 	if step != 1:
 		return _fail("current_step was %d, expected 1" % step)
+	var banner := director.get("_label") as Label
+	if banner == null or not banner.text.contains("RIGHT CONSOLE"):
+		return _fail("O2 tutorial banner points to the wrong console")
 
 	var player := room.get_node_or_null("FirstPersonPlayer") as Node3D
 	if player == null:

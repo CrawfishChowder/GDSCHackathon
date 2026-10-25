@@ -46,6 +46,12 @@ func _initialize() -> void:
 			return _fail("Voice line %s is not a dictionary" % id)
 		if not entry.has("speaker") or not entry.has("text"):
 			return _fail("Voice line %s missing 'speaker' or 'text'" % id)
+	for id in ["crew_hint_o2", "crew_tutorial_1", "story_o2"]:
+		if not String(lines[id]["text"]).to_lower().contains("right console"):
+			return _fail("O2 voice line %s points to the wrong console" % id)
+	for id in ["crew_hint_co2", "story_co2"]:
+		if not String(lines[id]["text"]).to_lower().contains("left console"):
+			return _fail("CO2 voice line %s points to the wrong console" % id)
 
 	voice.call("say", "hal_wake")
 	await create_timer(0.2, true).timeout

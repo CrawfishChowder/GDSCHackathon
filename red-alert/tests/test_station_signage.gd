@@ -37,6 +37,10 @@ func _initialize() -> void:
 	var sign_systems: Node = room.get_node_or_null("Polish/StationSignage/Sign_systems")
 	if sign_power == null or sign_reactor == null or sign_o2 == null or sign_systems == null:
 		return _fail("One or more static signs not found under Polish/StationSignage")
+	if (sign_power as Node3D).position.x < 3.4:
+		return _fail("Power breaker sign remains too close to the door")
+	if (sign_o2 as Node3D).position.z >= 4.4 or (sign_systems as Node3D).position.z >= 4.4:
+		return _fail("O2 or CO2 sign intersects the console header vents")
 
 	var cue_power: Node = room.get_node_or_null("Polish/StationSignage/Cue_power")
 	var cue_o2: Node = room.get_node_or_null("Polish/StationSignage/Cue_o2")

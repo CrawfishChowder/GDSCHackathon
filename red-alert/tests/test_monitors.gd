@@ -61,6 +61,8 @@ func _initialize() -> void:
 	var center := _viewport_for(displays, &"console_center")
 	if not _has_label_with_text(center.get_node("ActiveOverride"), "O2"):
 		return _fail("Center emergency display does not report the O2 event")
+	if not _has_label_with_text(center.get_node("ActiveOverride"), "RIGHT CONSOLE"):
+		return _fail("Center emergency display points O2 to the wrong console")
 
 	manager.call("fix", "o2")
 	await process_frame
@@ -70,6 +72,13 @@ func _initialize() -> void:
 			return _fail("%s did not restore its default after release" % monitor_id)
 		if _viewport_for(displays, monitor_id).get_child_count() != 1:
 			return _fail("%s override layer remained after release" % monitor_id)
+	manager.call("trigger", "co2")
+	await create_timer(0.3).timeout
+	center = _viewport_for(displays, &"console_center")
+	if not _has_label_with_text(center.get_node("ActiveOverride"), "LEFT CONSOLE"):
+		return _fail("Center emergency display points CO2 to the wrong console")
+	manager.call("fix", "co2")
+	await process_frame
 
 	manager.call("trigger", "dust_storm")
 	await create_timer(0.3).timeout

@@ -56,9 +56,20 @@ func _initialize() -> void:
 	if screen == null:
 		return _fail("Failed to instantiate title_screen.tscn")
 
-	root.add_child(screen)
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1152, 648)
+	root.add_child(viewport)
+	viewport.add_child(screen)
 	await process_frame
 	await process_frame
+	var scroll := screen.get_child(1) as ScrollContainer
+	if scroll == null:
+		return _fail("Title menu ScrollContainer not found")
+	var bar := scroll.get_v_scroll_bar()
+	if (screen as Control).size != Vector2(1152, 648):
+		return _fail("Title screen does not match the game resolution")
+	if bar.max_value > bar.page + 0.5 or scroll.scroll_vertical != 0:
+		return _fail("Title and menu options do not fit at the game resolution")
 
 	# 1. Assert a TitleBackground child exists with a ShaderMaterial
 	var bg_child: CanvasItem = null
@@ -85,6 +96,6 @@ func _initialize() -> void:
 	if footer == null:
 		return _fail("Footer label containing 'Geaux Hack' not found on title screen")
 
-	screen.queue_free()
+	viewport.queue_free()
 	await process_frame
 	_pass()

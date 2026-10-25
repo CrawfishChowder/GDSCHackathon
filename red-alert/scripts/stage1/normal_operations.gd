@@ -239,8 +239,9 @@ func _initialize_monitors() -> void:
 			screen_material.metallic = 0.02
 			screen_material.roughness = 0.82
 			screen_material.metallic_specular = 0.08
-			screen_material.uv1_scale = Vector3(-3.0, 2.0, 1.0)
-			screen_material.uv1_offset = Vector3(3.0, 0.0, 0.0)
+			# The player-facing -Z box face occupies U=2/3..1, left to right.
+			screen_material.uv1_scale = Vector3(3.0, 2.0, 1.0)
+			screen_material.uv1_offset = Vector3(-2.0, 0.0, 0.0)
 		else:
 			screen_material.uv1_scale = Vector3(3.0, 2.0, 1.0)
 			screen_material.uv1_offset = Vector3.ZERO

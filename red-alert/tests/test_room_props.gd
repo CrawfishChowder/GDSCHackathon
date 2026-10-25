@@ -38,16 +38,19 @@ func _initialize() -> void:
 			return _fail("Prop '%s' global AABB center %s lies inside console box" % [mi.name, str(global_center)])
 
 	var locker_0 := room_props.get_node_or_null("Locker_0")
-	if locker_0 == null:
-		return _fail("Locker_0 node not found")
+	if locker_0 != null:
+		return _fail("Removed rightmost Locker_0 is still present")
+	var locker_1 := room_props.get_node_or_null("Locker_1")
+	if locker_1 == null:
+		return _fail("Remaining Locker_1 node not found")
 	var has_col := false
-	for child in locker_0.get_children():
+	for child in locker_1.get_children():
 		if child is StaticBody3D:
 			for col in child.get_children():
 				if col is CollisionShape3D:
 					has_col = true
 	if not has_col:
-		return _fail("Locker_0 missing StaticBody3D collision shape")
+		return _fail("Locker_1 missing StaticBody3D collision shape")
 
 	print("PASS")
 	quit(0)

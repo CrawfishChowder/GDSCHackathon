@@ -48,13 +48,32 @@ func _initialize() -> void:
 	interactor.queue_free()
 	target.queue_free()
 
+	var original_size := root.size
+	root.size = Vector2i(800, 480)
 	var title := (load("res://scenes/ui/title_screen.tscn") as PackedScene).instantiate()
 	root.add_child(title)
 	await process_frame
 	var focused := root.gui_get_focus_owner() as Button
 	if focused == null or not focused.text.begins_with("Story shift"):
 		return _fail("Title did not focus Story shift")
+	var scroll := title.get_child(1) as ScrollContainer
+	if scroll == null or not scroll.follow_focus:
+		return _fail("Title menu does not scroll with controller focus")
+	for i in range(7):
+		Input.parse_input_event(dpad)
+		await process_frame
+		var release := dpad.duplicate() as InputEventJoypadButton
+		release.pressed = false
+		Input.parse_input_event(release)
+		await process_frame
+	focused = root.gui_get_focus_owner() as Button
+	if focused == null or focused.text != "Quit":
+		return _fail("D-pad did not reach Quit on title menu")
+	var scroll_bar := scroll.get_v_scroll_bar()
+	if scroll_bar.max_value > scroll_bar.page + 0.5 and scroll.scroll_vertical <= 0:
+		return _fail("Title menu did not scroll to focused Quit button")
 	title.queue_free()
+	root.size = original_size
 	await process_frame
 
 	var dust := (load("res://scenes/minigames/dust_storm_power.tscn") as PackedScene).instantiate()

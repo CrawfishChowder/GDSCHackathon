@@ -57,7 +57,7 @@
 	},
 	"crew_hint_o2": {
 		"speaker": "crew",
-		"text": "Oxygen leak! Hurry to the left console and enter the filter code."
+		"text": "Oxygen leak! Hurry to the right console and enter the filter code."
 	},
 	"crew_fixed_reactor": {
 		"speaker": "crew",
@@ -81,7 +81,7 @@
 	},
 	"crew_hint_co2": {
 		"speaker": "crew",
-		"text": "CO2 is climbing! Right console. Build the scrubber adapter and follow the checklist in order."
+		"text": "CO2 is climbing! Left console. Build the scrubber adapter and follow the checklist in order."
 	},
 	"crew_fixed_co2": {
 		"speaker": "crew",
@@ -89,7 +89,7 @@
 	},
 	"crew_tutorial_1": {
 		"speaker": "crew",
-		"text": "Something's wrong with the oxygen. Don't panic, I'll walk you through it. Follow the flashing marker to the left console."
+		"text": "Something's wrong with the oxygen. Don't panic, I'll walk you through it. Follow the flashing marker to the right console."
 	},
 	"crew_tutorial_2": {
 		"speaker": "crew",
@@ -129,7 +129,7 @@
 	},
 	"story_o2": {
 		"speaker": "crew",
-		"text": "Okay, first problem of the day. Oxygen filter is clogging. Left console, you know the drill."
+		"text": "Okay, first problem of the day. Oxygen filter is clogging. Right console, you know the drill."
 	},
 	"story_flare": {
 		"speaker": "hal",
@@ -137,7 +137,7 @@
 	},
 	"story_co2": {
 		"speaker": "crew",
-		"text": "CO2 is creeping up. This is exactly what happened on Apollo 13. Right console, follow the checklist."
+		"text": "CO2 is creeping up. This is exactly what happened on Apollo 13. Left console, follow the checklist."
 	},
 	"story_dust": {
 		"speaker": "hal",

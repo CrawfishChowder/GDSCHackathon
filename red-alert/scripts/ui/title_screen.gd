@@ -27,13 +27,13 @@ func _build_ui() -> void:
 	var tb := load("res://scripts/ui/title_background.gd") as GDScript
 	add_child(tb.new() if tb != null else TitleBackground.new())
 	var scroll := ScrollContainer.new(); scroll.set_anchors_preset(PRESET_FULL_RECT); scroll.offset_bottom = -36.0
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; add_child(scroll)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; scroll.follow_focus = true; add_child(scroll)
 	var center := CenterContainer.new(); center.size_flags_horizontal = SIZE_EXPAND_FILL; center.size_flags_vertical = SIZE_EXPAND_FILL; scroll.add_child(center)
 	var panel := PanelContainer.new(); panel.name = "MenuPanel"
 	var sb := StyleBoxFlat.new(); sb.bg_color = Color(0.04, 0.05, 0.08, 0.82); sb.set_corner_radius_all(12); sb.set_content_margin_all(28.0)
 	panel.add_theme_stylebox_override("panel", sb); center.add_child(panel)
 	var vbox := VBoxContainer.new(); vbox.name = "MainVBox"; vbox.custom_minimum_size = Vector2(620, 0)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER; vbox.add_theme_constant_override("separation", 12); panel.add_child(vbox)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER; vbox.add_theme_constant_override("separation", 7); panel.add_child(vbox)
 
 	for item in [["RED ALERT", 72, Color(1, 0.15, 0.15)], ["Keep the habitat alive for one shift. Every failure is based on a real spaceflight emergency.", 16, Color(0.85, 0.85, 0.85)]]:
 		var l := Label.new(); l.text = item[0]; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -52,8 +52,13 @@ func _build_ui() -> void:
 		["Credits", func() -> void: _open_screen(_credits_screen)],
 		["Quit", _quit_game],
 	]
+	var menu_buttons: Array[Button] = []
 	for b in btns:
-		var btn := Button.new(); btn.text = b[0]; btn.custom_minimum_size = Vector2(260, 42); btn.size_flags_horizontal = SIZE_SHRINK_CENTER; btn.add_theme_font_size_override("font_size", 18); btn.pressed.connect(b[1]); vbox.add_child(btn)
+		var btn := Button.new(); btn.text = b[0]; btn.custom_minimum_size = Vector2(260, 38); btn.size_flags_horizontal = SIZE_SHRINK_CENTER; btn.add_theme_font_size_override("font_size", 18); btn.pressed.connect(b[1]); vbox.add_child(btn)
+		menu_buttons.append(btn)
+	for i in range(menu_buttons.size() - 1):
+		menu_buttons[i].focus_neighbor_bottom = menu_buttons[i].get_path_to(menu_buttons[i + 1])
+		menu_buttons[i + 1].focus_neighbor_top = menu_buttons[i + 1].get_path_to(menu_buttons[i])
 
 	_settings_panel = SettingsPanel.new(); _settings_panel.visible = false; vbox.add_child(_settings_panel)
 	for sc in [["res://scripts/ui/mission_log_screen.gd", "_mission_log_screen"], ["res://scripts/ui/credits_screen.gd", "_credits_screen"]]:
