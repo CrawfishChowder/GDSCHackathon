@@ -1,6 +1,7 @@
 extends Control
 
 const LOGO_TEXT := "TBD"
+const ANIMATION_INTERVAL := 1.0 / 30.0
 const COLORS: Array[Color] = [
 	Color("ff3b81"),
 	Color("27e8ff"),
@@ -22,6 +23,7 @@ var _velocity := Vector2(115.0, 83.0)
 var _safe_margin: float = 16.0
 var _color_index: int = 0
 var _layout_ready: bool = false
+var _animation_accumulator: float = 0.0
 
 
 func _ready() -> void:
@@ -42,6 +44,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _layout_ready:
 		return
+	_animation_accumulator += delta
+	if _animation_accumulator < ANIMATION_INTERVAL:
+		return
+	delta = minf(_animation_accumulator, 0.1)
+	_animation_accumulator = fmod(_animation_accumulator, ANIMATION_INTERVAL)
 
 	var minimum := Vector2(_safe_margin, _safe_margin)
 	var maximum := size - _logo_size - minimum

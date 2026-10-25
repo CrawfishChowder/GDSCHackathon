@@ -62,16 +62,29 @@ const MONITOR_DEFINITIONS: Array[Dictionary] = [
 ]
 
 @export_range(128, 1024, 16) var render_height: int = 360
+@export_range(15, 60, 1) var monitor_refresh_rate: int = 30
 
 @onready var displays: Node = $Displays
 
 var _slots: Dictionary = {}
 var _connected_owner_ids: Dictionary = {}
+var _refresh_accumulator: float = 0.0
 
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_initialize_monitors()
+
+
+func _process(delta: float) -> void:
+	_refresh_accumulator += delta
+	if _refresh_accumulator < 1.0 / monitor_refresh_rate:
+		return
+	_refresh_accumulator = fmod(_refresh_accumulator, 1.0 / monitor_refresh_rate)
+	for slot: Dictionary in _slots.values():
+		(slot["viewport"] as SubViewport).render_target_update_mode = (
+			SubViewport.UPDATE_ONCE
+		)
 
 
 func _exit_tree() -> void:
@@ -181,7 +194,7 @@ func _initialize_monitors() -> void:
 		viewport.size = resolution
 		viewport.disable_3d = true
 		viewport.transparent_bg = false
-		viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+		viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 		displays.add_child(viewport)
 
 		var default_display := (

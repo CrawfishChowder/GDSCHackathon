@@ -7,11 +7,11 @@ extends CharacterBody3D
 @export_range(1.0, 10.0, 0.1) var jump_velocity: float = 4.5
 
 @export_category("Look")
-@export_range(0.0005, 0.01, 0.0001) var mouse_sensitivity: float = 0.0036
-@export_range(0.0005, 0.01, 0.0001) var fallback_mouse_sensitivity: float = 0.0044
+@export_range(0.0005, 0.01, 0.0001) var mouse_sensitivity: float = 0.0063
+@export_range(0.0005, 0.01, 0.0001) var fallback_mouse_sensitivity: float = 0.0077
 @export_range(45.0, 89.0, 1.0) var max_pitch_degrees: float = 80.0
-# Higher = snappier mouse look (18 felt laggy in playtest).
-@export_range(1.0, 60.0, 0.5) var look_smoothing: float = 40.0
+# Higher = snappier mouse look.
+@export_range(1.0, 60.0, 0.5) var look_smoothing: float = 30.0
 @export_range(16.0, 512.0, 1.0) var max_mouse_delta: float = 256.0
 @export_range(0.1, 2.0, 0.05) var capture_probe_seconds: float = 0.6
 
@@ -22,7 +22,7 @@ extends CharacterBody3D
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _target_yaw: float = 0.0
 var _target_pitch: float = 0.0
-var _capture_guard_frames: int = 0
+var _mouse_guard_frames: int = 0
 var _capture_probe_remaining: float = 0.0
 var _received_captured_motion: bool = false
 var _mouse_look_active: bool = false
@@ -42,6 +42,8 @@ enum MouseLookMode {
 	CAPTURED,
 	FALLBACK,
 }
+
+const MOUSE_TRANSITION_GUARD_FRAMES := 3
 
 
 func _ready() -> void:
@@ -76,8 +78,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if _capture_guard_frames > 0:
-		_capture_guard_frames -= 1
+	if _mouse_guard_frames > 0:
+		_mouse_guard_frames -= 1
 
 	if (
 		_mouse_look_active
@@ -132,6 +134,7 @@ func _apply_seat_transform(target_transform: Transform3D) -> void:
 	head.rotation = Vector3.ZERO
 	_target_yaw = rotation.y
 	_target_pitch = 0.0
+	_reset_mouse_tracking_after_transform()
 
 
 func _apply_captured_mouse_motion(event: InputEventMouseMotion) -> void:
@@ -139,7 +142,7 @@ func _apply_captured_mouse_motion(event: InputEventMouseMotion) -> void:
 	# relative, it is not changed by viewport scaling. Some remote desktop
 	# clients report the capture/recenter warp as a very large motion event, so
 	# briefly ignore capture events and reject impossible single-frame deltas.
-	if _capture_guard_frames > 0:
+	if _mouse_guard_frames > 0:
 		return
 
 	var mouse_delta := event.screen_relative
@@ -157,6 +160,10 @@ func _apply_fallback_mouse_motion(event: InputEventMouseMotion) -> void:
 	# desktops deliver normal absolute mouse positions even when pointer capture
 	# is unavailable. Never warp the pointer here: remote clients can interpret a
 	# warp as real movement and feed it back as an uncontrolled look delta.
+	if _mouse_guard_frames > 0:
+		_last_fallback_position = event.position
+		_has_fallback_position = true
+		return
 	if not _has_fallback_position:
 		_last_fallback_position = event.position
 		_has_fallback_position = true
@@ -211,7 +218,7 @@ func _set_mouse_look_active(active: bool) -> void:
 		_start_captured_mouse_look()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		_capture_guard_frames = 0
+		_mouse_guard_frames = 0
 		_has_fallback_position = false
 
 
@@ -219,7 +226,7 @@ func _start_captured_mouse_look() -> void:
 	_mouse_look_mode = MouseLookMode.CAPTURED
 	_received_captured_motion = false
 	_capture_probe_remaining = capture_probe_seconds
-	_capture_guard_frames = 2
+	_mouse_guard_frames = MOUSE_TRANSITION_GUARD_FRAMES
 	_has_fallback_position = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -228,9 +235,19 @@ func _enable_fallback_mouse_look() -> void:
 	if not _mouse_look_active:
 		return
 	_mouse_look_mode = MouseLookMode.FALLBACK
-	_capture_guard_frames = 0
+	_mouse_guard_frames = 0
 	_has_fallback_position = false
 	Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
+
+
+func _reset_mouse_tracking_after_transform() -> void:
+	_mouse_guard_frames = MOUSE_TRANSITION_GUARD_FRAMES
+	_last_fallback_position = Vector2.ZERO
+	_has_fallback_position = false
+	if _mouse_look_active and _mouse_look_mode == MouseLookMode.CAPTURED:
+		_received_captured_motion = false
+		_capture_probe_remaining = capture_probe_seconds
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _physics_process(delta: float) -> void:
@@ -365,4 +382,3 @@ func _on_practice_mistake(_cause_id: Variant = "", _detail: Variant = "") -> voi
 
 func _on_player_died(_cause_id: Variant = "", _display_name: Variant = "") -> void:
 	shake(2.0, 0.8)
-

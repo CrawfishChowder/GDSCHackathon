@@ -1,6 +1,7 @@
 extends Control
 
 const CHARACTERS := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+-=<>?/{}[]"
+const ANIMATION_INTERVAL := 1.0 / 30.0
 
 @export var random_seed: int = 1001
 @export_range(0.25, 3.0, 0.05) var speed_scale: float = 1.0
@@ -9,6 +10,7 @@ var _rng := RandomNumberGenerator.new()
 var _columns: Array[Dictionary] = []
 var _cell_size: float = 18.0
 var _font: Font
+var _animation_accumulator: float = 0.0
 
 
 func _ready() -> void:
@@ -23,6 +25,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _columns.is_empty():
 		return
+	_animation_accumulator += delta
+	if _animation_accumulator < ANIMATION_INTERVAL:
+		return
+	delta = minf(_animation_accumulator, 0.1)
+	_animation_accumulator = fmod(_animation_accumulator, ANIMATION_INTERVAL)
 
 	for column in _columns:
 		column["head_y"] += column["speed"] * delta
