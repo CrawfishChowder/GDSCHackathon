@@ -22,6 +22,7 @@ const OTHER_CAUSES := {
 }
 var mode: String = "normal"
 var countdown_frozen: bool = false
+var scripted: bool = false
 var running: bool = false
 var active_id: String = ""
 var time_left: float = 0.0
@@ -62,7 +63,7 @@ func _process(delta: float) -> void:
 	elif survived_seconds >= SHIFT_LENGTH:
 		running = false
 		shift_completed.emit()
-	else:
+	elif not scripted:
 		_next_in -= delta
 		if _next_in <= 0.0:
 			var keys := MALFUNCTIONS.keys()
@@ -84,6 +85,7 @@ func start_run() -> void:
 	death_kind = ""
 	death_detail = ""
 	_next_in = 10.0
+	scripted = (mode == "story")
 	run_started.emit()
 
 

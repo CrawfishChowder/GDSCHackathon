@@ -72,6 +72,7 @@ func _build_ui() -> void:
 	spacer.custom_minimum_size = Vector2(0, 8)
 	vbox.add_child(spacer)
 
+	_add_btn(vbox, "Story shift (best first play)", func() -> void: _start_shift("story"))
 	_add_btn(vbox, "Start shift", func() -> void: _start_shift("normal"))
 	_add_btn(vbox, "Practice (no deaths)", func() -> void: _start_shift("practice"))
 	_add_btn(vbox, "Hard (half the time)", func() -> void: _start_shift("hard"))

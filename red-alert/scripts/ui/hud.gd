@@ -14,6 +14,7 @@ func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_setup_alert_label(); _setup_stats_label(); _setup_controls_hint()
 	_setup_controls_panel(); _setup_persistent_hint(); _apply_high_contrast(); _apply_hide_hud()
+	add_child(load("res://scripts/ui/crisis_brief.gd").new())
 	var s := get_node_or_null("/root/Settings")
 	if s != null and s.has_signal("settings_changed"): s.settings_changed.connect(_on_settings_changed)
 	var mm := _get_mm()

@@ -128,7 +128,12 @@ func _resume() -> void:
 	if _controls_panel != null:
 		_controls_panel.visible = false
 	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Resume mouse look through the player's own capture logic (VNC-safe).
+	var player := get_parent().get_parent() if get_parent() != null else null
+	if player != null and player.has_method("resume_mouse_look"):
+		player.resume_mouse_look()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _toggle_settings() -> void:

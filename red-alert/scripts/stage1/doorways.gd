@@ -103,7 +103,12 @@ func _build_corridors() -> void:
 	_add_solid_box(self, body, "East_WallS", Vector3(3.0, 2.6, 0.2), Vector3(7.5, 1.3, 1.9))
 	_add_solid_box(self, body, "East_WallEnd", Vector3(0.2, 3.0, 4.0), Vector3(9.1, 1.3, 0.0))
 	_add_light(self, Vector3(7.5, 2.4, 0.0))
-	_add_label(self, "AIRLOCK: EVA PREP", Vector3(8.98, 1.6, 0.0), -PI * 0.5)
+	_add_label(self, "AIRLOCK: EVA PREP", Vector3(8.98, 2.3, 0.0), -PI * 0.5)
+	var mars_window: Node3D = load("res://scripts/stage1/mars_window.gd").new()
+	mars_window.name = "MarsWindow"
+	mars_window.position = Vector3(8.95, 1.3, 0.0)
+	mars_window.rotation.y = -PI * 0.5
+	add_child(mars_window)
 	_add_stripes(self, Vector3(6.0, 0.005, -1.65), Vector3(0.0, 0.0, 0.3), true)
 
 	# West corridor (x = -6 to -9, z centered on 0)

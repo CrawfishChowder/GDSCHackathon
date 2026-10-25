@@ -3,6 +3,10 @@ extends Node3D
 
 
 func _ready() -> void:
+	if MalfunctionManager.mode == "story":
+		var story_script := load("res://scripts/stage1/story_director.gd") as GDScript
+		if story_script != null:
+			add_child(story_script.new())
 	MalfunctionManager.start_run()
 	if not MalfunctionManager.shift_completed.is_connected(_on_shift_completed):
 		MalfunctionManager.shift_completed.connect(_on_shift_completed)

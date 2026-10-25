@@ -57,6 +57,10 @@ func open(scene: PackedScene, malfunction_id: String) -> void:
 			current = null
 			to_free.queue_free()
 		MalfunctionManager.kill(malfunction_id, "mistake", reason)
+		# Practice mode survives the mistake: the run is still going, so hand
+		# control back (otherwise the tree stays paused and mouse look is dead).
+		if MalfunctionManager.running:
+			_resume_play()
 	)
 
 	var tree := get_tree()
@@ -73,10 +77,21 @@ func close() -> void:
 	current = null
 	to_free.queue_free()
 
+	_resume_play()
+
+
+# Unpause and give mouse look back to the player through its own capture logic.
+func _resume_play() -> void:
 	var tree := get_tree()
-	if tree != null:
-		tree.paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if tree == null:
+		return
+	tree.paused = false
+	var scene := tree.current_scene
+	var player: Node = scene.get_node_or_null("FirstPersonPlayer") if scene != null else null
+	if player != null and player.has_method("resume_mouse_look"):
+		player.resume_mouse_look()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func is_open() -> bool:
