@@ -48,7 +48,7 @@ func _ready() -> void:
 	label.outline_size = 12
 	label.outline_modulate = Color.BLACK
 	label.position = Vector3(0.0, 2.2, 0.0)
-	label.rotation = Vector3(0.0, PI, 0.0)
+	label.rotation = Vector3.ZERO
 	label.double_sided = true
 	add_child(label)
 

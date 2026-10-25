@@ -51,9 +51,14 @@ func _initialize() -> void:
 
 	# Scott's chairs still use the shared interact action after the player merge.
 	var chair := room.get_node("ConsoleChairs/CenterConsoleChair")
+	player._mouse_look_mode = player.MouseLookMode.FALLBACK
+	player._has_fallback_position = true
+	player._last_fallback_position = Vector2(900.0, 700.0)
 	chair.interact(player)
 	if not player.is_seated():
 		return _fail("chair interaction did not seat the player")
+	if player._has_fallback_position or player._mouse_guard_frames != 3:
+		return _fail("sitting did not reset and guard fallback mouse tracking")
 	var stand_event := InputEventAction.new()
 	stand_event.action = "interact"
 	stand_event.pressed = true
@@ -62,6 +67,20 @@ func _initialize() -> void:
 		return _fail("interact did not stand the seated player")
 	if chair.occupant != null:
 		return _fail("chair did not release its occupant")
+	if player._has_fallback_position or player._mouse_guard_frames != 3:
+		return _fail("standing did not reset and guard fallback mouse tracking")
+	var warp_event := InputEventMouseMotion.new()
+	warp_event.position = Vector2(100.0, 100.0)
+	var yaw_before_warp: float = player._target_yaw
+	player._apply_fallback_mouse_motion(warp_event)
+	if not is_equal_approx(player._target_yaw, yaw_before_warp):
+		return _fail("post-chair fallback pointer warp changed camera yaw")
+	player._mouse_look_mode = player.MouseLookMode.CAPTURED
+	player._received_captured_motion = true
+	chair.interact(player)
+	if player._received_captured_motion or player._capture_probe_remaining <= 0.0:
+		return _fail("sitting did not rearm captured-mode health detection")
+	player.stand_up()
 
 	print("PASS")
 	quit(0)
