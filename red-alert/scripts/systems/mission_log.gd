@@ -23,6 +23,12 @@ const INCIDENTS := {
 		"summary": "As Soyuz 11 separated for re-entry, a valve opened and vented the cabin's air into space. Georgy Dobrovolsky, Vladislav Volkov and Viktor Patsayev are the only people to have died in space.",
 		"lesson": "Breathable air is the thinnest margin a crew has.",
 	},
+	"co2": {
+		"title": "Apollo 13 CO2 crisis",
+		"year": "1970",
+		"summary": "After the explosion, carbon dioxide rose toward dangerous levels in the lunar module because its round scrubber sockets could not take the command module's square cartridges. Ground engineers improvised an adapter in time. In your shift, nobody did.",
+		"lesson": "Without scrubbing, a crew's own breath becomes the threat.",
+	},
 	"do_not_press": {
 		"title": "The Button",
 		"year": "",

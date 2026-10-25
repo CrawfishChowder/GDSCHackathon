@@ -121,11 +121,25 @@ func _is_usable_mouse_delta(mouse_delta: Vector2) -> bool:
 
 
 func _apply_look_delta(mouse_delta: Vector2, sensitivity: float) -> void:
+	var sens_mult: float = 1.0
+	var invert: bool = false
+	var settings := get_node_or_null("/root/Settings")
+	if settings != null and settings.has_method("get_setting"):
+		var s_val: Variant = settings.get_setting("mouse_sensitivity")
+		if s_val != null:
+			sens_mult = float(s_val)
+		var inv_val: Variant = settings.get_setting("invert_y")
+		if inv_val != null:
+			invert = bool(inv_val)
+	var eff_sens := sensitivity * sens_mult
+	var pitch_delta := mouse_delta.y * eff_sens
+	if invert:
+		pitch_delta = -pitch_delta
 	_target_yaw = wrapf(
-		_target_yaw - mouse_delta.x * sensitivity, -PI, PI
+		_target_yaw - mouse_delta.x * eff_sens, -PI, PI
 	)
 	_target_pitch = clamp(
-		_target_pitch - mouse_delta.y * sensitivity,
+		_target_pitch - pitch_delta,
 		-deg_to_rad(max_pitch_degrees),
 		deg_to_rad(max_pitch_degrees)
 	)

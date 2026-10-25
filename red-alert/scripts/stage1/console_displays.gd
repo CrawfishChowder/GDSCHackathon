@@ -107,7 +107,7 @@ func _update_displays() -> void:
 		var tl: int = int(maxf(0.0, float(mm.get("time_left"))))
 		_center_line1.text = "%d:%02d" % [tl / 60, tl % 60]
 		_center_line1.modulate = Color(1.0, 0.35, 0.2)
-		var st := "BREAKER BOX, NORTH WALL" if aid == "power" else ("LEFT CONSOLE" if aid == "o2" else "CENTER CONSOLE")
+		var st := "BREAKER BOX, NORTH WALL" if aid == "power" else ("LEFT CONSOLE" if aid == "o2" else ("RIGHT CONSOLE" if aid == "co2" else "CENTER CONSOLE"))
 		_center_line2.text = "GO TO: %s" % st
 		_center_line2.modulate = Color(1.0, 0.85, 0.2)
 	else:

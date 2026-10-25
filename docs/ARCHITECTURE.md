@@ -1,11 +1,12 @@
 # Architecture
 
-All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/stage1/stage_1_room.tscn`.
+All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_screen.tscn` (Start / Practice / Hard → `scenes/stage1/stage_1_room.tscn`).
 
 ## Autoloads (project.godot, in load order)
 | Name | File | Job |
 |---|---|---|
 | `SaveData` | `scripts/systems/save_data.gd` | Key/value store persisted to `user://save.json` (`get_value`, `set_value`, `increment`). |
+| `Settings` | `scripts/systems/settings.gd` | Player settings (sensitivity, invert Y, volume, captions, high contrast) via SaveData; `settings_changed` signal. |
 | `MalfunctionManager` | `scripts/systems/malfunction_manager.gd` | Run state: random failures with countdowns, deaths, the 5-minute shift. |
 | `MinigameHost` | `scenes/ui/minigame_host.tscn` | Opens a minigame overlay, pauses the tree, routes completed/failed/cancelled. |
 | `MissionLog` | `scripts/systems/mission_log.gd` | Records each death with its real-world incident; persisted via SaveData. |
@@ -17,7 +18,8 @@ Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame 
 - Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`.
 - State: `running`, `active_id`, `time_left`, `survived_seconds`, `fixes_count`, `death_kind` (`timeout` / `mistake` / `button`), `death_detail`.
 - Methods: `start_run()`, `trigger(id)`, `fix(id)`, `kill(cause_id, kind, detail)`, `shift_time_left()`, `display_name(id)`.
-- Cause ids: `reactor`, `power`, `o2`, `do_not_press`. One malfunction is active at a time, and the gap between them shrinks after each fix.
+- Cause ids: `reactor`, `power`, `o2`, `co2`, `do_not_press`.
+- `mode`: `normal` / `practice` (mistakes and timeouts emit `practice_mistake` instead of killing) / `hard` (half time). `countdown_frozen` pauses the timer (tutorial). One malfunction is active at a time, and the gap between them shrinks after each fix.
 
 ## Interaction
 - `scripts/player/interactor.gd` (a RayCast3D on the camera, 3 m) walks up from the hit collider to the first node with `interact(by)`. It reads optional `prompt_text` and `enabled` from that node, and the HUD shows "[E] prompt".
@@ -34,8 +36,10 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
 ├─ WallFixtures/DoNotPressButton      (do_not_press_button.gd)
 ├─ MainConsole (components/main_console.tscn)
 │   ├─ LeftStation/O2Station          (FixStation "o2")
+│   ├─ RightStation/CO2Station        (FixStation "co2", Apollo 13 adapter checklist)
 │   ├─ CenterStation/ReactorStation   (FixStation "reactor"), EmergencyReleaseKey
 │   └─ ConsoleDisplays                (3 live MonitorDisplay screens: atmosphere / status / power)
+├─ TutorialDirector                   (first-run guided O2 fix, countdown frozen)
 ├─ AlarmController                    (red lights + procedural klaxon)
 ├─ Polish/StationSignage              (station signs + ">> FIX HERE <<" cues)
 ├─ Polish/LightingDirector            (overhead light dimming/flicker, ambient hum, glow/fog)
@@ -45,6 +49,8 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
     ├─ Head/Camera3D/Interactor
     └─ HUD (hud.gd: prompt, alert banner, shift timer)
         ├─ GameOver       (death screen with mission log entry)
+        ├─ PauseMenu      (Esc: resume / settings / restart / quit to title)
+        ├─ SurvivalCard   (real success story on each fix; practice "would have killed you")
         └─ ShiftComplete  (win screen with real-astronaut comparison)
 ```
 

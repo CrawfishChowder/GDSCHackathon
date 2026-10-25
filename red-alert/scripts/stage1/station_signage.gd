@@ -8,7 +8,7 @@ const COLOR_CUE := Color(1.0, 0.35, 0.1)
 const SIGN_CONFIGS: Array[Dictionary] = [
 	{"name": "Sign_o2", "text": "O2 CONTROL", "pos": Vector3(-2.1, 3.02, 4.42), "rot_y": PI, "id": "o2"},
 	{"name": "Sign_reactor", "text": "REACTOR", "pos": Vector3(0.0, 3.02, 4.42), "rot_y": PI, "id": "reactor"},
-	{"name": "Sign_systems", "text": "SYSTEMS", "pos": Vector3(2.1, 3.02, 4.42), "rot_y": PI, "id": ""},
+	{"name": "Sign_systems", "text": "CO2 SCRUBBER", "pos": Vector3(2.1, 3.02, 4.42), "rot_y": PI, "id": "co2"},
 	{"name": "Sign_power", "text": "POWER BREAKERS", "pos": Vector3(2.8, 2.55, -4.72), "rot_y": 0.0, "id": "power"},
 ]
 
@@ -16,6 +16,7 @@ const CUE_CONFIGS: Array[Dictionary] = [
 	{"name": "Cue_reactor", "pos": Vector3(0.0, 1.75, 3.7), "id": "reactor"},
 	{"name": "Cue_o2", "pos": Vector3(-2.13, 1.75, 3.7), "id": "o2"},
 	{"name": "Cue_power", "pos": Vector3(2.8, 2.25, -4.45), "id": "power"},
+	{"name": "Cue_co2", "pos": Vector3(2.13, 1.75, 3.7), "id": "co2"},
 ]
 
 var _signs: Array[Dictionary] = []

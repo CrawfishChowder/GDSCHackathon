@@ -11,6 +11,10 @@ func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_setup_alert_label()
 	_setup_stats_label()
+	_apply_high_contrast()
+	var s := get_node_or_null("/root/Settings")
+	if s != null and s.has_signal("settings_changed"):
+		s.settings_changed.connect(_on_settings_changed)
 
 
 func _process(_delta: float) -> void:
@@ -94,6 +98,27 @@ func _setup_stats_label() -> void:
 	stats_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	stats_label.text = "SHIFT 5:00 LEFT   FIXES 0"
 	add_child(stats_label)
+
+
+func _apply_high_contrast() -> void:
+	var s := get_node_or_null("/root/Settings")
+	var hc: bool = bool(s.get_setting("high_contrast")) if s != null and s.has_method("get_setting") else false
+	var alert_sz := 38 if hc else 30
+	var stats_sz := 20 if hc else 16
+	var outline := 8 if hc else 0
+	if alert_label != null:
+		alert_label.add_theme_font_size_override("font_size", alert_sz)
+		alert_label.add_theme_constant_override("outline_size", outline)
+		alert_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	if stats_label != null:
+		stats_label.add_theme_font_size_override("font_size", stats_sz)
+		stats_label.add_theme_constant_override("outline_size", outline)
+		stats_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+
+
+func _on_settings_changed(key: String, _val: Variant) -> void:
+	if key == "high_contrast":
+		_apply_high_contrast()
 
 
 func _get_mm() -> Node:
