@@ -29,7 +29,7 @@ func _initialize() -> void:
 	for i in 10:
 		await physics_frame
 
-	if not prompt_label.visible or prompt_label.text != "[E] Open breaker box":
+	if not prompt_label.visible or prompt_label.text != "[E] Open breaker cover":
 		return _fail("breaker prompt not shown, got '%s'" % prompt_label.text)
 
 	_press_interact()
@@ -38,7 +38,7 @@ func _initialize() -> void:
 		return _fail("pressing interact did not open the breaker box")
 
 	await physics_frame
-	if prompt_label.text != "[E] Close breaker box":
+	if prompt_label.text != "[E] Close breaker cover":
 		return _fail("prompt did not update after opening, got '%s'" % prompt_label.text)
 
 	# Parent-walk lookup: the key's collision shape resolves to the Interactable.

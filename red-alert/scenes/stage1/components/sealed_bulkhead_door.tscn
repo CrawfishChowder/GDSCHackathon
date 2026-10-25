@@ -31,13 +31,10 @@ emission = Color(0.9, 0.025, 0.012, 1)
 emission_energy_multiplier = 2.4
 
 [sub_resource type="StandardMaterial3D" id="Material_monitor_screen"]
-resource_name = "Bulkhead access monitor display"
-albedo_color = Color(0.012, 0.11, 0.14, 1)
-metallic = 0.08
-roughness = 0.18
-emission_enabled = true
-emission = Color(0.025, 0.58, 0.72, 1)
-emission_energy_multiplier = 2.1
+resource_name = "Bulkhead access monitor off glass"
+albedo_color = Color(0.002, 0.004, 0.005, 1)
+metallic = 0.12
+roughness = 0.2
 
 [sub_resource type="BoxMesh" id="Mesh_door"]
 material = SubResource("Material_door")
@@ -156,6 +153,9 @@ mesh = SubResource("Mesh_monitor_frame")
 [node name="Screen" type="MeshInstance3D" parent="LeftAccessMonitor"]
 position = Vector3(-2.8, 1.64, 0.258)
 mesh = SubResource("Mesh_monitor_screen")
+
+[node name="ScreenOverlayAnchor" type="Node3D" parent="LeftAccessMonitor"]
+position = Vector3(-2.8, 1.64, 0.281)
 
 [node name="StatusStrip" type="MeshInstance3D" parent="LeftAccessMonitor"]
 position = Vector3(-2.8, 1.19, 0.258)

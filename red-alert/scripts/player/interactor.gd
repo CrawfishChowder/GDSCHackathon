@@ -47,4 +47,7 @@ func _prompt_for(target: Node) -> String:
 	if target == null:
 		return ""
 	var prompt: Variant = target.get("prompt_text")
+	# Teammates' scripts expose get_interaction_prompt() instead of prompt_text.
+	if prompt == null and target.has_method("get_interaction_prompt"):
+		prompt = String(target.call("get_interaction_prompt"))
 	return prompt if prompt is String and not prompt.is_empty() else DEFAULT_PROMPT

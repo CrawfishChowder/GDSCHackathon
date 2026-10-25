@@ -53,7 +53,7 @@
 	},
 	"crew_hint_power": {
 		"speaker": "crew",
-		"text": "Power is failing! Head to the breaker box beside the north door, open the cover first."
+		"text": "Power's out! Breaker box by the north door. Open the cover, flip the main breaker off, then back on."
 	},
 	"crew_hint_o2": {
 		"speaker": "crew",

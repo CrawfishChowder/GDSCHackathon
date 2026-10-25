@@ -4,6 +4,7 @@ extends Node3D
 var _lights: Array[OmniLight3D] = []
 var _base_energies: Array[float] = []
 var _audio_player: AudioStreamPlayer = null
+var _was_power: bool = false
 
 
 func _ready() -> void:
@@ -63,14 +64,19 @@ func _search_lights(node: Node) -> void:
 func _update_lights(delta: float, active_id: String) -> void:
 	if _lights.is_empty():
 		return
+	if active_id == "power":
+		_was_power = true
+		return
+	if _was_power:
+		_was_power = false
+		for i in range(_lights.size()):
+			var light: OmniLight3D = _lights[i]
+			if is_instance_valid(light):
+				light.light_energy = _base_energies[i]
+
 	var target := 1.0
 	var is_flicker := false
-	if active_id == "power":
-		target = 0.15
-		if randf() < 0.05:
-			target = 0.48
-			is_flicker = true
-	elif active_id == "reactor" and randf() < 0.25:
+	if active_id == "reactor" and randf() < 0.25:
 		target = 0.4
 		is_flicker = true
 

@@ -14,6 +14,9 @@
 [ext_resource type="Script" path="res://scripts/stage1/doorways.gd" id="10_doorways"]
 [ext_resource type="Script" path="res://scripts/stage1/room_props.gd" id="11_room_props"]
 [ext_resource type="Script" path="res://scripts/stage1/tutorial_director.gd" id="12_tutorial_director"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
+[ext_resource type="Script" path="res://scripts/stage1/event_director.gd" id="6_event_director"]
+[ext_resource type="Script" path="res://scripts/stage1/power_failure_event.gd" id="7_power_failure_event"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -56,13 +59,27 @@ position = Vector3(4.8, 0, 3.8)
 
 [node name="MainConsole" parent="." instance=ExtResource("4_console")]
 
+[node name="ConsoleChairs" type="Node3D" parent="."]
+
+[node name="LeftConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(-2.1, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
+[node name="CenterConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(0, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
+[node name="RightConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(2.1, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1809252709]
 
 [node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=1109936878]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
 
 [node name="FirstPersonPlayer" parent="." unique_id=1815492691 instance=ExtResource("3_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
 
 [node name="AlarmController" type="Node3D" parent="."]
 script = ExtResource("6_alarm")
@@ -83,3 +100,10 @@ script = ExtResource("11_room_props")
 
 [node name="TutorialDirector" type="Node" parent="."]
 script = ExtResource("12_tutorial_director")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
+
+[node name="EventDirector" type="Node" parent="."]
+script = ExtResource("6_event_director")
+
+[node name="PowerFailureEvent" type="Node" parent="EventDirector"]
+script = ExtResource("7_power_failure_event")

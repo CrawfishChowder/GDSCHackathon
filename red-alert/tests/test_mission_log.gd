@@ -43,7 +43,8 @@ func _initialize() -> void:
 		return _fail("entry_added payload did not match returned entry")
 
 	var new_count: int = (ml.get("entries") as Array).size()
-	if new_count != initial_count + 1:
+	# The log is capped at 50 entries, so a full log stays at 50.
+	if new_count != mini(initial_count + 1, 50):
 		return _fail("Expected entries to grow by 1 (was %d, now %d)" % [initial_count, new_count])
 
 	print("PASS")

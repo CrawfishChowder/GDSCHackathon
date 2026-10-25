@@ -9,6 +9,9 @@ const DOOR_OPENING_HEIGHT := 2.6
 @export_range(2.5, 8.0, 0.25) var room_height: float = 3.5
 
 var _materials: Dictionary = {}
+var _overhead_lights: Array[OmniLight3D] = []
+var _light_fixtures: Array[MeshInstance3D] = []
+var _light_fixture_material: StandardMaterial3D
 
 
 func _ready() -> void:
@@ -32,6 +35,7 @@ func _create_materials() -> void:
 	_materials["light"] = _metal_material(
 		"Cold light diffuser", Color("b9d7e8"), 0.15, 0.2, Color("98d7ff")
 	)
+	_light_fixture_material = _materials["light"] as StandardMaterial3D
 
 
 func _metal_material(
@@ -342,13 +346,14 @@ func _build_lighting(parent: Node3D) -> void:
 		var z_position := -3.0 + row_index * 3.0
 		for column_index in range(3):
 			var x_position := -3.6 + column_index * 3.6
-			_add_box(
+			var fixture := _add_box(
 				parent,
 				"LightFixture_%02d_%02d" % [row_index + 1, column_index + 1],
 				Vector3(2.15, 0.1, 0.42),
 				Vector3(x_position, room_height - 0.24, z_position),
 				_materials["light"]
 			)
+			_light_fixtures.append(fixture)
 			var light := OmniLight3D.new()
 			light.name = "ColdOverheadLight_%02d_%02d" % [
 				row_index + 1, column_index + 1
@@ -360,6 +365,29 @@ func _build_lighting(parent: Node3D) -> void:
 			light.omni_attenuation = 1.1
 			light.shadow_enabled = true
 			parent.add_child(light)
+			_overhead_lights.append(light)
+
+
+func set_alert_lighting(is_on: bool) -> void:
+	for light in _overhead_lights:
+		light.light_color = Color("ff1717")
+		light.light_energy = 5.5 if is_on else 0.0
+
+	_light_fixture_material.albedo_color = (
+		Color("ff3030") if is_on else Color("201010")
+	)
+	_light_fixture_material.emission = Color("ff0909") if is_on else Color.BLACK
+	_light_fixture_material.emission_energy_multiplier = 3.2 if is_on else 0.0
+
+
+func restore_overhead_lighting() -> void:
+	for light in _overhead_lights:
+		light.light_color = Color("b9e3ff")
+		light.light_energy = 5.5
+
+	_light_fixture_material.albedo_color = Color("b9d7e8")
+	_light_fixture_material.emission = Color("98d7ff")
+	_light_fixture_material.emission_energy_multiplier = 3.2
 
 
 func _add_box(

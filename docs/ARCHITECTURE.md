@@ -24,7 +24,7 @@ Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame 
 ## Interaction
 - `scripts/player/interactor.gd` (a RayCast3D on the camera, 3 m) walks up from the hit collider to the first node with `interact(by)`. It reads optional `prompt_text` and `enabled` from that node, and the HUD shows "[E] prompt".
 - `Interactable` (`scripts/interaction/interactable.gd`) is an Area3D base on physics layer 2. `FixStation` extends it, is enabled only while its malfunction is active, and opens its minigame.
-- `Minigame` (`scripts/minigames/minigame.gd`) is the Control base. It has signals `completed`, `cancelled` and `failed(reason)`, and a `make_panel(title)` helper. Minigames: `reactor_sequence`, `power_switches`, `o2_keypad`.
+- `Minigame` (`scripts/minigames/minigame.gd`) is the Control base. It has signals `completed`, `cancelled` and `failed(reason)`, and a `make_panel(title)` helper. Minigames: `reactor_sequence`, `o2_keypad`, `co2_adapter`. Power is fixed physically at the breaker (Eddie's `PowerFailureEvent`: cover open, main breaker OFF then ON).
 
 ## Scene tree (stage_1_room.tscn)
 ```
@@ -32,7 +32,9 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
 ├─ WorldEnvironment
 ├─ Architecture/IndustrialRoomShell   (room geometry built in code, 12x10x3.5)
 ├─ BulkheadDoors/{North,East,West}BulkheadDoor   (bulkhead_door.gd: unseal(); DoorDisplay monitor)
-├─ WallFixtures/NorthDoorBreakerBox   (breaker_box.gd; child PowerStation FixStation)
+├─ WallFixtures/NorthDoorBreakerBox   (breaker_box.gd: cover + main breaker; power fix)
+├─ ConsoleChairs/{Left,Center,Right}ConsoleChair (Scott: E to sit / stand)
+├─ EventDirector/PowerFailureEvent   (Eddie: red flash lighting; breaker OFF→ON calls fix("power"))
 ├─ WallFixtures/DoNotPressButton      (do_not_press_button.gd)
 ├─ MainConsole (components/main_console.tscn)
 │   ├─ LeftStation/O2Station          (FixStation "o2")
