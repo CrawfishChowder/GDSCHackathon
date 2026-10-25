@@ -1,18 +1,11 @@
 class_name ReactorSequence
 extends Minigame
 
-const BASE_COLORS: Array[Color] = [
-	Color(0.72, 0.12, 0.12), Color(0.82, 0.52, 0.08),
-	Color(0.12, 0.42, 0.82), Color(0.12, 0.65, 0.22),
-]
-const BRIGHT_COLORS: Array[Color] = [
-	Color(1.0, 0.35, 0.35), Color(1.0, 0.88, 0.3),
-	Color(0.4, 0.78, 1.0), Color(0.38, 1.0, 0.52),
-]
+const BASE_COLORS: Array[Color] = [Color(0.72, 0.12, 0.12), Color(0.82, 0.52, 0.08), Color(0.12, 0.42, 0.82), Color(0.12, 0.65, 0.22)]
+const BRIGHT_COLORS: Array[Color] = [Color(1.0, 0.35, 0.35), Color(1.0, 0.88, 0.3), Color(0.4, 0.78, 1.0), Color(0.38, 1.0, 0.52)]
 
 var sequence: Array[int] = []
 var accepting_input: bool = false
-
 var _current_step: int = 0
 var _buttons: Array[Button] = []
 var _status_label: Label = null
@@ -22,12 +15,11 @@ var _bright_styles: Array[StyleBoxFlat] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-
 	var content: VBoxContainer = make_panel("REACTOR: STABILIZE CORE")
 	if content == null:
-		content = VBoxContainer.new()
-		add_child(content)
+		content = VBoxContainer.new(); add_child(content)
 
+	add_instruction(content, "Watch the sequence, then repeat it. A single wrong press is fatal.")
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_theme_constant_override("separation", 24)
 
@@ -39,15 +31,16 @@ func _ready() -> void:
 	for i in range(4):
 		_normal_styles.append(_create_style(BASE_COLORS[i], false))
 		_bright_styles.append(_create_style(BRIGHT_COLORS[i], true))
-
 		var btn := Button.new()
+		btn.text = "[%d]" % (i + 1)
+		btn.add_theme_font_size_override("font_size", 28)
+		btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.9))
 		btn.custom_minimum_size = Vector2(110, 110)
 		btn.focus_mode = Control.FOCUS_NONE
 		btn.add_theme_stylebox_override("normal", _normal_styles[i])
 		btn.add_theme_stylebox_override("hover", _normal_styles[i])
 		btn.add_theme_stylebox_override("pressed", _bright_styles[i])
 		btn.add_theme_stylebox_override("disabled", _normal_styles[i])
-
 		var button_index: int = i
 		btn.pressed.connect(func() -> void: press(button_index))
 		button_row.add_child(btn)
@@ -87,6 +80,30 @@ func press(index: int) -> void:
 		fail("You pressed the wrong control in the sequence and pulled the core out of safe limits.")
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not accepting_input or not (event is InputEventKey):
+		return
+	var key_event := event as InputEventKey
+	if not key_event.pressed or key_event.echo:
+		return
+
+	var keycode := key_event.keycode
+	if keycode == KEY_NONE:
+		keycode = key_event.physical_keycode
+
+	var idx := -1
+	if keycode >= KEY_1 and keycode <= KEY_4:
+		idx = keycode - KEY_1
+	elif keycode >= KEY_KP_1 and keycode <= KEY_KP_4:
+		idx = keycode - KEY_KP_1
+
+	if idx >= 0 and idx < 4:
+		var vp := get_viewport()
+		if vp != null:
+			vp.set_input_as_handled()
+		press(idx)
+
+
 func _play_sequence() -> void:
 	accepting_input = false
 	_current_step = 0
@@ -119,8 +136,7 @@ func _create_style(color: Color, border: bool) -> StyleBoxFlat:
 	style.bg_color = color
 	style.set_corner_radius_all(8)
 	if border:
-		style.set_border_width_all(3)
-		style.border_color = Color(1.0, 1.0, 1.0, 0.9)
+		style.set_border_width_all(3); style.border_color = Color(1.0, 1.0, 1.0, 0.9)
 	return style
 
 

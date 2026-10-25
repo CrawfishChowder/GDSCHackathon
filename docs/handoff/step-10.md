@@ -70,3 +70,30 @@ Files: NEW `scripts/ui/credits_screen.gd`, `scripts/ui/title_screen.gd`, NEW `te
    - **AI ASSISTANCE:** planning and review by Claude (Anthropic); implementation help by Gemini (Google Antigravity). No AI-generated images or video.
 2. `title_screen.gd`: add a "Credits" button just above "Quit". It opens a CreditsScreen on top and closes it on `closed`, the same way the Mission log button works. Change nothing else.
 3. Test: instance the credits screen. Assert `full_text()` contains "Sonniss", "Godot" and "Brandon Braswell". Then instance the title screen and assert a button containing "Credits" exists.
+
+---
+
+## T10e — Controls help panel (H) + Hide HUD setting (runs after T10b)
+
+Files: NEW `scripts/ui/controls_panel.gd`, `scripts/ui/hud.gd`, `scripts/ui/pause_menu.gd`, `scripts/systems/settings.gd`, `scripts/ui/settings_panel.gd`, NEW `tests/test_controls_panel.gd`.
+
+1. `controls_panel.gd`: `class_name ControlsPanel extends PanelContainer`, a right-side panel (about 420 px wide, vertically centered, 24 px from the right edge, dark StyleBoxFlat like the other panels, `mouse_filter` IGNORE). Content, built in code, with section headings in cyan:
+   - Header: **"H to toggle this panel"** (font 20, bold)
+   - **MOVE:** "WASD move · Mouse look · Space jump"
+   - **ACT:** "E interact / sit / fix" · "In minigames: number keys, Enter, Backspace (shown in [brackets])"
+   - **SURVIVE** (these lines in red `Color(1, 0.3, 0.25)`, font 18): "HOLD B TO BREATHE when your heart rate climbs" · "ONE WRONG MOVE IN A MINIGAME IS FATAL" · "FOLLOW >> FIX HERE << AND THE ALARM PING"
+   - **MENUS:** "Esc pause / settings · F12 demo keys"
+   - Footer (grey, font 13): "The HUD can be hidden in Settings."
+   - Expose `func toggle()`, `func show_panel()`, `func hide_panel()`, `func is_open() -> bool`, and `func text_content() -> String` (all labels joined, for tests).
+2. `hud.gd`:
+   - Instance a ControlsPanel, hidden by default.
+   - Handle physical key H (non-echo) in `_unhandled_input` → `toggle()`, and mark it handled. Ignore H while `MinigameHost.is_open()` or while the tree is paused.
+   - Add a small persistent bottom-right hint, "H  controls" (font 14, grey).
+   - On `run_started`, if `SaveData.get_value("controls_seen", false)` is false, call `show_panel()` and set `controls_seen` to true. The player closes it with H.
+   - Setting `hide_hud`: when true, hide the HUD's own labels (prompt, alert, stats, hint, controls panel), but never the crosshair, the captions (Voice owns those), the minigames or the end screens. React to `settings_changed`.
+3. `pause_menu.gd`: add a "Controls" button (between Settings and Restart) that toggles a ControlsPanel instance inside the pause menu. Change nothing else.
+4. `settings.gd`: add `"hide_hud": false` to DEFAULTS. `settings_panel.gd`: add a "Hide HUD (for screenshots)" CheckButton row.
+5. Test:
+   - Set `SaveData.set_value("controls_seen", false)`, instance `hud.tscn`, and call `MalfunctionManager.start_run()`. Wait 2 frames and assert the HUD's ControlsPanel `is_open()` and that its `text_content()` contains "HOLD B TO BREATHE".
+   - Call `toggle()` and assert it's closed.
+   - Set `hide_hud` true and assert the controls hint label is hidden. Reset it to false.

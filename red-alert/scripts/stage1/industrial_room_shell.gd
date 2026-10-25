@@ -12,11 +12,15 @@ var _materials: Dictionary = {}
 var _overhead_lights: Array[OmniLight3D] = []
 var _light_fixtures: Array[MeshInstance3D] = []
 var _light_fixture_material: StandardMaterial3D
+var _center_light: OmniLight3D = null
 
 
 func _ready() -> void:
 	_create_materials()
 	_build_room()
+	var s := get_node_or_null("/root/Settings")
+	if s != null and s.has_signal("settings_changed"):
+		s.settings_changed.connect(_on_settings_changed)
 
 
 func _create_materials() -> void:
@@ -365,9 +369,27 @@ func _build_lighting(parent: Node3D) -> void:
 			light.omni_attenuation = 1.1
 			# Only the center light casts shadows: nine shadowed omni lights cost a lot
 			# of frame time in the Compatibility renderer (playtest: mouse lag).
-			light.shadow_enabled = row_index == 1 and column_index == 1
+			if row_index == 1 and column_index == 1:
+				_center_light = light
+				light.shadow_enabled = _get_shadows_enabled()
+			else:
+				light.shadow_enabled = false
 			parent.add_child(light)
 			_overhead_lights.append(light)
+
+
+func _get_shadows_enabled() -> bool:
+	var s := get_node_or_null("/root/Settings")
+	if s != null and s.has_method("get_setting"):
+		var v: Variant = s.get_setting("shadows")
+		if v != null:
+			return bool(v)
+	return true
+
+
+func _on_settings_changed(key: String, value: Variant) -> void:
+	if key == "shadows" and is_instance_valid(_center_light):
+		_center_light.shadow_enabled = bool(value)
 
 
 func set_alert_lighting(is_on: bool) -> void:

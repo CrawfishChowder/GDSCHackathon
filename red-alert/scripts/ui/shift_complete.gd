@@ -86,6 +86,10 @@ func _create_label(parent: Control, text: String, font_size: int, color: Color) 
 	return label
 
 func _on_shift_completed() -> void:
+	if DisplayServer.get_name() != "headless":
+		await get_tree().create_timer(4.0).timeout
+		if not is_inside_tree():
+			return
 	_update_stats()
 	visible = true
 	get_tree().paused = true

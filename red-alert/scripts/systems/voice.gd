@@ -92,7 +92,8 @@ func _connect_signals() -> void:
 		if _audio_player != null: _audio_player.stop()
 		_play_token += 1; _is_playing = false; say("hal_death")
 	)
-	mm.shift_completed.connect(func() -> void: say("crew_shift_done")); _connected = true
+	# Shift end is voiced by stage1_controller (hal_relief + crew_relief).
+	_connected = true
 
 func _on_settings_changed(_k: String, _v: Variant) -> void: _apply_settings()
 

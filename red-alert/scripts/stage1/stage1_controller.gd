@@ -1,14 +1,14 @@
 class_name Stage1Controller
 extends Node3D
 
-@onready var emergency_release_key: Interactable = $MainConsole/CenterStation/EmergencyReleaseKey
-@onready var north_door: BulkheadDoor = $BulkheadDoors/NorthBulkheadDoor
-
 
 func _ready() -> void:
 	MalfunctionManager.start_run()
-	if emergency_release_key != null:
-		emergency_release_key.interacted.connect(_on_emergency_release_key_interacted)
+	if not MalfunctionManager.shift_completed.is_connected(_on_shift_completed):
+		MalfunctionManager.shift_completed.connect(_on_shift_completed)
+	var key: Variant = get_node_or_null("MainConsole/CenterStation/EmergencyReleaseKey")
+	if key != null:
+		key.enabled = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -28,9 +28,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 
-func _on_emergency_release_key_interacted(_by: Node) -> void:
-	if north_door != null:
-		north_door.unseal()
-	if emergency_release_key != null:
-		emergency_release_key.enabled = false
-
+func _on_shift_completed() -> void:
+	$BulkheadDoors/NorthBulkheadDoor.unseal()
+	Voice.say("hal_relief")
+	Voice.say("crew_relief")
