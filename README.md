@@ -33,10 +33,13 @@ Your heart rate climbs under pressure, and above 120 BPM your hands shake (the m
 It's aimed at STEM classrooms, museums and outreach events.
 
 **What we did.**
-- **Systems:** the game is built around autoload singletons that talk through signals: the malfunction manager, minigame host, mission log, voice, life support, stress, settings and save data.
-- **Built in code:** the room, props, live console monitors (SubViewports), signage, alarm klaxon and ambient hum are all generated in code from Godot primitives.
-- **Accessibility and personalization:** always-on captions, high contrast, adjustable sensitivity, invert Y, volume, and status that's never shown by color alone. There's also a Practice mode (no deaths) and a guided first-run tutorial.
-- **Tests:** 36 headless test scenes plus a smoke run, all run by `tools/run_tests.sh`.
+- **Systems:** the game is built around autoload singletons that talk through signals: the malfunction manager, minigame host, mission log, voice, sound, life support, stress, achievements, settings and save data.
+- **Modes:** an authored **Story shift** (best first play), a random **Start shift**, **Practice** (mistakes show "this would have killed you" instead of ending the run) and **Hard** (half the time).
+- **Built in code:** the room, props, live console monitors (SubViewports), signage, a procedural Mars window, the title backdrop, and the alarm, hum and heartbeat sounds are all generated in code from Godot primitives and shaders.
+- **Sound:** recorded effects from the Sonniss GDC bundle (credited), a 3D alarm ping at the broken station, room reverb, and Sam on a filtered radio channel.
+- **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle for slow machines, hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
+- **Replay value:** six achievements, an A–F shift grade with best saved, a mission log of every crew member lost, and a shift timeline on the end screens.
+- **Tests:** 58 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
 
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*
@@ -98,6 +101,8 @@ There are no other dependencies to install; Godot runs the project directly.
 |---|---|
 | WASD / Mouse | Move / look |
 | E | Interact (sit, open, fix) |
+| H | Show / hide the controls panel |
+| F11 | Fullscreen |
 | B (hold) | Breathe slowly to lower your heart rate |
 | Space | Jump |
 | Esc | Pause menu (settings, restart, quit to title) |
@@ -113,6 +118,8 @@ There are no other dependencies to install; Godot runs the project directly.
 
 **More**
 - **The DO NOT PRESS button.** It kills you, and the game remembers how many times you pressed it.
+- **Ending:** survive five minutes and the relief crew docks at the north airlock.
+- **Credits** are on the title screen; sound sources are listed in [`red-alert/assets/sfx/CREDITS.md`](red-alert/assets/sfx/CREDITS.md).
 - **Architecture map:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **Team roles:**
   | Member | Focus |

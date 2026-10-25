@@ -13,10 +13,17 @@ All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_
 | `MissionLog` | `scripts/systems/mission_log.gd` | Records each death with its real-world incident; persisted via SaveData. |
 | `Voice` | `scripts/systems/voice.gd` | Voice line queue (`data/voice_lines.json` + `assets/voice/<id>.mp3`), always-on captions, reacts to manager signals. |
 
+| `LifeSupport` | `scripts/systems/life_support.gd` | O2/CO2/power/core gauges driven by the active malfunction. |
+| `SpaceWeather` | `scripts/systems/space_weather.gd` | NASA DONKI flare (live, cached or offline); scales countdowns. |
+| `PeopleInSpace` | `scripts/systems/people_in_space.gd` | Open Notify crew list for the title/end screens. |
+| `Sfx` | `scripts/systems/sfx.gd` | Sound library (`assets/sfx/*.ogg` + procedural), SFX/Voice/Radio buses, heartbeat, footsteps. |
+| `Achievements` | `scripts/systems/achievements.gd` | Six achievements, toasts, persisted in SaveData. |
+
 Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame or end screen pauses the tree.
 
 ## MalfunctionManager API
-- Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`.
+- Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`, `practice_mistake(cause_id, detail)`.
+- Modes: `story` (scripted beats via `story_director.gd`, random scheduler off), `normal`, `practice`, `hard`. `history` records every crisis of the run for the end-screen timeline.
 - State: `running`, `active_id`, `time_left`, `survived_seconds`, `fixes_count`, `death_kind` (`timeout` / `mistake` / `button`), `death_detail`.
 - Methods: `start_run()`, `trigger(id)`, `fix(id)`, `kill(cause_id, kind, detail)`, `shift_time_left()`, `display_name(id)`.
 - Cause ids: `reactor`, `power`, `o2`, `co2`, `dust_storm`, `do_not_press`. Grade stats: `close_calls`, `practice_mistakes` (see `ShiftGrade.compute`).

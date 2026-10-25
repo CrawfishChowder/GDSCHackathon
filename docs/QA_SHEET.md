@@ -51,6 +51,14 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
 - **Voices:** HAL (the computer) and Sam (the crewmate) are generated with ElevenLabs by `tools/generate_voices.py` (a sponsor). If an audio file is missing, the caption still plays.
 - **History:** every death and survival card uses vetted text about real incidents: SL-1 (1961), Apollo 1 (1967), Soyuz 11 (1971), Apollo 13 (1970), the Opportunity rover (2018), Apollo 12 (1969) and Kilopower (2018).
 
+## Newer systems (assign an owner)
+- **Sound** (`scripts/systems/sfx.gd`): recorded Sonniss effects plus procedural ones, on three buses (SFX with room reverb, Voice, and Radio, a band-pass filter for Sam). Each broken station emits a 3D alarm ping, so you can hear where to go. Heartbeat audio follows your BPM.
+- **Story shift** (`scripts/stage1/story_director.gd`): the random scheduler is switched off (`scripted`), and the director triggers fixed beats by shift time, ending with the relief crew opening the north door.
+- **Heart rate** (`scripts/systems/stress.gd`): BPM rises with alarms and mistakes; above 120 the minigames shake; hold B to breathe. `external_heart_rate` is the hook for a real sensor.
+- **Achievements, grade and timeline** (`achievements.gd`, `shift_grade.gd`, `history` in the manager): stored in `SaveData` (`user://save.json`).
+- **Robustness:** every timer wait re-checks that its node still exists, every pausing screen can unpause, and minigames ignore input after they finish. These are covered by four robustness test suites.
+- **Likely Q: "How do you handle a laptop that can't run it?"** Settings has a shadows toggle, VSync, fullscreen and text scale, and there's an FPS counter to check.
+
 ---
 
 ## Questions anyone may get
