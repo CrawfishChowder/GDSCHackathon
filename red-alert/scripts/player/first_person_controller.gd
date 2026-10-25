@@ -216,6 +216,12 @@ func _apply_look_delta(mouse_delta: Vector2, sensitivity: float) -> void:
 	)
 
 
+# Called by overlays (minigames, pause menu) when they hand control back, so mouse
+# look restarts through the normal capture path instead of a raw mouse_mode set.
+func resume_mouse_look() -> void:
+	_set_mouse_look_active(true)
+
+
 func _set_mouse_look_active(active: bool) -> void:
 	_mouse_look_active = active
 	_target_yaw = rotation.y

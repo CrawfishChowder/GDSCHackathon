@@ -27,6 +27,7 @@ Voice="*res://scripts/systems/voice.gd"
 LifeSupport="*res://scripts/systems/life_support.gd"
 Stress="*res://scripts/systems/stress.gd"
 Sfx="*res://scripts/systems/sfx.gd"
+Achievements="*res://scripts/systems/achievements.gd"
 SpaceWeather="*res://scripts/systems/space_weather.gd"
 PeopleInSpace="*res://scripts/systems/people_in_space.gd"
 

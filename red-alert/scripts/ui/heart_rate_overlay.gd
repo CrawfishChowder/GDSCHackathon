@@ -1,4 +1,7 @@
+class_name HeartRateOverlay
 extends CanvasLayer
+# HeartRateOverlay displays player BPM, breathing prompt, and red vignette.
+# Driven by Stress autoload; increases pulse rate and vignette at high BPM.
 
 const VIGNETTE_SHADER_CODE := """
 shader_type canvas_item;
@@ -21,18 +24,15 @@ var _bpm_label: Label
 var _breathe_hint: Label
 var _pulse_phase: float = 0.0
 
-
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	if layer == 1:
 		layer = 9
 
-	# Full-screen red vignette
 	_vignette_rect = ColorRect.new()
 	_vignette_rect.name = "VignetteRect"
 	_vignette_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_vignette_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
 	_vignette_mat = ShaderMaterial.new()
 	var sh := Shader.new()
 	sh.code = VIGNETTE_SHADER_CODE
@@ -41,7 +41,6 @@ func _ready() -> void:
 	_vignette_rect.visible = false
 	add_child(_vignette_rect)
 
-	# Centered hint for breathing when heart rate is elevated
 	_breathe_hint = Label.new()
 	_breathe_hint.name = "BreatheHint"
 	_breathe_hint.text = "Hold B to breathe"
@@ -64,7 +63,6 @@ func _ready() -> void:
 	_breathe_hint.visible = false
 	add_child(_breathe_hint)
 
-	# Top-left heart rate display below HUD stats (y about 44)
 	_hr_container = HBoxContainer.new()
 	_hr_container.name = "HeartRateContainer"
 	_hr_container.position = Vector2(16.0, 44.0)
@@ -90,19 +88,16 @@ func _ready() -> void:
 	_bpm_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
 	_hr_container.add_child(_bpm_label)
 
-
 func _process(delta: float) -> void:
-	var stress := get_node_or_null("/root/Stress")
+	var stress: Node = get_node_or_null("/root/Stress")
 	var bpm: float = float(stress.get("heart_rate")) if stress != null else 72.0
 
-	# Vignette update
 	var s := vignette_strength()
 	if _vignette_mat != null:
 		_vignette_mat.set_shader_parameter("strength", s)
 	if _vignette_rect != null:
 		_vignette_rect.visible = (s > 0.001)
 
-	# Pulse scale at current BPM
 	_pulse_phase += delta * (bpm / 60.0) * TAU
 	if _pulse_phase > TAU:
 		_pulse_phase = fmod(_pulse_phase, TAU)
@@ -110,7 +105,6 @@ func _process(delta: float) -> void:
 	if _heart_icon != null:
 		_heart_icon.scale = Vector2(pulse_scale, pulse_scale)
 
-	# Label update with ELEVATED (> 110) or CRITICAL (> 135)
 	var status_text := ""
 	var text_color := Color(0.85, 0.85, 0.85)
 	if bpm > 135.0:
@@ -124,15 +118,13 @@ func _process(delta: float) -> void:
 		_bpm_label.text = "%d BPM%s" % [int(round(bpm)), status_text]
 		_bpm_label.add_theme_color_override("font_color", text_color)
 
-	# Hint visibility
 	if _breathe_hint != null:
 		_breathe_hint.visible = (bpm > 110.0)
 
-
 func vignette_strength() -> float:
-	var stress := get_node_or_null("/root/Stress")
+	var stress: Node = get_node_or_null("/root/Stress")
 	var bpm: float = float(stress.get("heart_rate")) if stress != null else 72.0
-	var breathing: bool = bool(stress.call("is_breathing")) if stress != null and stress.has_method("is_breathing") else false
+	var breathing: bool = bool(stress.call("is_breathing")) if (stress != null and stress.has_method("is_breathing")) else false
 	var s: float = clampf((bpm - 110.0) / 50.0, 0.0, 1.0)
 	if breathing:
 		s *= 0.5

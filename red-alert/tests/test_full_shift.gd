@@ -53,7 +53,9 @@ func _initialize() -> void:
 	change_scene_to_file("res://scenes/ui/title_screen.tscn")
 	await _frames(2)
 	_find_button(current_scene, "Start shift").pressed.emit()
-	await _frames(5)
+	# The title fades to black (0.35 s) before changing scene.
+	await create_timer(0.6).timeout
+	await _frames(3)
 	room = current_scene
 	if room == null or room.name != "Stage1IndustrialRoom" or not mm.running:
 		return _fail("Start shift did not start a run in the room")

@@ -52,8 +52,8 @@ func _initialize() -> void:
 	root.add_child(title)
 	await process_frame
 	var focused := root.gui_get_focus_owner() as Button
-	if focused == null or focused.text != "Start shift":
-		return _fail("Title did not focus Start shift")
+	if focused == null or not focused.text.begins_with("Story shift"):
+		return _fail("Title did not focus Story shift")
 	title.queue_free()
 	await process_frame
 

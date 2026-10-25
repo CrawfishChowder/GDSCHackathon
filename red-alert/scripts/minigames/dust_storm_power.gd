@@ -1,6 +1,10 @@
 class_name DustStormPower
 extends Minigame
 
+## Solar power rebalancing minigame during dust storms.
+## The player adjusts allocations across life support, heaters, and comms within budget.
+## Emits completed or failed to MinigameHost; starving a system or blowing budget is fatal.
+
 const TOTAL_BUDGET: int = 90
 const SYSTEM_NAMES: Array[String] = ["LIFE SUPPORT (min 40)", "HEATERS (min 25)", "COMMS (min 15)"]
 const SYSTEM_MINS: Array[int] = [40, 25, 15]
@@ -8,25 +12,26 @@ const SYSTEM_MINS: Array[int] = [40, 25, 15]
 var allocations: Array[int] = [33, 33, 33]
 var _sliders: Array[HSlider] = []
 var _value_labels: Array[Label] = []
-var _total_label: Label
-var _finished: bool = false
+var _total_label: Label = null
 var _last_slider_sfx_msec: int = -100
-
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 
 	var content: VBoxContainer = make_panel("DUST STORM: BALANCE SOLAR POWER")
 	if content == null:
-		content = VBoxContainer.new(); add_child(content)
+		content = VBoxContainer.new()
+		add_child(content)
 
 	add_instruction(content, "Drag or use the D-pad to set every system above its minimum and total at 90 or less, then ENGAGE.")
 
 	var panel: PanelContainer = get_node_or_null("MinigamePanel") as PanelContainer
 	if panel != null:
 		panel.custom_minimum_size = Vector2(680, 440)
-		panel.offset_left = -340.0; panel.offset_top = -220.0
-		panel.offset_right = 340.0; panel.offset_bottom = 220.0
+		panel.offset_left = -340.0
+		panel.offset_top = -220.0
+		panel.offset_right = 340.0
+		panel.offset_bottom = 220.0
 
 	_sliders.clear()
 	_value_labels.clear()
@@ -81,9 +86,8 @@ func _ready() -> void:
 	_update_ui()
 	ControllerSupport.focus_buttons(self, true)
 
-
 func _unhandled_input(event: InputEvent) -> void:
-	if _finished or not (event is InputEventKey):
+	if _done or not (event is InputEventKey):
 		return
 	var key_event := event as InputEventKey
 	if not key_event.pressed or key_event.echo:
@@ -97,9 +101,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			vp.set_input_as_handled()
 		engage()
 
-
+## Sets allocation for a subsystem index and updates UI and sound.
 func set_allocation(i: int, value: int) -> void:
-	if i < 0 or i >= allocations.size():
+	if _done or i < 0 or i >= allocations.size():
 		return
 	var changed: bool = (allocations[i] != value)
 	allocations[i] = value
@@ -107,21 +111,22 @@ func set_allocation(i: int, value: int) -> void:
 		_sliders[i].value = value
 	_update_ui()
 	if changed:
-		var now := Time.get_ticks_msec()
+		var now: int = Time.get_ticks_msec()
 		if now - _last_slider_sfx_msec >= 80:
 			_last_slider_sfx_msec = now
 			var sfx: Node = get_node_or_null("/root/Sfx")
-			if sfx != null and sfx.has_method("play"): sfx.play("click")
+			if sfx != null and sfx.has_method("play"):
+				sfx.play("click")
 
-
+## Validates power totals and system minimums, completing or failing the minigame.
 func engage() -> void:
-	if _finished:
+	if _done:
 		return
 	var sfx: Node = get_node_or_null("/root/Sfx")
-	if sfx != null and sfx.has_method("play"): sfx.play("click")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("click")
 
 	var total: int = allocations[0] + allocations[1] + allocations[2]
-	_finished = true
 	if total > TOTAL_BUDGET:
 		fail("You drew more power than the panels could give and the batteries collapsed.")
 	elif allocations[0] < SYSTEM_MINS[0]:
@@ -133,7 +138,6 @@ func engage() -> void:
 	else:
 		complete()
 
-
 func _update_ui() -> void:
 	var total: int = 0
 	for i in range(allocations.size()):
@@ -141,10 +145,15 @@ func _update_ui() -> void:
 		total += val
 		if i < _value_labels.size() and _value_labels[i] != null:
 			var ok: bool = val >= SYSTEM_MINS[i]
-			_value_labels[i].text = "%d  %s" % [val, "OK" if ok else "LOW"]
+			var status_str: String = "OK" if ok else "LOW"
+			_value_labels[i].text = "%d  %s" % [val, status_str]
 			_value_labels[i].modulate = Color(0.3, 0.9, 0.4) if ok else Color(1.0, 0.35, 0.2)
 
 	if _total_label != null:
-		var over := total > TOTAL_BUDGET
-		_total_label.text = "TOTAL %d / %d  OVER BUDGET" % [total, TOTAL_BUDGET] if over else "TOTAL %d / %d" % [total, TOTAL_BUDGET]
-		_total_label.modulate = Color(1.0, 0.3, 0.2) if over else Color(0.3, 0.8, 1.0)
+		var over: bool = total > TOTAL_BUDGET
+		if over:
+			_total_label.text = "TOTAL %d / %d  OVER BUDGET" % [total, TOTAL_BUDGET]
+			_total_label.modulate = Color(1.0, 0.3, 0.2)
+		else:
+			_total_label.text = "TOTAL %d / %d" % [total, TOTAL_BUDGET]
+			_total_label.modulate = Color(0.3, 0.8, 1.0)

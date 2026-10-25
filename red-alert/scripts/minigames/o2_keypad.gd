@@ -3,46 +3,44 @@ extends Minigame
 
 ## O2 filter reset keypad minigame.
 ## The player enters the 5-digit filter code displayed on screen.
+## Emits completed or failed to MinigameHost; one wrong code vents oxygen.
 
-const KEYS: Array[String] = [
-	"1", "2", "3",
-	"4", "5", "6",
-	"7", "8", "9",
-	"CLR", "0", "ENTER",
-]
+const KEYS: Array[String] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "CLR", "0", "ENTER"]
 
 var code: String = ""
 var entered: String = ""
-
 var code_label: Label = null
 var display_label: Label = null
 
-
 func _init() -> void:
-	if code.is_empty(): code = _generate_code()
+	if code.is_empty():
+		code = _generate_code()
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	if code.is_empty(): code = _generate_code()
+	if code.is_empty():
+		code = _generate_code()
 
-	var content: VBoxContainer = make_panel("O2: RESET FILTER") if has_method("make_panel") else null
+	var content: VBoxContainer = null
+	if has_method("make_panel"):
+		content = make_panel("O2: RESET FILTER")
 	if content == null:
-		content = VBoxContainer.new(); content.name = "Content"; add_child(content)
+		content = VBoxContainer.new()
+		content.name = "Content"
+		add_child(content)
 
 	add_instruction(content, "Type the filter code shown above, then press ENTER. One wrong code is fatal.")
 	content.add_theme_constant_override("separation", 14)
 
 	code_label = Label.new()
-	code_label.name = "CodeLabel"
-	code_label.text = "FILTER CODE: " + code
+	code_label.name = "CodeLabel"; code_label.text = "FILTER CODE: " + code
 	code_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	code_label.add_theme_font_size_override("font_size", 20)
 	code_label.add_theme_color_override("font_color", Color(0.3, 0.85, 1.0))
 	content.add_child(code_label)
 
 	display_label = Label.new()
-	display_label.name = "DisplayLabel"
-	display_label.text = entered
+	display_label.name = "DisplayLabel"; display_label.text = entered
 	display_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	display_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	display_label.custom_minimum_size = Vector2(226, 42)
@@ -58,16 +56,13 @@ func _ready() -> void:
 	content.add_child(display_label)
 
 	var grid := GridContainer.new()
-	grid.name = "KeypadGrid"
-	grid.columns = 3
+	grid.name = "KeypadGrid"; grid.columns = 3
 	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	grid.add_theme_constant_override("h_separation", 8); grid.add_theme_constant_override("v_separation", 8)
 
 	for k: String in KEYS:
 		var btn := Button.new()
-		btn.name = "Key_" + k
-		btn.custom_minimum_size = Vector2(80, 44)
-		btn.focus_mode = Control.FOCUS_NONE
+		btn.name = "Key_" + k; btn.custom_minimum_size = Vector2(80, 44); btn.focus_mode = Control.FOCUS_NONE
 		if k == "CLR":
 			btn.text = "CLR [Bksp]"
 			btn.add_theme_font_size_override("font_size", 13)
@@ -85,9 +80,8 @@ func _ready() -> void:
 	content.add_child(grid)
 	ControllerSupport.focus_buttons(self, true)
 
-
 func _unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventKey):
+	if _done or not (event is InputEventKey):
 		return
 	var key_event := event as InputEventKey
 	if not key_event.pressed or key_event.echo:
@@ -116,11 +110,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		if vp != null:
 			vp.set_input_as_handled()
 
-
+## Processes keypad input for digits, CLR, and ENTER.
 func press_key(key: String) -> void:
+	if _done:
+		return
+
 	var sfx: Node = get_node_or_null("/root/Sfx")
 	if sfx != null and sfx.has_method("play"):
-		sfx.play("beep" if key.length() == 1 and key >= "0" and key <= "9" else "click")
+		var sound: String = "click"
+		if key.length() == 1 and key >= "0" and key <= "9":
+			sound = "beep"
+		sfx.play(sound)
 
 	match key.to_upper():
 		"CLR":
@@ -140,7 +140,6 @@ func press_key(key: String) -> void:
 				entered += key
 				if display_label != null:
 					display_label.text = entered
-
 
 static func _generate_code() -> String:
 	var result := ""

@@ -1,3 +1,6 @@
+# Interactable: Base Area3D on collision layer 2 for player interaction.
+# Emits interacted(by) when activated by player raycast interactor.
+# Signals: interacted(by: Node).
 class_name Interactable
 extends Area3D
 
@@ -17,4 +20,3 @@ func interact(by: Node) -> void:
 	if not enabled:
 		return
 	interacted.emit(by)
-

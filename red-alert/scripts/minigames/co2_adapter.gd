@@ -1,8 +1,9 @@
 class_name CO2Adapter
 extends Minigame
 
-## CO2 scrubber adapter minigame (Apollo 13 emergency).
-## Player must follow the 4-step procedure in exact order.
+## Apollo 13 emergency CO2 scrubber adapter assembly minigame.
+## The player must follow the 4-step radio procedure in exact sequence.
+## Emits completed or failed to MinigameHost; skipping a step causes fatal gas leak.
 
 const STEPS: Array[String] = [
 	"Cut the hose",
@@ -12,31 +13,35 @@ const STEPS: Array[String] = [
 ]
 
 var order: Array[int] = []
-
 var _current_step: int = 0
 var _step_labels: Array[Label] = []
 var _buttons: Array[Button] = []
-var _finished: bool = false
 
 
 func _init() -> void:
-	if order.is_empty(): _init_order()
+	if order.is_empty():
+		_init_order()
+
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
-	if order.is_empty(): _init_order()
+	if order.is_empty():
+		_init_order()
 
 	var content: VBoxContainer = make_panel("CO2: BUILD THE SCRUBBER ADAPTER")
 	if content == null:
-		content = VBoxContainer.new(); add_child(content)
+		content = VBoxContainer.new()
+		add_child(content)
 
 	add_instruction(content, "Follow the radio procedure on the left, in order. Skipping a step is fatal.")
 
 	var panel: PanelContainer = get_node_or_null("MinigamePanel") as PanelContainer
 	if panel != null:
 		panel.custom_minimum_size = Vector2(720, 440)
-		panel.offset_left = -360.0; panel.offset_top = -220.0
-		panel.offset_right = 360.0; panel.offset_bottom = 220.0
+		panel.offset_left = -360.0
+		panel.offset_top = -220.0
+		panel.offset_right = 360.0
+		panel.offset_bottom = 220.0
 
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -89,7 +94,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _finished or not (event is InputEventKey):
+	if _done or not (event is InputEventKey):
 		return
 	var key_event := event as InputEventKey
 	if not key_event.pressed or key_event.echo:
@@ -114,8 +119,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		press_step(order[displayed_idx])
 
 
+## Validates the pressed step against the procedure order.
 func press_step(step_index: int) -> void:
-	if _finished:
+	if _done or step_index < _current_step:
 		return
 
 	var sfx: Node = get_node_or_null("/root/Sfx")
@@ -134,10 +140,8 @@ func press_step(step_index: int) -> void:
 
 		_current_step += 1
 		if _current_step >= STEPS.size():
-			_finished = true
 			complete()
 	else:
-		_finished = true
 		fail("You skipped a step and the adapter leaked. The cabin filled with carbon dioxide.")
 
 

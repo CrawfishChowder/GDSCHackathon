@@ -1,3 +1,6 @@
+# LightingDirector: Controls dynamic ambient lighting, flicker, fog, and hum.
+# Dims lights during reactor failures and reduces hum during power outages.
+# Reads active malfunction from MalfunctionManager.
 class_name LightingDirector
 extends Node3D
 
@@ -11,7 +14,14 @@ func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	_setup_audio()
 	_setup_environment()
-	await get_tree().process_frame
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null and s.has_signal("settings_changed"):
+		s.connect("settings_changed", _on_settings_changed)
+	var tree := get_tree()
+	if tree != null:
+		await tree.process_frame
+	if not is_inside_tree():
+		return
 	_collect_room_lights()
 
 
@@ -35,13 +45,20 @@ func average_multiplier() -> float:
 		if is_instance_valid(light):
 			valid_count += 1
 			var base: float = _base_energies[i]
-			sum += (light.light_energy / base) if base > 0.0001 else 1.0
-	return (sum / float(valid_count)) if valid_count > 0 else 0.0
+			var ratio := 1.0
+			if base > 0.0001:
+				ratio = light.light_energy / base
+			sum += ratio
+	if valid_count > 0:
+		return sum / float(valid_count)
+	return 0.0
 
 
 func _get_active_malfunction() -> String:
-	var mm: Node = get_node_or_null("/root/MalfunctionManager")
-	return str(mm.get("active_id")) if mm != null and mm.get("active_id") != null else ""
+	var mm: Node = get_node_or_null("/root/MalfunctionManager") if is_inside_tree() else null
+	if mm != null and mm.get("active_id") != null:
+		return String(mm.get("active_id"))
+	return ""
 
 
 func _collect_room_lights() -> void:
@@ -85,15 +102,23 @@ func _update_lights(delta: float, active_id: String) -> void:
 		var light: OmniLight3D = _lights[i]
 		if is_instance_valid(light):
 			var target_energy: float = _base_energies[i] * target
-			light.light_energy = target_energy if is_flicker else lerpf(light.light_energy, target_energy, lerp_factor)
+			if is_flicker:
+				light.light_energy = target_energy
+			else:
+				light.light_energy = lerpf(light.light_energy, target_energy, lerp_factor)
 
 
 func _update_audio(delta: float, active_id: String) -> void:
 	if _audio_player == null:
 		return
 	var factor := clampf(1.0 - exp(-4.0 * delta), 0.0, 1.0)
-	_audio_player.pitch_scale = lerpf(_audio_player.pitch_scale, 0.8 if active_id == "power" else 1.0, factor)
-	_audio_player.volume_db = lerpf(_audio_player.volume_db, -24.0 if active_id == "power" else -16.0, factor)
+	var target_pitch := 1.0
+	var target_db := -16.0
+	if active_id == "power":
+		target_pitch = 0.8
+		target_db = -24.0
+	_audio_player.pitch_scale = lerpf(_audio_player.pitch_scale, target_pitch, factor)
+	_audio_player.volume_db = lerpf(_audio_player.volume_db, target_db, factor)
 
 
 func _setup_audio() -> void:
@@ -123,20 +148,52 @@ func _setup_audio() -> void:
 	_audio_player.pitch_scale = 1.0
 	_audio_player.process_mode = PROCESS_MODE_ALWAYS
 	add_child(_audio_player)
-	# The headless test driver never mixes audio, so a looping stream would leak at exit.
 	if DisplayServer.get_name() != "headless":
 		_audio_player.play()
 
 
 func _setup_environment() -> void:
-	var we := get_node_or_null("../../WorldEnvironment") as WorldEnvironment
-	var env: Variant = we.environment if we != null else null
-	if env == null:
+	var we := _get_world_environment()
+	if we == null or we.environment == null:
 		return
-	if "glow_enabled" in env: env.set("glow_enabled", true)
-	if "glow_intensity" in env: env.set("glow_intensity", 0.6)
-	if "glow_bloom" in env: env.set("glow_bloom", 0.05)
-	if "fog_enabled" in env: env.set("fog_enabled", true)
-	if "fog_light_color" in env: env.set("fog_light_color", Color(0.05, 0.07, 0.09))
-	if "fog_density" in env: env.set("fog_density", 0.008)
+	var env: Environment = we.environment
+	var perf: bool = _is_performance_mode()
+	env.glow_enabled = not perf
+	env.glow_intensity = 0.6
+	env.glow_bloom = 0.05
+	env.fog_enabled = not perf
+	env.fog_light_color = Color(0.05, 0.07, 0.09)
+	env.fog_density = 0.008
 
+
+func _on_settings_changed(key: String, value: Variant) -> void:
+	if key == "performance_mode":
+		_apply_performance_mode(bool(value))
+
+
+func _apply_performance_mode(perf: bool) -> void:
+	var we := _get_world_environment()
+	if we == null or we.environment == null:
+		return
+	we.environment.glow_enabled = not perf
+	we.environment.fog_enabled = not perf
+
+
+func _is_performance_mode() -> bool:
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null and s.has_method("get_setting"):
+		var val: Variant = s.get_setting("performance_mode")
+		if val != null:
+			return bool(val)
+	return false
+
+
+func _get_world_environment() -> WorldEnvironment:
+	var we := get_node_or_null("../../WorldEnvironment") as WorldEnvironment
+	if we != null:
+		return we
+	if get_parent() != null:
+		we = get_parent().get_node_or_null("WorldEnvironment") as WorldEnvironment
+		if we != null:
+			return we
+	return null

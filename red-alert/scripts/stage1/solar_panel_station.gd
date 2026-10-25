@@ -1,3 +1,6 @@
+# SolarPanelStation: Wall-mounted solar power station for dust storm recovery.
+# Houses amber cell indicators, label, and FixStation Area3D for the dust storm minigame.
+# Child of WallFixtures on the east wall.
 class_name SolarPanelStation
 extends Node3D
 
@@ -27,7 +30,7 @@ func _ready() -> void:
 	amber_mat.emission = Color(1.0, 0.65, 0.1)
 	amber_mat.emission_energy_multiplier = 0.8
 
-	var y_offsets := [-0.25, 0.0, 0.25]
+	var y_offsets: Array[float] = [-0.25, 0.0, 0.25]
 	for i in range(3):
 		var strip := MeshInstance3D.new()
 		strip.name = "SolarCellStrip%d" % (i + 1)
@@ -54,17 +57,20 @@ func _ready() -> void:
 
 	# FixStation Area3D child
 	var fix_station_script := load("res://scripts/interaction/fix_station.gd") as GDScript
-	var fix_station: Area3D = fix_station_script.new()
-	fix_station.name = "FixStation"
-	fix_station.position = Vector3(0.0, 1.5, 0.0)
-	fix_station.malfunction_id = "dust_storm"
-	fix_station.minigame_scene = load("res://scenes/minigames/dust_storm_power.tscn")
+	if fix_station_script != null:
+		var fix_station: Area3D = fix_station_script.new()
+		fix_station.name = "FixStation"
+		fix_station.position = Vector3(0.0, 1.5, 0.0)
+		fix_station.set("malfunction_id", "dust_storm")
+		var minigame_res := load("res://scenes/minigames/dust_storm_power.tscn") as PackedScene
+		if minigame_res != null:
+			fix_station.set("minigame_scene", minigame_res)
 
-	var col := CollisionShape3D.new()
-	col.name = "CollisionShape3D"
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(1.2, 1.0, 0.3)
-	col.shape = shape
-	fix_station.add_child(col)
+		var col := CollisionShape3D.new()
+		col.name = "CollisionShape3D"
+		var shape := BoxShape3D.new()
+		shape.size = Vector3(1.2, 1.0, 0.3)
+		col.shape = shape
+		fix_station.add_child(col)
 
-	add_child(fix_station)
+		add_child(fix_station)

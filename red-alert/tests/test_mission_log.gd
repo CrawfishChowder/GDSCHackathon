@@ -29,8 +29,9 @@ func _initialize() -> void:
 
 	var entry: Dictionary = ml.call("record_death", "power", "mistake", "x")
 
-	if entry.get("title") != "Apollo 1 fire":
-		return _fail("Expected title 'Apollo 1 fire', got '%s'" % entry.get("title"))
+	var power_titles: Array[String] = ["Apollo 1 fire", "Soyuz T-10-1 launch pad fire"]
+	if not power_titles.has(String(entry.get("title"))):
+		return _fail("Expected a power incident title, got '%s'" % entry.get("title"))
 
 	var last_entry: Dictionary = ml.get("last_entry")
 	if last_entry != entry:

@@ -6,17 +6,25 @@ All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_
 | Name | File | Job |
 |---|---|---|
 | `SaveData` | `scripts/systems/save_data.gd` | Key/value store persisted to `user://save.json` (`get_value`, `set_value`, `increment`). |
-| `Settings` | `scripts/systems/settings.gd` | Player settings (sensitivity, invert Y, volume, captions, high contrast) via SaveData; `settings_changed` signal. |
+| `Settings` | `scripts/systems/settings.gd` | Player settings (sensitivity, invert Y, volume, captions, high contrast, performance mode) via SaveData; `settings_changed` signal. Performance mode: 3D at 0.75 scale, shadows/fog/glow off, monitors at 15 Hz; a toast suggests it below 55 FPS. |
 | `Stress` | `scripts/systems/stress.gd` | Heart rate (BPM) driven by alarms/mistakes; hold B to breathe; `external_heart_rate` hook for a real sensor. |
 | `MalfunctionManager` | `scripts/systems/malfunction_manager.gd` | Run state: random failures with countdowns, deaths, the 5-minute shift. |
 | `MinigameHost` | `scenes/ui/minigame_host.tscn` | Opens a minigame overlay, pauses the tree, routes completed/failed/cancelled. |
-| `MissionLog` | `scripts/systems/mission_log.gd` | Records each death with its real-world incident; persisted via SaveData. |
+| `MissionLog` | `scripts/systems/mission_log.gd` | Records each death with its real-world incident (two per cause where possible, never the same twice in a row), and HAL reads the incident aloud; persisted via SaveData. |
 | `Voice` | `scripts/systems/voice.gd` | Voice line queue (`data/voice_lines.json` + `assets/voice/<id>.mp3`), always-on captions, reacts to manager signals. |
+
+| `LifeSupport` | `scripts/systems/life_support.gd` | O2/CO2/power/core gauges driven by the active malfunction. |
+| `SpaceWeather` | `scripts/systems/space_weather.gd` | NASA DONKI flare (live, cached or offline); scales countdowns. |
+| `PeopleInSpace` | `scripts/systems/people_in_space.gd` | Open Notify crew list for the title/end screens. |
+| `Sfx` | `scripts/systems/sfx.gd` | Sound library (`assets/sfx/*.ogg` + procedural), SFX/Voice/Radio buses, heartbeat, footsteps. |
+| `ControllerSupport` | `scripts/systems/controller_support.gd` | Scott: adds DualSense/gamepad bindings to the input map; `focus_buttons(root, grab_first)` makes menus and minigames navigable by D-pad. |
+| `Achievements` | `scripts/systems/achievements.gd` | Six achievements, toasts, persisted in SaveData. |
 
 Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame or end screen pauses the tree.
 
 ## MalfunctionManager API
-- Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`.
+- Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`, `practice_mistake(cause_id, detail)`.
+- Modes: `story` (scripted beats via `story_director.gd`, random scheduler off), `normal`, `practice`, `hard`. `history` records every crisis of the run for the end-screen timeline.
 - State: `running`, `active_id`, `time_left`, `survived_seconds`, `fixes_count`, `death_kind` (`timeout` / `mistake` / `button`), `death_detail`.
 - Methods: `start_run()`, `trigger(id)`, `fix(id)`, `kill(cause_id, kind, detail)`, `shift_time_left()`, `display_name(id)`.
 - Cause ids: `reactor`, `power`, `o2`, `co2`, `dust_storm`, `do_not_press`. Grade stats: `close_calls`, `practice_mistakes` (see `ShiftGrade.compute`).
@@ -25,7 +33,7 @@ Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame 
 ## Interaction
 - `scripts/player/interactor.gd` (a RayCast3D on the camera, 3 m) walks up from the hit collider to the first node with `interact(by)`. It reads optional `prompt_text` and `enabled` from that node, and the HUD shows "[E] prompt".
 - `Interactable` (`scripts/interaction/interactable.gd`) is an Area3D base on physics layer 2. `FixStation` extends it, is enabled only while its malfunction is active, and opens its minigame.
-- `Minigame` (`scripts/minigames/minigame.gd`) is the Control base. It has signals `completed`, `cancelled` and `failed(reason)`, and a `make_panel(title)` helper. Minigames: `reactor_sequence`, `o2_keypad`, `co2_adapter`. Power is fixed physically at the breaker (Eddie's `PowerFailureEvent`: cover open, main breaker OFF then ON).
+- `Minigame` (`scripts/minigames/minigame.gd`) is the Control base. It has signals `completed`, `cancelled` and `failed(reason)`, and a `make_panel(title)` helper. Minigames come in pairs, listed in `MinigameCatalog` (`scripts/minigames/catalog.gd`): reactor `reactor_sequence` / `reactor_valves`, O2 `o2_keypad` / `o2_leak_seal`, CO2 `co2_adapter` / `co2_beds`, dust storm `dust_storm_power` / `dust_panel_align`. A `FixStation` picks one when its crisis starts (`choose_variant()`): the original the first time, then it alternates. Power is fixed physically at the breaker (Eddie's `PowerFailureEvent`: cover open, main breaker OFF then ON).
 
 ## Scene tree (stage_1_room.tscn)
 ```

@@ -1,8 +1,9 @@
 class_name ControlsPanel
 extends PanelContainer
+# ControlsPanel renders a reference overlay of keyboard and mouse bindings.
+# Can be toggled with H or opened from pause menu and HUD.
 
 var _labels: Array[Label] = []
-
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
@@ -11,13 +12,15 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(420, 0)
 	if not (get_parent() is Container):
 		set_anchors_preset(Control.PRESET_CENTER_RIGHT)
-		anchor_left = 1.0; anchor_right = 1.0
-		anchor_top = 0.5; anchor_bottom = 0.5
-		offset_left = -444.0; offset_right = -24.0
+		anchor_left = 1.0
+		anchor_right = 1.0
+		anchor_top = 0.5
+		anchor_bottom = 0.5
+		offset_left = -444.0
+		offset_right = -24.0
 		grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		grow_vertical = Control.GROW_DIRECTION_BOTH
 	_build_ui()
-
 
 func _build_ui() -> void:
 	var style := StyleBoxFlat.new()
@@ -25,8 +28,7 @@ func _build_ui() -> void:
 	style.set_border_width_all(2)
 	style.border_color = Color(0.3, 0.8, 1.0)
 	style.set_corner_radius_all(8)
-	style.content_margin_left = 18.0; style.content_margin_right = 18.0
-	style.content_margin_top = 16.0; style.content_margin_bottom = 16.0
+	style.set_content_margin_all(16.0)
 	add_theme_stylebox_override("panel", style)
 
 	var vbox := VBoxContainer.new()
@@ -39,10 +41,10 @@ func _build_ui() -> void:
 	header.text = "H to toggle this panel"
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	header.add_theme_font_size_override("font_size", 20)
+	header.add_theme_color_override("font_color", Color.WHITE)
 	var bold_font := FontVariation.new()
 	bold_font.variation_embolden = 0.8
 	header.add_theme_font_override("font", bold_font)
-	header.add_theme_color_override("font_color", Color.WHITE)
 	_add_entry(vbox, header)
 
 	_add_spacer(vbox, 4)
@@ -71,7 +73,6 @@ func _build_ui() -> void:
 	_add_spacer(vbox, 6)
 	_add_text(vbox, "The HUD can be hidden in Settings.", 13, Color(0.6, 0.6, 0.6))
 
-
 func _add_heading(parent: Control, text: String) -> void:
 	var lbl := Label.new()
 	lbl.text = text
@@ -83,7 +84,6 @@ func _add_heading(parent: Control, text: String) -> void:
 	lbl.add_theme_font_override("font", bold_font)
 	_add_entry(parent, lbl)
 
-
 func _add_text(parent: Control, text: String, font_size: int = 14, color: Color = Color(0.9, 0.9, 0.9)) -> void:
 	var lbl := Label.new()
 	lbl.text = text
@@ -93,11 +93,9 @@ func _add_text(parent: Control, text: String, font_size: int = 14, color: Color 
 	lbl.add_theme_color_override("font_color", color)
 	_add_entry(parent, lbl)
 
-
 func _add_entry(parent: Control, lbl: Label) -> void:
 	_labels.append(lbl)
 	parent.add_child(lbl)
-
 
 func _add_spacer(parent: Control, height: int) -> void:
 	var sp := Control.new()
@@ -105,22 +103,17 @@ func _add_spacer(parent: Control, height: int) -> void:
 	sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(sp)
 
-
 func toggle() -> void:
 	visible = not visible
-
 
 func show_panel() -> void:
 	visible = true
 
-
 func hide_panel() -> void:
 	visible = false
 
-
 func is_open() -> bool:
 	return visible
-
 
 func text_content() -> String:
 	var texts: PackedStringArray = []

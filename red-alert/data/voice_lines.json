@@ -126,5 +126,29 @@
 	"crew_relief": {
 		"speaker": "crew",
 		"text": "That's the relief crew! You did it. Go get some sleep, I've got it from here."
+	},
+	"story_o2": {
+		"speaker": "crew",
+		"text": "Okay, first problem of the day. Oxygen filter is clogging. Left console, you know the drill."
+	},
+	"story_flare": {
+		"speaker": "hal",
+		"text": "Solar particle event detected by NASA space weather monitoring. Expect electrical failures."
+	},
+	"story_co2": {
+		"speaker": "crew",
+		"text": "CO2 is creeping up. This is exactly what happened on Apollo 13. Right console, follow the checklist."
+	},
+	"story_dust": {
+		"speaker": "hal",
+		"text": "Dust storm front arriving. Solar array output dropping. Rebalance power at the east wall."
+	},
+	"story_reactor": {
+		"speaker": "hal",
+		"text": "Reactor coolant failure. This is the big one. Countdown shortened."
+	},
+	"story_approach": {
+		"speaker": "crew",
+		"text": "Relief crew is thirty seconds out. Hang on, you're almost there."
 	}
 }

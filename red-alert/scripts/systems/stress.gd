@@ -1,3 +1,5 @@
+# Calculates astronaut stress and heart rate (BPM) from alarms, mistakes, and pacing.
+# Listened to by HeartRateOverlay, SFX, and Voice; lowered by holding the breathe key.
 extends Node
 
 signal heart_rate_changed(bpm: float)
@@ -20,8 +22,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_connect_signals()
 
-	var mm := _get_mm()
-	var active_malf: String = String(mm.active_id) if mm != null else ""
+	var mm: Node = _get_mm()
+	var active_malf: String = String(mm.get("active_id")) if mm != null else ""
 
 	if active_malf != _current_malfunction:
 		_current_malfunction = active_malf
@@ -29,15 +31,15 @@ func _process(delta: float) -> void:
 
 	# Target computation
 	var target: float = 72.0
-	if mm != null and mm.active_id != "":
-		if mm.time_left < 15.0:
+	if mm != null and String(mm.get("active_id")) != "":
+		if float(mm.get("time_left")) < 15.0:
 			target = 125.0
 		else:
 			target = 95.0
 
 	# Decay practice mistake spikes (each +20 decays linearly over 5 s)
 	var spike_bonus: float = 0.0
-	var i := _spikes.size() - 1
+	var i: int = _spikes.size() - 1
 	while i >= 0:
 		_spikes[i] -= delta
 		if _spikes[i] <= 0.0:
@@ -57,7 +59,7 @@ func _process(delta: float) -> void:
 		if target > heart_rate:
 			heart_rate = move_toward(heart_rate, target, 6.0 * delta)
 		elif target < heart_rate:
-			var down_rate := 8.0 if is_breathing() else 4.0
+			var down_rate: float = 8.0 if is_breathing() else 4.0
 			heart_rate = move_toward(heart_rate, target, down_rate * delta)
 		heart_rate = clampf(heart_rate, 55.0, 170.0)
 
@@ -65,7 +67,7 @@ func _process(delta: float) -> void:
 	if _current_malfunction != "" and not _hint_played_for_malfunction:
 		if heart_rate >= 120.0:
 			_hint_played_for_malfunction = true
-			var voice := get_node_or_null("/root/Voice")
+			var voice: Node = get_node_or_null("/root/Voice")
 			if voice != null and voice.has_method("say"):
 				voice.say("crew_breathe")
 
@@ -78,6 +80,7 @@ func _process(delta: float) -> void:
 			heart_rate_changed.emit(heart_rate)
 
 
+# Returns true if player is holding the designated breathe key (default: B).
 func is_breathing() -> bool:
 	if InputMap.has_action("breathe"):
 		return Input.is_action_pressed("breathe")
@@ -85,7 +88,7 @@ func is_breathing() -> bool:
 
 
 func _connect_signals() -> void:
-	var mm := _get_mm()
+	var mm: Node = _get_mm()
 	if mm != null:
 		if mm.has_signal("run_started") and not mm.run_started.is_connected(_on_run_started):
 			mm.run_started.connect(_on_run_started)
@@ -108,6 +111,4 @@ func _on_practice_mistake(_cause_id: String, _detail: String) -> void:
 
 
 func _get_mm() -> Node:
-	if has_node("/root/MalfunctionManager"):
-		return get_node("/root/MalfunctionManager")
-	return null
+	return get_node_or_null("/root/MalfunctionManager")
