@@ -43,8 +43,36 @@ const INCIDENTS := {
 	},
 }
 
+const MORE_INCIDENTS := {
+	"reactor": {
+		"title": "Chernobyl reactor 4",
+		"year": "1986",
+		"summary": "During a safety test, operators ran Chernobyl's reactor 4 outside its safe limits. A power surge blew the reactor apart and started a fire, the worst nuclear accident in history.",
+		"lesson": "Safety tests are only safe when the procedure's limits are respected.",
+	},
+	"power": {
+		"title": "Soyuz T-10-1 launch pad fire",
+		"year": "1983",
+		"summary": "Fuel spilled and caught fire at the base of a Soyuz rocket seconds before launch. Ground controllers fired the escape tower, which pulled Vladimir Titov and Gennady Strekalov clear just before the rocket exploded.",
+		"lesson": "Escape systems exist because fires spread faster than people can react.",
+	},
+	"o2": {
+		"title": "Apollo 13 oxygen tank",
+		"year": "1970",
+		"summary": "Damaged wiring inside oxygen tank 2 sparked an explosion on the way to the Moon. The crew survived only by using the lunar module as a lifeboat.",
+		"lesson": "One damaged wire in an oxygen system can end a mission.",
+	},
+	"dust_storm": {
+		"title": "Spirit rover stranded",
+		"year": "2010",
+		"summary": "Spirit became stuck in soft sand and could not tilt its solar panels toward the winter sun. NASA last heard from it in March 2010.",
+		"lesson": "On Mars, losing your angle to the sun can be fatal.",
+	},
+}
+
 var entries: Array[Dictionary] = []
 var last_entry: Dictionary = {}
+var _last_titles: Dictionary = {}
 
 
 func _ready() -> void:
@@ -101,11 +129,58 @@ func record_death(cause_id: String, kind: String, detail: String) -> Dictionary:
 		sd.set_value("mission_log", entries)
 
 	entry_added.emit(entry)
+
+	var title: String = String(entry.get("title", ""))
+	var year: String = String(entry.get("year", ""))
+	if not title.is_empty():
+		var voice: Node = _get_voice()
+		if voice != null and voice.has_method("say_text"):
+			var spoken_text: String = ""
+			if year.is_empty():
+				spoken_text = "Incident reference: %s." % title
+			else:
+				spoken_text = "Incident reference: %s, %s." % [title, year]
+			voice.call("say_text", "hal", spoken_text)
+
 	return entry
 
 
 func incident_for(cause_id: String) -> Dictionary:
-	return INCIDENTS.get(cause_id, {})
+	var pool: Array[Dictionary] = []
+	if INCIDENTS.has(cause_id):
+		var inc_val: Variant = INCIDENTS[cause_id]
+		if inc_val is Dictionary:
+			pool.append(inc_val as Dictionary)
+	if MORE_INCIDENTS.has(cause_id):
+		var more_val: Variant = MORE_INCIDENTS[cause_id]
+		if more_val is Dictionary:
+			pool.append(more_val as Dictionary)
+
+	if pool.is_empty():
+		return {}
+
+	if pool.size() == 1:
+		var single: Dictionary = pool[0]
+		_last_titles[cause_id] = String(single.get("title", ""))
+		return single
+
+	var last_title: String = String(_last_titles.get(cause_id, ""))
+	var candidates: Array[Dictionary] = []
+	for candidate: Dictionary in pool:
+		if String(candidate.get("title", "")) != last_title:
+			candidates.append(candidate)
+
+	if candidates.is_empty():
+		candidates = pool
+
+	var chosen_idx: int = randi() % candidates.size()
+	var chosen: Dictionary = candidates[chosen_idx]
+	_last_titles[cause_id] = String(chosen.get("title", ""))
+	return chosen
+
+
+func _get_voice() -> Node:
+	return get_node_or_null("/root/Voice")
 
 
 func _get_save_data() -> Node:
