@@ -14,6 +14,7 @@ extends CharacterBody3D
 @export_range(1.0, 60.0, 0.5) var look_smoothing: float = 30.0
 @export_range(16.0, 512.0, 1.0) var max_mouse_delta: float = 256.0
 @export_range(0.1, 2.0, 0.05) var capture_probe_seconds: float = 0.6
+@export_range(0.5, 5.0, 0.1) var gamepad_look_speed: float = 2.2
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -89,6 +90,11 @@ func _process(delta: float) -> void:
 		_capture_probe_remaining -= delta
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED or _capture_probe_remaining <= 0.0:
 			_enable_fallback_mouse_look()
+
+	var look_input := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if not look_input.is_zero_approx():
+		var scale := gamepad_look_speed * delta / maxf(mouse_sensitivity, 0.0001)
+		_apply_look_delta(look_input * scale, mouse_sensitivity)
 
 	var smoothing_weight := 1.0 - exp(-look_smoothing * delta)
 	rotation.y = lerp_angle(rotation.y, _target_yaw, smoothing_weight)

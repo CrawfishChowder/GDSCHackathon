@@ -52,7 +52,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Claude (Claude Code):** planning, task tickets, code review, merge resolution, tests and documentation.
 - **Gemini (Google Antigravity):** implemented most features from those tickets.
 
-The team designed the game, wrote the briefs, and reviewed and tested every change. Each member owns and can explain specific systems (see [`docs/QA_SHEET.md`](docs/QA_SHEET.md)). AI-authored commits are labeled in the git history. No external source code was given to the AI tools as reference.
+The team designed the game, wrote the briefs, and reviewed and tested every change. Each member owns and can explain specific systems (see [`docs/QA_SHEET.md`](docs/QA_SHEET.md)). AI-authored commits are labeled in the git history. The Vita controller POC references official VitaSDK and libvita2d API documentation and boilerplate examples for standard input, networking, display and packaging APIs; this work remains unmerged for team review.
 
 No AI-generated images or video are used. All 3D geometry, UI and signage were built by the team from Godot primitives, and the sound effects are generated procedurally.
 
@@ -121,5 +121,5 @@ There are no other dependencies to install; Godot runs the project directly.
   | Eddie | power failure event and breaker |
   | Gerald | architecture, malfunction loop, minigames, AI workflow |
   | Calvin | live data and life support |
-  | Brandon | UX, accessibility, voices, history content |
+  | Brandon | UX, accessibility, voices, history content, IO (vita controller+dashboard, stretch:TENS) |
 - **License:** Apache 2.0 (see [LICENSE](LICENSE)).
