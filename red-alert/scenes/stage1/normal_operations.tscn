@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/stage1/normal_operations.gd" id="1_normal"]
+
+[node name="NormalOperations" type="Node" groups=["monitor_display_service"]]
+script = ExtResource("1_normal")
+
+[node name="Displays" type="Node" parent="."]

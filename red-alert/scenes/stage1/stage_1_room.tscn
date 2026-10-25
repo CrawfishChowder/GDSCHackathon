@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/stage1/room_props.gd" id="11_room_props"]
 [ext_resource type="Script" path="res://scripts/stage1/tutorial_director.gd" id="12_tutorial_director"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/normal_operations.tscn" id="6_normal"]
 [ext_resource type="Script" path="res://scripts/stage1/event_director.gd" id="6_event_director"]
 [ext_resource type="Script" path="res://scripts/stage1/power_failure_event.gd" id="7_power_failure_event"]
 [ext_resource type="Script" path="res://scripts/stage1/solar_panel_station.gd" id="13_solar_panel_station"]
@@ -35,6 +36,8 @@ script = ExtResource("5_controller")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1478731389]
 environment = SubResource("Environment_stage1")
+
+[node name="NormalOperations" parent="." instance=ExtResource("6_normal")]
 
 [node name="Architecture" type="Node3D" parent="." unique_id=184199953]
 

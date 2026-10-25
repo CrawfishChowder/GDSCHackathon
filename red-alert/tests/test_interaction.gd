@@ -49,5 +49,19 @@ func _initialize() -> void:
 	if interactor._find_interactable(key_shape) != null:
 		return _fail("disabled interactable was still targetable")
 
+	# Scott's chairs still use the shared interact action after the player merge.
+	var chair := room.get_node("ConsoleChairs/CenterConsoleChair")
+	chair.interact(player)
+	if not player.is_seated():
+		return _fail("chair interaction did not seat the player")
+	var stand_event := InputEventAction.new()
+	stand_event.action = "interact"
+	stand_event.pressed = true
+	player._unhandled_input(stand_event)
+	if player.is_seated():
+		return _fail("interact did not stand the seated player")
+	if chair.occupant != null:
+		return _fail("chair did not release its occupant")
+
 	print("PASS")
 	quit(0)

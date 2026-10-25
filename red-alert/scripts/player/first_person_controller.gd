@@ -60,6 +60,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_mouse_look_active(not _mouse_look_active)
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("interact") and is_instance_valid(_active_seat):
+		stand_up()
+		get_viewport().set_input_as_handled()
+		return
 
 	if event is InputEventMouseMotion and _mouse_look_active:
 		if _mouse_look_mode == MouseLookMode.CAPTURED:
@@ -226,6 +230,9 @@ func _enable_fallback_mouse_look() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _active_seat != null and not is_instance_valid(_active_seat):
+		_active_seat = null
+		collision_shape.disabled = false
 	if is_instance_valid(_active_seat):
 		velocity = Vector3.ZERO
 		global_position = _active_seat.get_sit_transform().origin

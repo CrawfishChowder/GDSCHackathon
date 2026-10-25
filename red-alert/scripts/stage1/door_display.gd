@@ -1,85 +1,131 @@
 extends Node3D
 
-var _monitor: MonitorDisplay
-var _status_label: Label
-var _update_timer: float = 0.0
+const DOOR_MONITORS := {
+	"North": {
+		"id": &"door_north",
+		"module": "MODULE B: CREW QUARTERS",
+	},
+	"East": {
+		"id": &"door_east",
+		"module": "AIRLOCK",
+	},
+	"West": {
+		"id": &"door_west",
+		"module": "GREENHOUSE",
+	},
+}
+
+var _display_service: Node
+var _monitor_id: StringName
+var _module_name: String
+var _door_open: bool = false
+var _claimed: bool = false
 
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
-
-	_monitor = MonitorDisplay.new()
-	_monitor.name = "MonitorDisplay"
-	_monitor.position = Vector3(-2.8, 1.64, 0.285)
-	_monitor.rotation = Vector3.ZERO
-	add_child(_monitor)
-
-	var content := _monitor.setup(Vector2(1.04, 0.62), Vector2i(384, 224))
-	_setup_ui(content)
-	_update_status()
+	call_deferred("_initialize")
 
 
-func _process(delta: float) -> void:
-	_update_timer += delta
-	if _update_timer >= 0.25:
-		_update_timer = 0.0
-		_update_status()
+func _initialize() -> void:
+	_display_service = get_tree().get_first_node_in_group(&"monitor_display_service")
+	if _display_service == null:
+		push_warning("Door display could not find the monitor display service.")
+		return
+	if not _configure_for_parent():
+		push_warning("Door display is attached to an unknown bulkhead door.")
+		return
+
+	var door := get_parent()
+	_door_open = door.has_method("is_sealed") and not bool(door.call("is_sealed"))
+	if door.has_signal("opened"):
+		door.opened.connect(_on_door_opened)
+
+	var manager := get_node_or_null("/root/MalfunctionManager")
+	if manager == null:
+		return
+	manager.malfunction_started.connect(_on_malfunction_started)
+	manager.malfunction_fixed.connect(_on_malfunction_finished)
+	manager.player_died.connect(_on_player_died)
+	manager.shift_completed.connect(_on_shift_completed)
+	manager.run_started.connect(_on_run_started)
+	if not String(manager.get("active_id")).is_empty() or _door_open:
+		_show_status()
 
 
-func _setup_ui(root: Control) -> void:
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	root.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
-
-	var parent_name: String = String(get_parent().name) if get_parent() != null else ""
-	var module_name := "MODULE"
-	if parent_name.begins_with("North"):
-		module_name = "MODULE B: CREW QUARTERS"
-	elif parent_name.begins_with("East"):
-		module_name = "AIRLOCK"
-	elif parent_name.begins_with("West"):
-		module_name = "GREENHOUSE"
-
-	var module_label := Label.new()
-	module_label.name = "ModuleLabel"
-	module_label.text = module_name
-	module_label.add_theme_font_size_override("font_size", 22)
-	module_label.modulate = Color(0.3, 0.8, 1.0)
-	vbox.add_child(module_label)
-
-	_status_label = Label.new()
-	_status_label.name = "StatusLabel"
-	_status_label.text = "SEALED"
-	_status_label.add_theme_font_size_override("font_size", 36)
-	_status_label.modulate = Color(1.0, 0.25, 0.2)
-	vbox.add_child(_status_label)
-
-	var pressure_label := Label.new()
-	pressure_label.name = "PressureLabel"
-	pressure_label.text = "PRESSURE NOMINAL"
-	pressure_label.add_theme_font_size_override("font_size", 20)
-	pressure_label.modulate = Color(0.7, 0.8, 0.9)
-	vbox.add_child(pressure_label)
+func _configure_for_parent() -> bool:
+	var parent_name := String(get_parent().name)
+	for prefix: String in DOOR_MONITORS:
+		if parent_name.begins_with(prefix):
+			var definition: Dictionary = DOOR_MONITORS[prefix]
+			_monitor_id = definition["id"]
+			_module_name = definition["module"]
+			return true
+	return false
 
 
-func _update_status() -> void:
-	var parent := get_parent()
-	var sealed := true
-	if parent != null and parent.has_method("is_sealed"):
-		sealed = bool(parent.call("is_sealed"))
+func _make_display_scene() -> PackedScene:
+	var display := MonitorDisplay.new()
+	display.name = "DoorStatusDisplay"
+	display.display_kind = MonitorDisplay.DisplayKind.DOOR
+	display.module_name = _module_name
+	display.door_state = "OPEN" if _door_open else "SEALED"
+	var packed := PackedScene.new()
+	if packed.pack(display) != OK:
+		push_error("Unable to pack door monitor display.")
+	display.free()
+	return packed
 
-	if _status_label != null:
-		if sealed:
-			_status_label.text = "SEALED"
-			_status_label.modulate = Color(1.0, 0.25, 0.2)
-		else:
-			_status_label.text = "OPEN"
-			_status_label.modulate = Color(0.2, 0.9, 0.3)
+
+func _show_status() -> void:
+	if not is_instance_valid(_display_service):
+		return
+	if _claimed:
+		_display_service.release_monitor(_monitor_id, self)
+		_claimed = false
+	_claimed = _display_service.claim_monitor(
+		_monitor_id, self, _make_display_scene()
+	)
+
+
+func _release_status() -> void:
+	if _claimed and is_instance_valid(_display_service):
+		_display_service.release_monitor(_monitor_id, self)
+	_claimed = false
+
+
+func _on_door_opened() -> void:
+	_door_open = true
+	_show_status()
+
+
+func _on_malfunction_started(
+	_id: String, _display_name: String, _time_limit: float
+) -> void:
+	_show_status()
+
+
+func _on_malfunction_finished(_id: String) -> void:
+	if _door_open:
+		_show_status()
+	else:
+		_release_status()
+
+
+func _on_player_died(_id: String, _display_name: String) -> void:
+	_show_status()
+
+
+func _on_shift_completed() -> void:
+	_release_if_sealed()
+
+
+func _on_run_started() -> void:
+	_release_if_sealed()
+
+
+func _release_if_sealed() -> void:
+	if _door_open:
+		_show_status()
+	else:
+		_release_status()
