@@ -18,6 +18,8 @@ extends CharacterBody3D
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
+@onready var interaction_prompt: Label = $HUD/InteractionPrompt
+@onready var death_overlay: Control = $HUD/DeathOverlay
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _target_yaw: float = 0.0
@@ -30,6 +32,7 @@ var _mouse_look_mode: int = MouseLookMode.CAPTURED
 var _last_fallback_position: Vector2 = Vector2.ZERO
 var _has_fallback_position: bool = false
 var _active_seat: Node3D
+var _is_dead: bool = false
 
 enum MouseLookMode {
 	CAPTURED,
@@ -49,6 +52,12 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _is_dead:
+		if event.is_action_pressed("interact"):
+			get_tree().reload_current_scene()
+		get_viewport().set_input_as_handled()
+		return
+
 	if event.is_action_pressed("ui_cancel"):
 		_set_mouse_look_active(not _mouse_look_active)
 		get_viewport().set_input_as_handled()
@@ -69,6 +78,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if _is_dead:
+		return
+
 	if _capture_guard_frames > 0:
 		_capture_guard_frames -= 1
 
@@ -84,15 +96,53 @@ func _process(delta: float) -> void:
 	var smoothing_weight := 1.0 - exp(-look_smoothing * delta)
 	rotation.y = lerp_angle(rotation.y, _target_yaw, smoothing_weight)
 	head.rotation.x = lerp_angle(head.rotation.x, _target_pitch, smoothing_weight)
+	_update_interaction_prompt()
 
 
 func _try_interact() -> void:
+	var interaction_target := _get_interaction_target()
+	if interaction_target:
+		interaction_target.call("interact", self)
+
+
+func _get_interaction_target() -> Node:
+	if not interaction_ray.is_colliding():
+		return null
+
 	var interaction_target := interaction_ray.get_collider() as Node
 	while interaction_target:
 		if interaction_target.has_method("interact"):
-			interaction_target.interact(self)
-			return
+			return interaction_target
 		interaction_target = interaction_target.get_parent()
+	return null
+
+
+func _update_interaction_prompt() -> void:
+	var interaction_target := _get_interaction_target()
+	if not interaction_target:
+		interaction_prompt.hide()
+		return
+
+	var prompt_text := "E  Interact"
+	if interaction_target.has_method("get_interaction_prompt"):
+		prompt_text = str(interaction_target.call("get_interaction_prompt"))
+	if prompt_text.is_empty():
+		interaction_prompt.hide()
+		return
+
+	interaction_prompt.text = prompt_text
+	interaction_prompt.show()
+
+
+func die() -> void:
+	if _is_dead:
+		return
+
+	_is_dead = true
+	velocity = Vector3.ZERO
+	interaction_prompt.hide()
+	death_overlay.show()
+	_set_mouse_look_active(false)
 
 
 func sit_in(seat: Node3D) -> bool:
@@ -218,6 +268,9 @@ func _enable_fallback_mouse_look() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _is_dead:
+		return
+
 	if _active_seat != null and not is_instance_valid(_active_seat):
 		_active_seat = null
 		collision_shape.disabled = false
