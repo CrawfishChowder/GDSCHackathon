@@ -126,6 +126,7 @@ func _build_ui() -> void:
 			_restart()
 	)
 	vbox.add_child(btn)
+	ControllerSupport.focus_buttons(self)
 
 func _add_label(p: Control, text: String, sz: int, c: Color, wrap: bool = false) -> Label:
 	var l := Label.new()
@@ -165,6 +166,7 @@ func _on_entry_added(entry: Dictionary) -> void:
 	if get_tree() != null:
 		get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	ControllerSupport.focus_buttons(self, true)
 	_start_death_sequence()
 
 func _start_death_sequence() -> void:

@@ -103,6 +103,7 @@ func _ready() -> void:
 		btn.pressed.connect(choose.bind(i))
 		card_vbox.add_child(btn)
 		buttons.append(btn)
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _unhandled_input(event: InputEvent) -> void:

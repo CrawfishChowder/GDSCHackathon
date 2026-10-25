@@ -62,6 +62,7 @@ func _ready() -> void:
 			sequence.append(randi_range(0, 3))
 
 	_play_sequence()
+	ControllerSupport.focus_buttons(self, true)
 
 ## Handles player input on button index (0-3), comparing against sequence.
 func press(index: int) -> void:

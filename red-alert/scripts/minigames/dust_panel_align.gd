@@ -144,6 +144,7 @@ func _ready() -> void:
 	lock_btn.add_theme_color_override("font_color", Color(0.3, 0.9, 0.5))
 	lock_btn.pressed.connect(lock)
 	content.add_child(lock_btn)
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _process(delta: float) -> void:

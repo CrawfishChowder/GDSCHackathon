@@ -63,6 +63,7 @@ func _ready() -> void:
 		buttons.append(btn)
 
 	content.add_child(grid)
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _process(delta: float) -> void:

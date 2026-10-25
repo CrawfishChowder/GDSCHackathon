@@ -21,6 +21,7 @@ func _ready() -> void:
 	var pis: Node = get_node_or_null("/root/PeopleInSpace")
 	if pis != null and pis.has_signal("loaded"):
 		pis.connect("loaded", func(_c: int, _n: Array) -> void: _update_people())
+	ControllerSupport.focus_buttons(self, true)
 
 func _build_ui() -> void:
 	var tb := load("res://scripts/ui/title_background.gd") as GDScript
@@ -47,7 +48,7 @@ func _build_ui() -> void:
 		["Practice (no deaths)", func() -> void: _start_with_fade("practice")],
 		["Hard (half the time)", func() -> void: _start_with_fade("hard")],
 		["Mission log", func() -> void: _open_screen(_mission_log_screen)],
-		["Settings", func() -> void: if _settings_panel != null: _settings_panel.visible = not _settings_panel.visible],
+		["Settings", _toggle_settings],
 		["Credits", func() -> void: _open_screen(_credits_screen)],
 		["Quit", _quit_game],
 	]
@@ -58,7 +59,14 @@ func _build_ui() -> void:
 	for sc in [["res://scripts/ui/mission_log_screen.gd", "_mission_log_screen"], ["res://scripts/ui/credits_screen.gd", "_credits_screen"]]:
 		var s := load(sc[0]) as GDScript
 		if s != null:
-			var inst: Control = s.new(); inst.visible = false; inst.connect("closed", func() -> void: inst.visible = false); add_child(inst); set(sc[1], inst)
+			var inst: Control = s.new()
+			inst.visible = false
+			inst.connect("closed", func() -> void:
+				inst.visible = false
+				ControllerSupport.focus_buttons(self, true)
+			)
+			add_child(inst)
+			set(sc[1], inst)
 
 	var footer := Label.new(); footer.name = "FooterLabel"; footer.text = "Team TBD · LSU Geaux Hack 2026 · Godot 4.7"
 	footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; footer.add_theme_font_size_override("font_size", 14); footer.add_theme_color_override("font_color", Color(0.65, 0.65, 0.65))
@@ -78,10 +86,18 @@ func _setup_drone() -> void:
 	add_child(_drone_player)
 	if DisplayServer.get_name() != "headless": _drone_player.play()
 
+func _toggle_settings() -> void:
+	if _settings_panel == null:
+		return
+	_settings_panel.visible = not _settings_panel.visible
+	if _settings_panel.visible:
+		ControllerSupport.focus_buttons(_settings_panel, true)
+
 func _open_screen(scr: Control) -> void:
 	if scr != null:
 		if scr.has_method("refresh"): scr.call("refresh")
 		scr.visible = true
+		ControllerSupport.focus_buttons(scr, true)
 
 func _quit_game() -> void:
 	if _transitioning:

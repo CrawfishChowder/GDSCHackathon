@@ -118,6 +118,7 @@ func _ready() -> void:
 	content.add_child(_stability_label)
 
 	_update_ui()
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _process(delta: float) -> void:

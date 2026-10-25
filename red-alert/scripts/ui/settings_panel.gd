@@ -44,7 +44,7 @@ func _build_ui() -> void:
 	add_child(title)
 
 	_sens_slider = HSlider.new(); _sens_val_label = Label.new()
-	_add_slider("mouse_sensitivity", "Mouse sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, false)
+	_add_slider("mouse_sensitivity", "Look sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, false)
 	_invert_btn = _add_check("invert_y", "Invert Y")
 	_motion_btn = _add_check("reduce_motion", "Reduce motion (no head bob or camera shake)")
 	_vol_slider = HSlider.new(); _vol_val_label = Label.new()

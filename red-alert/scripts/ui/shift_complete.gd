@@ -90,6 +90,7 @@ func _build_ui() -> void:
 	_flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_flash_rect)
+	ControllerSupport.focus_buttons(self)
 
 func _create_label(parent: Control, text: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
@@ -112,6 +113,7 @@ func _on_shift_completed() -> void:
 	if get_tree() != null:
 		get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	ControllerSupport.focus_buttons(self, true)
 	_flash_rect.color.a = 0.4
 	var tw := create_tween()
 	if tw != null:

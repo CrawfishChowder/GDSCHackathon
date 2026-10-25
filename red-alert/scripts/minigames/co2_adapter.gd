@@ -90,6 +90,7 @@ func _ready() -> void:
 		btn.pressed.connect(press_step.bind(step_idx))
 		btn_box.add_child(btn)
 		_buttons.append(btn)
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _unhandled_input(event: InputEvent) -> void:

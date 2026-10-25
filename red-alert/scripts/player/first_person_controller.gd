@@ -14,6 +14,8 @@ extends CharacterBody3D
 @export_range(1.0, 60.0, 0.5) var look_smoothing: float = 30.0
 @export_range(16.0, 512.0, 1.0) var max_mouse_delta: float = 256.0
 @export_range(0.1, 2.0, 0.05) var capture_probe_seconds: float = 0.6
+@export_range(0.05, 0.5, 0.01) var stick_deadzone: float = 0.18
+@export_range(0.5, 8.0, 0.1) var stick_look_speed: float = 3.0
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -61,7 +63,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	if event is InputEventKey and event.is_action_pressed("ui_cancel"):
 		_set_mouse_look_active(not _mouse_look_active)
 		get_viewport().set_input_as_handled()
 		return
@@ -78,6 +80,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	var stick := Vector2(Input.get_joy_axis(0, JOY_AXIS_RIGHT_X), Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y))
+	if stick.length() > stick_deadzone:
+		var strength := (stick.length() - stick_deadzone) / (1.0 - stick_deadzone)
+		_apply_look_delta(stick.normalized() * strength * delta, stick_look_speed)
 	if _mouse_guard_frames > 0:
 		_mouse_guard_frames -= 1
 
@@ -271,9 +277,7 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
 
-	var input_vector := Input.get_vector(
-		"move_left", "move_right", "move_forward", "move_back"
-	)
+	var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back", 0.18)
 	var move_direction := (
 		transform.basis * Vector3(input_vector.x, 0.0, input_vector.y)
 	).normalized()

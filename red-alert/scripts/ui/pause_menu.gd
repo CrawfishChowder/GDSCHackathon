@@ -25,11 +25,16 @@ func on_focus_lost() -> void:
 	open_menu()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel"):
+	var escape_key := event is InputEventKey and event.is_action_pressed("ui_cancel")
+	if not escape_key and not event.is_action_pressed("controller_pause") and not (visible and event.is_action_pressed("ui_cancel")):
 		return
 	if visible:
 		get_viewport().set_input_as_handled()
-		_resume()
+		if _settings_panel.visible and not event.is_action_pressed("controller_pause"):
+			_settings_panel.visible = false
+			ControllerSupport.focus_buttons(self, true)
+		else:
+			_resume()
 	elif open_menu():
 		get_viewport().set_input_as_handled()
 
@@ -98,6 +103,7 @@ func _build_ui() -> void:
 	_controls_panel = ControlsPanel.new()
 	_controls_panel.visible = false
 	vbox.add_child(_controls_panel)
+	ControllerSupport.focus_buttons(vbox)
 
 func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
 	var btn := Button.new()
@@ -118,6 +124,7 @@ func _open() -> void:
 	if get_tree() != null:
 		get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	ControllerSupport.focus_buttons(self, true)
 
 func resume() -> void:
 	_resume()
@@ -139,6 +146,8 @@ func _resume() -> void:
 func _toggle_settings() -> void:
 	if _settings_panel != null:
 		_settings_panel.visible = not _settings_panel.visible
+		if _settings_panel.visible:
+			ControllerSupport.focus_buttons(_settings_panel, true)
 
 func _toggle_controls() -> void:
 	if _controls_panel != null:
