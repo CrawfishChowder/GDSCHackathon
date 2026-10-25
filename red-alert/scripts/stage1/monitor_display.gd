@@ -147,4 +147,4 @@ func _state_color() -> Color:
 
 
 func _station_for(active_id: String) -> String:
-	return {"power": "BREAKER BOX", "o2": "LEFT CONSOLE", "co2": "RIGHT CONSOLE"}.get(active_id, "CENTER CONSOLE")
+	return {"power": "BREAKER BOX, NORTH WALL", "dust_storm": "SOLAR ARRAY, EAST WALL", "o2": "LEFT CONSOLE", "co2": "RIGHT CONSOLE"}.get(active_id, "CENTER CONSOLE")

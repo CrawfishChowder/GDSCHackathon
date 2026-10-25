@@ -70,6 +70,14 @@ func _initialize() -> void:
 			return _fail("%s did not restore its default after release" % monitor_id)
 		if _viewport_for(displays, monitor_id).get_child_count() != 1:
 			return _fail("%s override layer remained after release" % monitor_id)
+
+	manager.call("trigger", "dust_storm")
+	await create_timer(0.3).timeout
+	center = _viewport_for(displays, &"console_center")
+	if not _has_label_with_text(center.get_node("ActiveOverride"), "SOLAR ARRAY"):
+		return _fail("Dust-storm display does not identify the solar-array station")
+	manager.call("fix", "dust_storm")
+	await process_frame
 	await _test_ownership_guards(displays)
 
 	print("PASS")

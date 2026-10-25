@@ -7,6 +7,7 @@ All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_
 |---|---|---|
 | `SaveData` | `scripts/systems/save_data.gd` | Key/value store persisted to `user://save.json` (`get_value`, `set_value`, `increment`). |
 | `Settings` | `scripts/systems/settings.gd` | Player settings (sensitivity, invert Y, volume, captions, high contrast) via SaveData; `settings_changed` signal. |
+| `Stress` | `scripts/systems/stress.gd` | Heart rate (BPM) driven by alarms/mistakes; hold B to breathe; `external_heart_rate` hook for a real sensor. |
 | `MalfunctionManager` | `scripts/systems/malfunction_manager.gd` | Run state: random failures with countdowns, deaths, the 5-minute shift. |
 | `MinigameHost` | `scenes/ui/minigame_host.tscn` | Opens a minigame overlay, pauses the tree, routes completed/failed/cancelled. |
 | `MissionLog` | `scripts/systems/mission_log.gd` | Records each death with its real-world incident; persisted via SaveData. |
@@ -18,7 +19,7 @@ Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame 
 - Signals: `run_started`, `malfunction_started(id, display_name, time_limit)`, `malfunction_fixed(id)`, `player_died(cause_id, display_name)`, `shift_completed`.
 - State: `running`, `active_id`, `time_left`, `survived_seconds`, `fixes_count`, `death_kind` (`timeout` / `mistake` / `button`), `death_detail`.
 - Methods: `start_run()`, `trigger(id)`, `fix(id)`, `kill(cause_id, kind, detail)`, `shift_time_left()`, `display_name(id)`.
-- Cause ids: `reactor`, `power`, `o2`, `co2`, `do_not_press`.
+- Cause ids: `reactor`, `power`, `o2`, `co2`, `dust_storm`, `do_not_press`. Grade stats: `close_calls`, `practice_mistakes` (see `ShiftGrade.compute`).
 - `mode`: `normal` / `practice` (mistakes and timeouts emit `practice_mistake` instead of killing) / `hard` (half time). `countdown_frozen` pauses the timer (tutorial). One malfunction is active at a time, and the gap between them shrinks after each fix.
 
 ## Interaction
@@ -41,6 +42,8 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
 │   ├─ RightStation/CO2Station        (FixStation "co2", Apollo 13 adapter checklist)
 │   ├─ CenterStation/ReactorStation   (FixStation "reactor"), EmergencyReleaseKey
 │   └─ ConsoleDisplays                (3 live MonitorDisplay screens: atmosphere / status / power)
+├─ WallFixtures/SolarPanelStation    (east wall; FixStation "dust_storm", power balancing minigame)
+├─ DemoHelper                         (F4 co2, F5 dust storm, F6 skip to shift end, F7 instant death, F12 key list)
 ├─ TutorialDirector                   (first-run guided O2 fix, countdown frozen)
 ├─ AlarmController                    (red lights + procedural klaxon)
 ├─ Polish/StationSignage              (station signs + ">> FIX HERE <<" cues)
@@ -51,6 +54,7 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
     ├─ Head/Camera3D/Interactor
     └─ HUD (hud.gd: prompt, alert banner, shift timer)
         ├─ GameOver       (death screen with mission log entry)
+        ├─ HeartRateOverlay (BPM, "Hold B to breathe", red vignette)
         ├─ PauseMenu      (Esc: resume / settings / restart / quit to title)
         ├─ SurvivalCard   (real success story on each fix; practice "would have killed you")
         └─ ShiftComplete  (win screen with real-astronaut comparison)
