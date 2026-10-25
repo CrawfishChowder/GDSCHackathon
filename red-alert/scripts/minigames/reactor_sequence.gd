@@ -20,31 +20,41 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var content: VBoxContainer = make_panel("REACTOR: STABILIZE CORE")
 	if content == null:
-		content = VBoxContainer.new(); add_child(content)
+		content = VBoxContainer.new()
+		add_child(content)
 
 	add_instruction(content, "Watch the sequence, then repeat it. A single wrong press is fatal.")
-	content.alignment = BoxContainer.ALIGNMENT_CENTER; content.add_theme_constant_override("separation", 24)
+	content.alignment = BoxContainer.ALIGNMENT_CENTER
+	content.add_theme_constant_override("separation", 24)
 
 	var button_row := HBoxContainer.new()
-	button_row.alignment = BoxContainer.ALIGNMENT_CENTER; button_row.add_theme_constant_override("separation", 16)
+	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	button_row.add_theme_constant_override("separation", 16)
 	content.add_child(button_row)
 
 	for i in range(4):
 		_normal_styles.append(_create_style(BASE_COLORS[i], false))
 		_bright_styles.append(_create_style(BRIGHT_COLORS[i], true))
 		var btn := Button.new()
-		btn.text = "[%d]" % (i + 1); btn.custom_minimum_size = Vector2(110, 110); btn.focus_mode = Control.FOCUS_NONE
+		btn.text = "[%d]" % (i + 1)
+		btn.custom_minimum_size = Vector2(110, 110)
+		btn.focus_mode = Control.FOCUS_NONE
 		btn.add_theme_font_size_override("font_size", 28)
 		btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 0.9))
-		btn.add_theme_stylebox_override("normal", _normal_styles[i]); btn.add_theme_stylebox_override("hover", _normal_styles[i])
-		btn.add_theme_stylebox_override("pressed", _bright_styles[i]); btn.add_theme_stylebox_override("disabled", _normal_styles[i])
+		btn.add_theme_stylebox_override("normal", _normal_styles[i])
+		btn.add_theme_stylebox_override("hover", _normal_styles[i])
+		btn.add_theme_stylebox_override("pressed", _bright_styles[i])
+		btn.add_theme_stylebox_override("disabled", _normal_styles[i])
 		var button_index: int = i
 		btn.pressed.connect(func() -> void: press(button_index))
-		button_row.add_child(btn); _buttons.append(btn)
+		button_row.add_child(btn)
+		_buttons.append(btn)
 
 	_status_label = Label.new()
-	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; _status_label.text = "Watch the sequence"
-	_status_label.add_theme_font_size_override("font_size", 18); _status_label.add_theme_color_override("font_color", Color(0.85, 0.9, 0.95))
+	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_status_label.text = "Watch the sequence"
+	_status_label.add_theme_font_size_override("font_size", 18)
+	_status_label.add_theme_color_override("font_color", Color(0.85, 0.9, 0.95))
 	content.add_child(_status_label)
 
 	if sequence.is_empty():
@@ -136,9 +146,11 @@ func _play_sequence() -> void:
 
 func _create_style(color: Color, border: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = color; style.set_corner_radius_all(8)
+	style.bg_color = color
+	style.set_corner_radius_all(8)
 	if border:
-		style.set_border_width_all(3); style.border_color = Color(1.0, 1.0, 1.0, 0.9)
+		style.set_border_width_all(3)
+		style.border_color = Color(1.0, 1.0, 1.0, 0.9)
 	return style
 
 func _set_button_lit(index: int, lit: bool) -> void:
@@ -147,4 +159,5 @@ func _set_button_lit(index: int, lit: bool) -> void:
 		if is_instance_valid(btn):
 			var style: StyleBoxFlat = _bright_styles[index] if lit else _normal_styles[index]
 			btn.add_theme_stylebox_override("normal", style)
-			btn.add_theme_stylebox_override("hover", style); btn.add_theme_stylebox_override("disabled", style)
+			btn.add_theme_stylebox_override("hover", style)
+			btn.add_theme_stylebox_override("disabled", style)

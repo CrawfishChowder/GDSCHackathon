@@ -20,47 +20,65 @@ func _ready() -> void:
 
 	var content: VBoxContainer = make_panel("DUST STORM: BALANCE SOLAR POWER")
 	if content == null:
-		content = VBoxContainer.new(); add_child(content)
+		content = VBoxContainer.new()
+		add_child(content)
 
 	add_instruction(content, "Drag the sliders so every system is at or above its minimum and the total is 90 or less, then ENGAGE.")
 
 	var panel: PanelContainer = get_node_or_null("MinigamePanel") as PanelContainer
 	if panel != null:
 		panel.custom_minimum_size = Vector2(680, 440)
-		panel.offset_left = -340.0; panel.offset_top = -220.0
-		panel.offset_right = 340.0; panel.offset_bottom = 220.0
+		panel.offset_left = -340.0
+		panel.offset_top = -220.0
+		panel.offset_right = 340.0
+		panel.offset_bottom = 220.0
 
-	_sliders.clear(); _value_labels.clear()
+	_sliders.clear()
+	_value_labels.clear()
 
 	for i in range(3):
 		var row := HBoxContainer.new()
-		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL; row.add_theme_constant_override("separation", 16)
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_constant_override("separation", 16)
 		content.add_child(row)
 
 		var name_lbl := Label.new()
-		name_lbl.text = SYSTEM_NAMES[i]; name_lbl.custom_minimum_size = Vector2(220, 0)
-		name_lbl.add_theme_font_size_override("font_size", 16); name_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
+		name_lbl.text = SYSTEM_NAMES[i]
+		name_lbl.custom_minimum_size = Vector2(220, 0)
+		name_lbl.add_theme_font_size_override("font_size", 16)
+		name_lbl.add_theme_color_override("font_color", Color(0.9, 0.95, 1.0))
 		row.add_child(name_lbl)
 
 		var slider := HSlider.new()
-		slider.min_value = 0; slider.max_value = 60; slider.step = 1; slider.value = allocations[i]
-		slider.focus_mode = Control.FOCUS_ALL; slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slider.min_value = 0
+		slider.max_value = 60
+		slider.step = 1
+		slider.value = allocations[i]
+		slider.focus_mode = Control.FOCUS_ALL
+		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		slider.custom_minimum_size = Vector2(200, 32)
 		slider.value_changed.connect(func(val: float) -> void: set_allocation(i, int(round(val))))
-		row.add_child(slider); _sliders.append(slider)
+		row.add_child(slider)
+		_sliders.append(slider)
 
 		var val_lbl := Label.new()
-		val_lbl.custom_minimum_size = Vector2(90, 0); val_lbl.add_theme_font_size_override("font_size", 16)
-		row.add_child(val_lbl); _value_labels.append(val_lbl)
+		val_lbl.custom_minimum_size = Vector2(90, 0)
+		val_lbl.add_theme_font_size_override("font_size", 16)
+		row.add_child(val_lbl)
+		_value_labels.append(val_lbl)
 
 	_total_label = Label.new()
-	_total_label.name = "TotalLabel"; _total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_total_label.name = "TotalLabel"
+	_total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_total_label.add_theme_font_size_override("font_size", 20)
 	content.add_child(_total_label)
 
 	var engage_btn := Button.new()
-	engage_btn.name = "EngageButton"; engage_btn.text = "ENGAGE [Enter]"; engage_btn.focus_mode = Control.FOCUS_NONE
-	engage_btn.custom_minimum_size = Vector2(220, 44); engage_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	engage_btn.name = "EngageButton"
+	engage_btn.text = "ENGAGE [Enter]"
+	engage_btn.focus_mode = Control.FOCUS_NONE
+	engage_btn.custom_minimum_size = Vector2(220, 44)
+	engage_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	engage_btn.add_theme_font_size_override("font_size", 18)
 	engage_btn.pressed.connect(engage)
 	content.add_child(engage_btn)
