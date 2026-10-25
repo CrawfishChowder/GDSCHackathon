@@ -24,6 +24,10 @@
 
 If a random crisis starts while you're talking, just fix it; that is the game working.
 
+**Optional hardware (only if it's already connected before judges arrive):**
+- **DualSense** (Scott): plug in by USB. Let a judge play with it; it rumbles on alarms, on death and with the heartbeat above 120 BPM.
+- **PS Vita** (Brandon): laptop and Vita on the same hotspot, game allowed through Windows Firewall. Show the Vita's live telemetry while someone else plays. If it doesn't connect in 30 seconds, skip it and describe it during the questions.
+
 ## 3. The 30-second pitch (Gerald)
 "Red Alert is a first-person survival game in a habitat module. Over a five-minute shift, systems break: reactor, power, oxygen, CO2 and dust storms. You fix each one with a short minigame, and one mistake kills you. Then the mission log tells you which real spaceflight disaster that mistake mirrors. We want players to leave thinking: astronauts really put their lives on the line."
 
@@ -32,12 +36,13 @@ If a random crisis starts while you're talking, just fix it; that is the game wo
 - **Eddie:** "I built the power failure. The breaker is a real reset procedure: off, then on. Flipping it once does nothing."
 - **Calvin:** "We use two live APIs. NASA's DONKI gives the latest solar flare; a big flare shortens every countdown and causes a blackout. Open Notify tells you who is in space right now."
 - **Brandon:** "I worked on the menus, captions, accessibility settings and the history. Every death and survival card is a real incident in our own words."
-- **Gerald:** "The systems talk through global signals, so features don't call each other directly. 66 automated tests check it all."
+- **Gerald:** "The systems talk through global signals, so features don't call each other directly. 70 automated tests check it all."
 
 ## 5. If something goes wrong
 - **No internet:** the APIs fall back to the last cached flare, then to offline text. The game is unaffected.
 - **No voice audio:** captions show every line.
 - **Low FPS:** Esc → Settings → Performance mode.
+- **Vita or controller not responding:** skip it and keep going with the keyboard. Nothing in the game depends on them.
 - **Stuck or crashed:** Esc → Restart, or close and relaunch the game. Practice mode never kills you if a judge wants to play.
 
 ## 6. Likely questions
