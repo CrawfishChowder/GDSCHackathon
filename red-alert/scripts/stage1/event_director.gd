@@ -3,7 +3,7 @@ extends Node
 signal event_started(event_id: StringName)
 signal event_finished(event_id: StringName, succeeded: bool)
 
-@export var auto_start_event: StringName = &"power_failure"
+@export var auto_start_event: StringName = &""
 @export_range(0.0, 30.0, 0.5) var auto_start_delay_seconds: float = 5.0
 
 var _registered_events: Dictionary = {}

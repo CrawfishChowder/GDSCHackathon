@@ -1,5 +1,8 @@
 extends Node3D
 
+const DOOR_OPENING_WIDTH := 3.6
+const DOOR_OPENING_HEIGHT := 2.6
+
 @export_category("Room Dimensions")
 @export_range(6.0, 30.0, 0.5) var room_width: float = 12.0
 @export_range(6.0, 30.0, 0.5) var room_depth: float = 10.0
@@ -80,21 +83,18 @@ func _build_collision(body: StaticBody3D) -> void:
 		body, "CeilingCollision", Vector3(room_width, 0.2, room_depth),
 		Vector3(0.0, room_height + 0.1, 0.0)
 	)
-	_add_collision_box(
-		body, "NorthWallCollision", Vector3(room_width, room_height, 0.2),
-		Vector3(0.0, room_height * 0.5, -room_depth * 0.5 - 0.1)
+	_add_doorway_wall_collision(
+		body, "NorthWallCollision", true, room_width, -room_depth * 0.5 - 0.1
 	)
 	_add_collision_box(
 		body, "SouthWallCollision", Vector3(room_width, room_height, 0.2),
 		Vector3(0.0, room_height * 0.5, room_depth * 0.5 + 0.1)
 	)
-	_add_collision_box(
-		body, "WestWallCollision", Vector3(0.2, room_height, room_depth),
-		Vector3(-room_width * 0.5 - 0.1, room_height * 0.5, 0.0)
+	_add_doorway_wall_collision(
+		body, "WestWallCollision", false, room_depth, -room_width * 0.5 - 0.1
 	)
-	_add_collision_box(
-		body, "EastWallCollision", Vector3(0.2, room_height, room_depth),
-		Vector3(room_width * 0.5 + 0.1, room_height * 0.5, 0.0)
+	_add_doorway_wall_collision(
+		body, "EastWallCollision", false, room_depth, room_width * 0.5 + 0.1
 	)
 
 
@@ -107,26 +107,77 @@ func _build_base_shell(parent: Node3D) -> void:
 		parent, "CeilingBase", Vector3(room_width, 0.2, room_depth),
 		Vector3(0.0, room_height + 0.1, 0.0), _materials["base"]
 	)
-	_add_box(
-		parent, "NorthWallBase", Vector3(room_width, room_height, 0.2),
-		Vector3(0.0, room_height * 0.5, -room_depth * 0.5 - 0.1),
-		_materials["base"]
+	_add_doorway_wall_base(
+		parent, "NorthWallBase", true, room_width, -room_depth * 0.5 - 0.1
 	)
 	_add_box(
 		parent, "SouthWallBase", Vector3(room_width, room_height, 0.2),
 		Vector3(0.0, room_height * 0.5, room_depth * 0.5 + 0.1),
 		_materials["base"]
 	)
-	_add_box(
-		parent, "WestWallBase", Vector3(0.2, room_height, room_depth),
-		Vector3(-room_width * 0.5 - 0.1, room_height * 0.5, 0.0),
-		_materials["base"]
+	_add_doorway_wall_base(
+		parent, "WestWallBase", false, room_depth, -room_width * 0.5 - 0.1
 	)
-	_add_box(
-		parent, "EastWallBase", Vector3(0.2, room_height, room_depth),
-		Vector3(room_width * 0.5 + 0.1, room_height * 0.5, 0.0),
-		_materials["base"]
+	_add_doorway_wall_base(
+		parent, "EastWallBase", false, room_depth, room_width * 0.5 + 0.1
 	)
+
+
+func _add_doorway_wall_collision(
+	body: StaticBody3D, base_name: String, is_along_x: bool, wall_length: float, offset: float
+) -> void:
+	for part in _get_doorway_wall_parts(is_along_x, wall_length, offset):
+		_add_collision_box(body, base_name + part["suffix"], part["size"], part["pos"])
+
+
+func _add_doorway_wall_base(
+	parent: Node3D, base_name: String, is_along_x: bool, wall_length: float, offset: float
+) -> void:
+	for part in _get_doorway_wall_parts(is_along_x, wall_length, offset):
+		_add_box(parent, base_name + part["suffix"], part["size"], part["pos"], _materials["base"])
+
+
+func _get_doorway_wall_parts(
+	is_along_x: bool, wall_length: float, offset: float, thickness: float = 0.2
+) -> Array[Dictionary]:
+	var side_len := (wall_length - DOOR_OPENING_WIDTH) * 0.5
+	var header_h := room_height - DOOR_OPENING_HEIGHT
+	var header_y := DOOR_OPENING_HEIGHT + header_h * 0.5
+	var side_y := room_height * 0.5
+	var parts: Array[Dictionary] = []
+	if is_along_x:
+		parts.append({
+			"suffix": "_Left",
+			"size": Vector3(side_len, room_height, thickness),
+			"pos": Vector3(-wall_length * 0.5 + side_len * 0.5, side_y, offset)
+		})
+		parts.append({
+			"suffix": "_Right",
+			"size": Vector3(side_len, room_height, thickness),
+			"pos": Vector3(wall_length * 0.5 - side_len * 0.5, side_y, offset)
+		})
+		parts.append({
+			"suffix": "_Header",
+			"size": Vector3(DOOR_OPENING_WIDTH, header_h, thickness),
+			"pos": Vector3(0.0, header_y, offset)
+		})
+	else:
+		parts.append({
+			"suffix": "_Left",
+			"size": Vector3(thickness, room_height, side_len),
+			"pos": Vector3(offset, side_y, -wall_length * 0.5 + side_len * 0.5)
+		})
+		parts.append({
+			"suffix": "_Right",
+			"size": Vector3(thickness, room_height, side_len),
+			"pos": Vector3(offset, side_y, wall_length * 0.5 - side_len * 0.5)
+		})
+		parts.append({
+			"suffix": "_Header",
+			"size": Vector3(thickness, header_h, DOOR_OPENING_WIDTH),
+			"pos": Vector3(offset, header_y, 0.0)
+		})
+	return parts
 
 
 func _build_floor_panels(parent: Node3D) -> void:
@@ -167,6 +218,10 @@ func _build_wall_panels(parent: Node3D) -> void:
 	for side in [-1.0, 1.0]:
 		var side_name := "North" if side < 0.0 else "South"
 		for horizontal_index in range(north_south_sections):
+			var x_pos := -room_width * 0.5 + north_south_width * (horizontal_index + 0.5)
+			var half_w := (north_south_width - 0.1) * 0.5
+			if side < 0.0 and _overlaps_opening(x_pos, half_w):
+				continue
 			for vertical_index in range(vertical_sections):
 				var panel_material: Material = _wall_panel_material(
 					horizontal_index, vertical_index, side > 0.0
@@ -178,7 +233,7 @@ func _build_wall_panels(parent: Node3D) -> void:
 					],
 					Vector3(north_south_width - 0.1, panel_height - 0.1, 0.04),
 					Vector3(
-						-room_width * 0.5 + north_south_width * (horizontal_index + 0.5),
+						x_pos,
 						panel_height * (vertical_index + 0.5),
 						side * (room_depth * 0.5 - 0.015)
 					),
@@ -188,6 +243,10 @@ func _build_wall_panels(parent: Node3D) -> void:
 	for side in [-1.0, 1.0]:
 		var side_name := "West" if side < 0.0 else "East"
 		for horizontal_index in range(east_west_sections):
+			var z_pos := -room_depth * 0.5 + east_west_width * (horizontal_index + 0.5)
+			var half_d := (east_west_width - 0.1) * 0.5
+			if _overlaps_opening(z_pos, half_d):
+				continue
 			for vertical_index in range(vertical_sections):
 				var panel_material: Material = _wall_panel_material(
 					horizontal_index, vertical_index, side < 0.0
@@ -201,7 +260,7 @@ func _build_wall_panels(parent: Node3D) -> void:
 					Vector3(
 						side * (room_width * 0.5 - 0.015),
 						panel_height * (vertical_index + 0.5),
-						-room_depth * 0.5 + east_west_width * (horizontal_index + 0.5)
+						z_pos
 					),
 					panel_material
 				)
@@ -247,6 +306,8 @@ func _build_structure(parent: Node3D) -> void:
 	for x_index in range(1, 6):
 		var x_position := -room_width * 0.5 + room_width / 6.0 * x_index
 		for z_side in [-1.0, 1.0]:
+			if z_side < 0.0 and _overlaps_opening(x_position, 0.045):
+				continue
 			_add_box(
 				parent, "WallRibNS_%02d_%s" % [x_index, str(z_side)],
 				Vector3(0.09, room_height - 0.26, 0.12),
@@ -257,6 +318,8 @@ func _build_structure(parent: Node3D) -> void:
 	for z_index in range(1, 5):
 		var z_position := -room_depth * 0.5 + room_depth / 5.0 * z_index
 		for x_side in [-1.0, 1.0]:
+			if _overlaps_opening(z_position, 0.06):
+				continue
 			_add_box(
 				parent, "WallRibEW_%02d_%s" % [z_index, str(x_side)],
 				Vector3(0.12, room_height - 0.26, 0.09),
@@ -271,6 +334,11 @@ func _build_structure(parent: Node3D) -> void:
 			Vector3(x_position, room_height - 0.12, 0.0),
 			_materials["beam"]
 		)
+
+
+func _overlaps_opening(pos: float, half_extent: float) -> bool:
+	var open_half := DOOR_OPENING_WIDTH * 0.5
+	return (pos + half_extent > -open_half) and (pos - half_extent < open_half)
 
 
 func _build_lighting(parent: Node3D) -> void:

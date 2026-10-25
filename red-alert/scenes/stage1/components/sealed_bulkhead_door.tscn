@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/stage1/sealed_bulkhead_door.gd" id="1_door_script"]
+[ext_resource type="Script" path="res://scripts/stage1/bulkhead_door.gd" id="1_bulkhead_door"]
+[ext_resource type="Script" path="res://scripts/stage1/door_display.gd" id="2_door_display"]
 
 [sub_resource type="StandardMaterial3D" id="Material_door"]
 resource_name = "Bulkhead door metal"
@@ -87,7 +88,7 @@ size = Vector3(0.32, 0.055, 0.035)
 size = Vector3(4, 2.8, 0.4)
 
 [node name="SealedBulkheadDoor" type="StaticBody3D"]
-script = ExtResource("1_door_script")
+script = ExtResource("1_bulkhead_door")
 
 [node name="DoorCollision" type="CollisionShape3D" parent="."]
 position = Vector3(0, 1.4, 0)
@@ -96,6 +97,28 @@ shape = SubResource("Shape_door")
 [node name="DoorSlab" type="MeshInstance3D" parent="."]
 position = Vector3(0, 1.28, 0)
 mesh = SubResource("Mesh_door")
+
+[node name="CenterSeam" type="MeshInstance3D" parent="DoorSlab"]
+position = Vector3(0, 0.02, 0.14)
+mesh = SubResource("Mesh_seam_vertical")
+
+[node name="LowerPanelSeam" type="MeshInstance3D" parent="DoorSlab"]
+position = Vector3(0, -0.46, 0.14)
+mesh = SubResource("Mesh_seam_horizontal")
+
+[node name="UpperPanelSeam" type="MeshInstance3D" parent="DoorSlab"]
+position = Vector3(0, 0.44, 0.14)
+mesh = SubResource("Mesh_seam_horizontal")
+
+[node name="LeftBrace" type="MeshInstance3D" parent="DoorSlab"]
+position = Vector3(-0.84, 0.02, 0.17)
+rotation = Vector3(0, 0, -0.53)
+mesh = SubResource("Mesh_brace")
+
+[node name="RightBrace" type="MeshInstance3D" parent="DoorSlab"]
+position = Vector3(0.84, 0.02, 0.17)
+rotation = Vector3(0, 0, 0.53)
+mesh = SubResource("Mesh_brace")
 
 [node name="FrameTop" type="MeshInstance3D" parent="."]
 position = Vector3(0, 2.66, 0.01)
@@ -112,28 +135,6 @@ mesh = SubResource("Mesh_frame_vertical")
 [node name="Threshold" type="MeshInstance3D" parent="."]
 position = Vector3(0, 0.08, 0.03)
 mesh = SubResource("Mesh_threshold")
-
-[node name="CenterSeam" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.3, 0.14)
-mesh = SubResource("Mesh_seam_vertical")
-
-[node name="LowerPanelSeam" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.82, 0.14)
-mesh = SubResource("Mesh_seam_horizontal")
-
-[node name="UpperPanelSeam" type="MeshInstance3D" parent="."]
-position = Vector3(0, 1.72, 0.14)
-mesh = SubResource("Mesh_seam_horizontal")
-
-[node name="LeftBrace" type="MeshInstance3D" parent="."]
-position = Vector3(-0.84, 1.3, 0.17)
-rotation = Vector3(0, 0, -0.53)
-mesh = SubResource("Mesh_brace")
-
-[node name="RightBrace" type="MeshInstance3D" parent="."]
-position = Vector3(0.84, 1.3, 0.17)
-rotation = Vector3(0, 0, 0.53)
-mesh = SubResource("Mesh_brace")
 
 [node name="SealedIndicator" type="MeshInstance3D" parent="."]
 position = Vector3(1.42, 2.67, 0.22)
@@ -159,3 +160,7 @@ position = Vector3(-2.8, 1.64, 0.281)
 [node name="StatusStrip" type="MeshInstance3D" parent="LeftAccessMonitor"]
 position = Vector3(-2.8, 1.19, 0.258)
 mesh = SubResource("Mesh_monitor_status")
+
+[node name="DoorDisplay" type="Node3D" parent="."]
+script = ExtResource("2_door_display")
+

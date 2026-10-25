@@ -11,6 +11,15 @@ signal main_breaker_changed(is_on: bool)
 
 var is_open: bool = false
 var is_main_breaker_on: bool = true
+var prompt_text: String:
+	get:
+		if is_open:
+			return "Close breaker cover"
+		var mm: Node = get_node_or_null("/root/MalfunctionManager")
+		if mm != null and mm.get("active_id") == "power":
+			return "Open breaker cover (POWER FAILURE)"
+		return "Open breaker cover"
+
 var _cover_tween: Tween
 var _handle_tween: Tween
 
@@ -34,14 +43,14 @@ func interact(_interactor: Node = null) -> void:
 	)
 
 
-func get_interaction_prompt() -> String:
-	return "E  Close breaker cover" if is_open else "E  Open breaker cover"
-
-
 func get_main_breaker_prompt() -> String:
 	if not is_open:
 		return ""
-	return "E  Turn main breaker OFF" if is_main_breaker_on else "E  Turn main breaker ON"
+	var mm: Node = get_node_or_null("/root/MalfunctionManager")
+	var is_power_active: bool = (mm != null and mm.get("active_id") == "power")
+	if is_power_active:
+		return "Main breaker OFF (step 1 of 2)" if is_main_breaker_on else "Main breaker ON (step 2 of 2)"
+	return "Turn main breaker OFF" if is_main_breaker_on else "Turn main breaker ON"
 
 
 func toggle_main_breaker() -> void:

@@ -1,6 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/first_person_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/player/interactor.gd" id="2_interactor"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.35
@@ -22,62 +24,9 @@ current = true
 fov = 75.0
 near = 0.05
 
-[node name="InteractionRay" type="RayCast3D" parent="Head/Camera3D"]
-target_position = Vector3(0, 0, -3)
-collide_with_areas = true
+[node name="Interactor" type="RayCast3D" parent="Head/Camera3D"]
+script = ExtResource("2_interactor")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
 
-[node name="InteractionPrompt" type="Label" parent="HUD"]
-anchor_left = 0.5
-anchor_top = 0.76
-anchor_right = 0.5
-anchor_bottom = 0.76
-offset_left = -220.0
-offset_right = 220.0
-offset_bottom = 42.0
-theme_override_colors/font_color = Color(1, 0.86, 0.68, 1)
-theme_override_font_sizes/font_size = 20
-text = ""
-horizontal_alignment = 1
-vertical_alignment = 1
-visible = false
-
-[node name="DeathOverlay" type="ColorRect" parent="HUD"]
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.015, 0.005, 0.005, 0.94)
-mouse_filter = 2
-
-[node name="CenterContainer" type="CenterContainer" parent="HUD/DeathOverlay"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="MessageStack" type="VBoxContainer" parent="HUD/DeathOverlay/CenterContainer"]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="DeathTitle" type="Label" parent="HUD/DeathOverlay/CenterContainer/MessageStack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 40
-text = "POWER FAILURE"
-horizontal_alignment = 1
-
-[node name="DeathDetail" type="Label" parent="HUD/DeathOverlay/CenterContainer/MessageStack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.88, 0.84, 0.82, 1)
-theme_override_font_sizes/font_size = 22
-text = "Life support lost"
-horizontal_alignment = 1
-
-[node name="RestartPrompt" type="Label" parent="HUD/DeathOverlay/CenterContainer/MessageStack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.72, 0.72, 1)
-theme_override_font_sizes/font_size = 18
-text = "Press E to restart"
-horizontal_alignment = 1
+[connection signal="target_changed" from="Head/Camera3D/Interactor" to="HUD" method="set_prompt"]

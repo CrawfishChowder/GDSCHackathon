@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/stage1/breaker_box.gd" id="1_breaker"]
 [ext_resource type="Script" path="res://scripts/stage1/breaker_handle_interactable.gd" id="2_handle_interaction"]

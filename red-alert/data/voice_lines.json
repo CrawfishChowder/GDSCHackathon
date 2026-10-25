@@ -1,0 +1,106 @@
+{
+	"hal_wake": {
+		"speaker": "hal",
+		"text": "Habitat systems online. Shift duration is 300 seconds."
+	},
+	"hal_welcome_back": {
+		"speaker": "hal",
+		"text": "Warning. Previous shift records indicate unauthorized button activation."
+	},
+	"hal_alarm_reactor": {
+		"speaker": "hal",
+		"text": "Warning. Reactor core anomaly detected. Meltdown in 45 seconds."
+	},
+	"hal_alarm_power": {
+		"speaker": "hal",
+		"text": "Warning. Main electrical failure. Total blackout in 40 seconds."
+	},
+	"hal_alarm_o2": {
+		"speaker": "hal",
+		"text": "Warning. Oxygen depletion detected. Atmospheric loss in 50 seconds."
+	},
+	"hal_warning_10": {
+		"speaker": "hal",
+		"text": "Critical alert. 10 seconds remaining until catastrophic failure."
+	},
+	"hal_death": {
+		"speaker": "hal",
+		"text": "Life support terminated. Crew member deceased."
+	},
+	"hal_flare_hit": {
+		"speaker": "hal",
+		"text": "Solar particle event in progress. Radiation has disrupted the power grid."
+	},
+	"hal_button_1": {
+		"speaker": "hal",
+		"text": "Notice. You have pressed the prohibited control."
+	},
+	"hal_button_2": {
+		"speaker": "hal",
+		"text": "Notice. You have pressed the prohibited control again despite explicit warnings."
+	},
+	"hal_button_3": {
+		"speaker": "hal",
+		"text": "Notice. Repeated activation of the prohibited control indicates total disregard for protocol."
+	},
+	"crew_wake": {
+		"speaker": "crew",
+		"text": "Hey, I'm Sam, stuck over in module B! I'll guide you through this shift over the radio."
+	},
+	"crew_hint_reactor": {
+		"speaker": "crew",
+		"text": "Reactor trouble! Get to the center console and match the sequence."
+	},
+	"crew_hint_power": {
+		"speaker": "crew",
+		"text": "Power's out! Breaker box by the north door. Open the cover, flip the main breaker off, then back on."
+	},
+	"crew_hint_o2": {
+		"speaker": "crew",
+		"text": "Oxygen leak! Hurry to the left console and enter the override code."
+	},
+	"crew_fixed_reactor": {
+		"speaker": "crew",
+		"text": "Reactor core stabilized! Fantastic job under pressure."
+	},
+	"crew_fixed_power": {
+		"speaker": "crew",
+		"text": "Power grid restored! Nice work resetting those breakers."
+	},
+	"crew_fixed_o2": {
+		"speaker": "crew",
+		"text": "Oxygen pressure normalized! Good breathing room again."
+	},
+	"crew_shift_done": {
+		"speaker": "crew",
+		"text": "Shift complete! You kept us alive for the whole five minutes, excellent work!"
+	},
+	"hal_alarm_co2": {
+		"speaker": "hal",
+		"text": "Warning. Carbon dioxide concentration rising. Crew impairment in 45 seconds."
+	},
+	"crew_hint_co2": {
+		"speaker": "crew",
+		"text": "CO2 is climbing! Right console. Build the scrubber adapter and follow the checklist in order."
+	},
+	"crew_fixed_co2": {
+		"speaker": "crew",
+		"text": "Scrubber is pulling the CO2 down. That was an Apollo 13 move right there."
+	},
+	"crew_tutorial_1": {
+		"speaker": "crew",
+		"text": "Something is wrong with the oxygen. Do not panic, I will walk you through it. Follow the flashing marker to the left console."
+	},
+	"crew_tutorial_2": {
+		"speaker": "crew",
+		"text": "That is it. Look at the keyboard and press E."
+	},
+	"crew_tutorial_3": {
+		"speaker": "crew",
+		"text": "Read the filter code and type it in. Careful. One wrong digit vents the air."
+	},
+	"crew_tutorial_done": {
+		"speaker": "crew",
+		"text": "Perfect. From now on HAL runs a countdown, so be quick."
+	}
+}

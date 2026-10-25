@@ -1,9 +1,19 @@
-[gd_scene load_steps=29 format=3 uid="uid://4qvr2hc8f2k0"]
+[gd_scene format=3 uid="uid://4qvr2hc8f2k0"]
 
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/industrial_room_shell.tscn" id="1_shell"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/sealed_bulkhead_door.tscn" id="2_door"]
 [ext_resource type="PackedScene" path="res://scenes/player/first_person_player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/main_console.tscn" id="4_console"]
+[ext_resource type="Script" path="res://scripts/stage1/stage1_controller.gd" id="5_controller"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
+[ext_resource type="Script" path="res://scripts/stage1/alarm_controller.gd" id="6_alarm"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/do_not_press_button.tscn" id="7_button"]
+
+[ext_resource type="Script" path="res://scripts/stage1/station_signage.gd" id="8_station_signage"]
+[ext_resource type="Script" path="res://scripts/stage1/lighting_director.gd" id="9_lighting_director"]
+[ext_resource type="Script" path="res://scripts/stage1/doorways.gd" id="10_doorways"]
+[ext_resource type="Script" path="res://scripts/stage1/room_props.gd" id="11_room_props"]
+[ext_resource type="Script" path="res://scripts/stage1/tutorial_director.gd" id="12_tutorial_director"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
 [ext_resource type="Script" path="res://scripts/stage1/event_director.gd" id="6_event_director"]
 [ext_resource type="Script" path="res://scripts/stage1/power_failure_event.gd" id="7_power_failure_event"]
@@ -18,94 +28,8 @@ ambient_light_energy = 1.4
 reflected_light_source = 2
 tonemap_mode = 2
 
-[sub_resource type="StandardMaterial3D" id="Material_console_metal"]
-resource_name = "Main console industrial steel"
-albedo_color = Color(0.12, 0.15, 0.18, 1)
-metallic = 0.86
-roughness = 0.38
-
-[sub_resource type="StandardMaterial3D" id="Material_console_dark"]
-resource_name = "Main console structural graphite"
-albedo_color = Color(0.035, 0.045, 0.055, 1)
-metallic = 0.92
-roughness = 0.34
-
-[sub_resource type="StandardMaterial3D" id="Material_console_inset"]
-resource_name = "Main console recessed equipment panel"
-albedo_color = Color(0.065, 0.08, 0.095, 1)
-metallic = 0.8
-roughness = 0.44
-
-[sub_resource type="StandardMaterial3D" id="Material_console_trim"]
-resource_name = "Main console edge trim"
-albedo_color = Color(0.32, 0.37, 0.42, 1)
-metallic = 0.9
-roughness = 0.3
-
-[sub_resource type="StandardMaterial3D" id="Material_screen_off"]
-resource_name = "Monitor screen off black"
-albedo_color = Color(0.002, 0.004, 0.005, 1)
-metallic = 0.12
-roughness = 0.2
-
-[sub_resource type="StandardMaterial3D" id="Material_keycap"]
-resource_name = "Keyboard keycaps"
-albedo_color = Color(0.24, 0.28, 0.31, 1)
-metallic = 0.5
-roughness = 0.55
-
-[sub_resource type="StandardMaterial3D" id="Material_accent_navy"]
-resource_name = "Unlit navy equipment marking"
-albedo_color = Color(0.055, 0.12, 0.19, 1)
-metallic = 0.72
-roughness = 0.4
-
-[sub_resource type="StandardMaterial3D" id="Material_control_red"]
-resource_name = "Unlit red control key"
-albedo_color = Color(0.3, 0.035, 0.025, 1)
-metallic = 0.35
-roughness = 0.5
-
-[sub_resource type="StandardMaterial3D" id="Material_control_amber"]
-resource_name = "Unlit amber control key"
-albedo_color = Color(0.32, 0.17, 0.025, 1)
-metallic = 0.35
-roughness = 0.5
-
-[sub_resource type="BoxMesh" id="Mesh_console_metal"]
-material = SubResource("Material_console_metal")
-
-[sub_resource type="BoxMesh" id="Mesh_console_dark"]
-material = SubResource("Material_console_dark")
-
-[sub_resource type="BoxMesh" id="Mesh_console_inset"]
-material = SubResource("Material_console_inset")
-
-[sub_resource type="BoxMesh" id="Mesh_console_trim"]
-material = SubResource("Material_console_trim")
-
-[sub_resource type="BoxMesh" id="Mesh_screen_off"]
-material = SubResource("Material_screen_off")
-
-[sub_resource type="BoxMesh" id="Mesh_keycap"]
-material = SubResource("Material_keycap")
-
-[sub_resource type="BoxMesh" id="Mesh_accent_navy"]
-material = SubResource("Material_accent_navy")
-
-[sub_resource type="BoxMesh" id="Mesh_control_red"]
-material = SubResource("Material_control_red")
-
-[sub_resource type="BoxMesh" id="Mesh_control_amber"]
-material = SubResource("Material_control_amber")
-
-[sub_resource type="BoxShape3D" id="Shape_console_base"]
-size = Vector3(6.32, 1.18, 1.28)
-
-[sub_resource type="BoxShape3D" id="Shape_console_back"]
-size = Vector3(6.32, 1.95, 0.42)
-
 [node name="Stage1IndustrialRoom" type="Node3D" unique_id=1576666426]
+script = ExtResource("5_controller")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1478731389]
 environment = SubResource("Environment_stage1")
@@ -130,500 +54,10 @@ transform = Transform3D(-3.6199901e-06, 0, 1, 0, 1, 0, -1, 0, -3.6199901e-06, -5
 [node name="NorthDoorBreakerBox" parent="WallFixtures" instance=ExtResource("4_breaker")]
 position = Vector3(2.8, 1.55, -4.78)
 
-[node name="MainConsole" type="Node3D" parent="."]
+[node name="DoNotPressButton" parent="WallFixtures" instance=ExtResource("7_button")]
+position = Vector3(4.8, 0, 3.8)
 
-[node name="ConsoleCollision" type="StaticBody3D" parent="MainConsole"]
-
-[node name="ConsoleBaseCollision" type="CollisionShape3D" parent="MainConsole/ConsoleCollision"]
-position = Vector3(0, 0.59, 4.31)
-shape = SubResource("Shape_console_base")
-
-[node name="ConsoleBackCollision" type="CollisionShape3D" parent="MainConsole/ConsoleCollision"]
-position = Vector3(0, 2.02, 4.74)
-shape = SubResource("Shape_console_back")
-
-[node name="IntegratedStructure" type="Node3D" parent="MainConsole"]
-
-[node name="ContinuousToeKick" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 0.11, 4.75)
-scale = Vector3(6.32, 0.22, 0.34)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="ContinuousBasePlinth" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 0.27, 4.53)
-scale = Vector3(6.25, 0.34, 0.84)
-mesh = SubResource("Mesh_console_metal")
-
-[node name="ContinuousLowerCabinet" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 0.65, 4.56)
-scale = Vector3(6.12, 0.74, 0.68)
-mesh = SubResource("Mesh_console_metal")
-
-[node name="ContinuousFrontFascia" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 0.83, 3.73)
-scale = Vector3(6.24, 0.34, 0.16)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="ContinuousAngledWorktop" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 1.05, 4.02)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(6.25, 0.1, 0.72)
-mesh = SubResource("Mesh_console_metal")
-
-[node name="WorktopFrontEdge" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 0.99, 3.66)
-scale = Vector3(6.32, 0.13, 0.12)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="RearEquipmentBackplane" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 2.04, 4.79)
-scale = Vector3(6.2, 1.86, 0.22)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="LowerInstrumentRail" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 1.34, 4.6)
-scale = Vector3(6.12, 0.25, 0.35)
-mesh = SubResource("Mesh_console_metal")
-
-[node name="OverheadEquipmentHeader" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 3.02, 4.68)
-scale = Vector3(6.28, 0.28, 0.46)
-mesh = SubResource("Mesh_console_metal")
-
-[node name="HeaderNavyIdentificationStrip" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(0, 3.02, 4.438)
-scale = Vector3(4.85, 0.075, 0.025)
-mesh = SubResource("Mesh_accent_navy")
-
-[node name="LeftEndPylon" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(-3.08, 1.94, 4.61)
-scale = Vector3(0.18, 2.12, 0.55)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="RightEndPylon" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(3.08, 1.94, 4.61)
-scale = Vector3(0.18, 2.12, 0.55)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="LeftStationDivider" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(-1.09, 2.04, 4.6)
-scale = Vector3(0.075, 1.72, 0.38)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="RightStationDivider" type="MeshInstance3D" parent="MainConsole/IntegratedStructure"]
-position = Vector3(1.09, 2.04, 4.6)
-scale = Vector3(0.075, 1.72, 0.38)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="HeaderVentDetail" type="Node3D" parent="MainConsole/IntegratedStructure"]
-
-[node name="Vent01" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(-2.55, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="Vent02" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(-1.7, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="Vent03" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(-0.85, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="Vent04" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(0.85, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="Vent05" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(1.7, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="Vent06" type="MeshInstance3D" parent="MainConsole/IntegratedStructure/HeaderVentDetail"]
-position = Vector3(2.55, 3.02, 4.423)
-scale = Vector3(0.36, 0.04, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="LeftStation" type="Node3D" parent="MainConsole"]
-
-[node name="LowerEquipmentCabinetPanel" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.62, 4.205)
-scale = Vector3(1.72, 0.55, 0.035)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="CabinetVent01" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.43, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent02" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.52, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent03" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.61, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent04" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.7, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent05" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 0.79, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="AngledControlPanel" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 1.09, 4.01)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(1.78, 0.035, 0.5)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="Keyboard" type="Node3D" parent="MainConsole/LeftStation"]
-
-[node name="KeyboardBase" type="MeshInstance3D" parent="MainConsole/LeftStation/Keyboard"]
-position = Vector3(-2.13, 1.135, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.84, 0.035, 0.29)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="KeyRow01" type="MeshInstance3D" parent="MainConsole/LeftStation/Keyboard"]
-position = Vector3(-2.13, 1.154, 3.84)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow02" type="MeshInstance3D" parent="MainConsole/LeftStation/Keyboard"]
-position = Vector3(-2.13, 1.168, 3.91)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow03" type="MeshInstance3D" parent="MainConsole/LeftStation/Keyboard"]
-position = Vector3(-2.13, 1.181, 3.98)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow04" type="MeshInstance3D" parent="MainConsole/LeftStation/Keyboard"]
-position = Vector3(-2.13, 1.194, 4.05)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="ControlKeyRed" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.75, 1.14, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.12, 0.04, 0.12)
-mesh = SubResource("Mesh_control_red")
-
-[node name="ControlKeyAmber" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.75, 1.165, 4.09)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.12, 0.04, 0.12)
-mesh = SubResource("Mesh_control_amber")
-
-[node name="LeftMonitorMount" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 1.68, 4.64)
-scale = Vector3(0.15, 0.68, 0.15)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="LeftMonitorFrame" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 2.2, 4.59)
-scale = Vector3(1.62, 0.86, 0.16)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="LeftMonitorScreen" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 2.2, 4.495)
-scale = Vector3(1.4, 0.64, 0.025)
-mesh = SubResource("Mesh_screen_off")
-
-[node name="LeftEventScreen" type="Label3D" parent="MainConsole/LeftStation"]
-visible = false
-position = Vector3(-2.1, 2.2, 4.45)
-rotation = Vector3(0, 3.14159, 0)
-modulate = Color(1, 0.12, 0.08, 1)
-pixel_size = 0.003
-font_size = 26
-outline_size = 8
-outline_modulate = Color(0.06, 0, 0, 1)
-text = "POWER OUT,\nBREAKER MALFUNCTION\n\n60 SECONDS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LeftMonitorTopHood" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 2.67, 4.54)
-scale = Vector3(1.74, 0.08, 0.25)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="LeftEquipmentStatusStrip" type="MeshInstance3D" parent="MainConsole/LeftStation"]
-position = Vector3(-2.1, 1.49, 4.405)
-scale = Vector3(1.48, 0.12, 0.035)
-mesh = SubResource("Mesh_accent_navy")
-
-[node name="CenterStation" type="Node3D" parent="MainConsole"]
-
-[node name="LowerEquipmentCabinetPanel" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 0.62, 4.205)
-scale = Vector3(2.02, 0.55, 0.035)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="EquipmentDrawerSeam01" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 0.43, 4.181)
-scale = Vector3(1.72, 0.025, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="EquipmentDrawerSeam02" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 0.61, 4.181)
-scale = Vector3(1.72, 0.025, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="EquipmentDrawerSeam03" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 0.79, 4.181)
-scale = Vector3(1.72, 0.025, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="PrimaryControlPanelTrim" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 1.09, 4.01)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(2.13, 0.055, 0.56)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="AngledControlPanel" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 1.12, 4.01)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(2, 0.035, 0.48)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="Keyboard" type="Node3D" parent="MainConsole/CenterStation"]
-
-[node name="KeyboardBase" type="MeshInstance3D" parent="MainConsole/CenterStation/Keyboard"]
-position = Vector3(0, 1.165, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.98, 0.035, 0.3)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="KeyRow01" type="MeshInstance3D" parent="MainConsole/CenterStation/Keyboard"]
-position = Vector3(0, 1.184, 3.84)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.87, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow02" type="MeshInstance3D" parent="MainConsole/CenterStation/Keyboard"]
-position = Vector3(0, 1.198, 3.91)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.87, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow03" type="MeshInstance3D" parent="MainConsole/CenterStation/Keyboard"]
-position = Vector3(0, 1.211, 3.98)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.87, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow04" type="MeshInstance3D" parent="MainConsole/CenterStation/Keyboard"]
-position = Vector3(0, 1.224, 4.05)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.87, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="PortControlKeyRed" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(-0.73, 1.17, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.13, 0.04, 0.13)
-mesh = SubResource("Mesh_control_red")
-
-[node name="PortControlKeyAmber" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(-0.73, 1.195, 4.1)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.13, 0.04, 0.13)
-mesh = SubResource("Mesh_control_amber")
-
-[node name="StarboardControlKeyAmber" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0.73, 1.17, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.13, 0.04, 0.13)
-mesh = SubResource("Mesh_control_amber")
-
-[node name="StarboardControlKeyRed" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0.73, 1.195, 4.1)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.13, 0.04, 0.13)
-mesh = SubResource("Mesh_control_red")
-
-[node name="PrimaryMonitorLeftMount" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(-0.42, 1.7, 4.64)
-scale = Vector3(0.13, 0.7, 0.15)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="PrimaryMonitorRightMount" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0.42, 1.7, 4.64)
-scale = Vector3(0.13, 0.7, 0.15)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="PrimaryMonitorFrame" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 2.25, 4.575)
-scale = Vector3(1.98, 1.04, 0.18)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="PrimaryMonitorScreen" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 2.25, 4.47)
-scale = Vector3(1.72, 0.78, 0.025)
-mesh = SubResource("Mesh_screen_off")
-
-[node name="CenterEventScreen" type="Label3D" parent="MainConsole/CenterStation"]
-visible = false
-position = Vector3(0, 2.25, 4.425)
-rotation = Vector3(0, 3.14159, 0)
-modulate = Color(1, 0.12, 0.08, 1)
-pixel_size = 0.003
-font_size = 26
-outline_size = 8
-outline_modulate = Color(0.06, 0, 0, 1)
-text = "POWER OUT,\nBREAKER MALFUNCTION\n\n60 SECONDS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="PrimaryMonitorTopHood" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 2.82, 4.51)
-scale = Vector3(2.08, 0.09, 0.28)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="PrimaryEquipmentStatusStrip" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 1.5, 4.4)
-scale = Vector3(1.82, 0.13, 0.035)
-mesh = SubResource("Mesh_accent_navy")
-
-[node name="PrimaryStationCrown" type="MeshInstance3D" parent="MainConsole/CenterStation"]
-position = Vector3(0, 3.19, 4.68)
-scale = Vector3(2.18, 0.12, 0.48)
-mesh = SubResource("Mesh_accent_navy")
-
-[node name="RightStation" type="Node3D" parent="MainConsole"]
-
-[node name="LowerEquipmentCabinetPanel" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.62, 4.205)
-scale = Vector3(1.72, 0.55, 0.035)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="CabinetVent01" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.43, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent02" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.52, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent03" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.61, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent04" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.7, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="CabinetVent05" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 0.79, 4.181)
-scale = Vector3(1.42, 0.028, 0.025)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="AngledControlPanel" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 1.09, 4.01)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(1.78, 0.035, 0.5)
-mesh = SubResource("Mesh_console_inset")
-
-[node name="Keyboard" type="Node3D" parent="MainConsole/RightStation"]
-
-[node name="KeyboardBase" type="MeshInstance3D" parent="MainConsole/RightStation/Keyboard"]
-position = Vector3(2.13, 1.135, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.84, 0.035, 0.29)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="KeyRow01" type="MeshInstance3D" parent="MainConsole/RightStation/Keyboard"]
-position = Vector3(2.13, 1.154, 3.84)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow02" type="MeshInstance3D" parent="MainConsole/RightStation/Keyboard"]
-position = Vector3(2.13, 1.168, 3.91)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow03" type="MeshInstance3D" parent="MainConsole/RightStation/Keyboard"]
-position = Vector3(2.13, 1.181, 3.98)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="KeyRow04" type="MeshInstance3D" parent="MainConsole/RightStation/Keyboard"]
-position = Vector3(2.13, 1.194, 4.05)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.74, 0.018, 0.025)
-mesh = SubResource("Mesh_keycap")
-
-[node name="ControlKeyAmber" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.75, 1.14, 3.94)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.12, 0.04, 0.12)
-mesh = SubResource("Mesh_control_amber")
-
-[node name="ControlKeyRed" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.75, 1.165, 4.09)
-rotation = Vector3(-0.18, 0, 0)
-scale = Vector3(0.12, 0.04, 0.12)
-mesh = SubResource("Mesh_control_red")
-
-[node name="RightMonitorMount" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 1.68, 4.64)
-scale = Vector3(0.15, 0.68, 0.15)
-mesh = SubResource("Mesh_console_trim")
-
-[node name="RightMonitorFrame" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 2.2, 4.59)
-scale = Vector3(1.62, 0.86, 0.16)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="RightMonitorScreen" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 2.2, 4.495)
-scale = Vector3(1.4, 0.64, 0.025)
-mesh = SubResource("Mesh_screen_off")
-
-[node name="RightEventScreen" type="Label3D" parent="MainConsole/RightStation"]
-visible = false
-position = Vector3(2.1, 2.2, 4.45)
-rotation = Vector3(0, 3.14159, 0)
-modulate = Color(1, 0.12, 0.08, 1)
-pixel_size = 0.003
-font_size = 26
-outline_size = 8
-outline_modulate = Color(0.06, 0, 0, 1)
-text = "POWER OUT,\nBREAKER MALFUNCTION\n\n60 SECONDS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RightMonitorTopHood" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 2.67, 4.54)
-scale = Vector3(1.74, 0.08, 0.25)
-mesh = SubResource("Mesh_console_dark")
-
-[node name="RightEquipmentStatusStrip" type="MeshInstance3D" parent="MainConsole/RightStation"]
-position = Vector3(2.1, 1.49, 4.405)
-scale = Vector3(1.48, 0.12, 0.035)
-mesh = SubResource("Mesh_accent_navy")
+[node name="MainConsole" parent="." instance=ExtResource("4_console")]
 
 [node name="ConsoleChairs" type="Node3D" parent="."]
 
@@ -645,6 +79,27 @@ rotation = Vector3(0, 3.14159, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
 
 [node name="FirstPersonPlayer" parent="." unique_id=1815492691 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
+
+[node name="AlarmController" type="Node3D" parent="."]
+script = ExtResource("6_alarm")
+
+[node name="Polish" type="Node3D" parent="."]
+
+[node name="StationSignage" type="Node3D" parent="Polish"]
+script = ExtResource("8_station_signage")
+
+[node name="LightingDirector" type="Node3D" parent="Polish"]
+script = ExtResource("9_lighting_director")
+
+[node name="Doorways" type="Node3D" parent="Polish"]
+script = ExtResource("10_doorways")
+
+[node name="RoomProps" type="Node3D" parent="Polish"]
+script = ExtResource("11_room_props")
+
+[node name="TutorialDirector" type="Node" parent="."]
+script = ExtResource("12_tutorial_director")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
 
 [node name="EventDirector" type="Node" parent="."]
