@@ -34,6 +34,7 @@ var practice_mistakes: int = 0
 # minigame) or "button". death_detail is a short player-facing explanation.
 var death_kind: String = ""
 var death_detail: String = ""
+var history: Array[Dictionary] = []
 
 var _next_in: float = 0.0
 # Last malfunction started, so the random pick never repeats it back to back.
@@ -84,6 +85,8 @@ func start_run() -> void:
 	practice_mistakes = 0
 	death_kind = ""
 	death_detail = ""
+	# New array (not clear()) so screens holding the last run's timeline keep it.
+	history = []
 	_next_in = 10.0
 	scripted = (mode == "story")
 	run_started.emit()
@@ -110,6 +113,7 @@ func trigger(id: String) -> void:
 	if mode == "hard":
 		limit *= 0.5
 	time_left = limit
+	history.append({"id": id, "name": display_name(id), "start": survived_seconds, "end": -1.0, "outcome": "active"})
 	malfunction_started.emit(id, String(info["name"]), time_left)
 
 
@@ -123,6 +127,14 @@ func fix(id: String) -> void:
 	active_id = ""
 	time_left = 0.0
 	_next_in = max(8.0, randf_range(15.0, 30.0) * pow(0.9, fixes_count))
+	if not history.is_empty():
+		var idx := history.size() - 1
+		for i in range(history.size() - 1, -1, -1):
+			if history[i].get("outcome") == "active":
+				idx = i
+				break
+		history[idx]["end"] = survived_seconds
+		history[idx]["outcome"] = "fixed"
 	malfunction_fixed.emit(fixed_id)
 
 
@@ -136,7 +148,11 @@ func kill(cause_id: String, kind: String, detail: String = "") -> void:
 		if kind == "timeout":
 			var info: Dictionary = MALFUNCTIONS.get(cause_id, {})
 			time_left = float(info.get("time_limit", 45.0))
+		history.append({"id": cause_id, "name": display_name(cause_id), "start": survived_seconds, "end": survived_seconds, "outcome": "practice_mistake"})
 		return
+	if not history.is_empty() and history[history.size() - 1].get("outcome") == "active":
+		history[history.size() - 1]["end"] = survived_seconds
+		history[history.size() - 1]["outcome"] = "fatal"
 	running = false
 	death_kind = kind
 	death_detail = detail

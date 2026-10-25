@@ -13,6 +13,8 @@ var _people_label: Label
 var _grade_label: Label
 var _new_best_label: Label
 var _notes_label: Label
+var _timeline_header: Label
+var _timeline_label: Label
 var _lost_label: Label
 var _restart_btn: Button
 var _flash_rect: ColorRect
@@ -55,6 +57,10 @@ func _build_ui() -> void:
 	_grade_label = _create_label(vbox, "", 32, Color(1.0, 0.9, 0.3))
 	_new_best_label = _create_label(vbox, "", 18, Color(0.4, 1.0, 0.4))
 	_notes_label = _create_label(vbox, "", 16, Color(0.8, 0.8, 0.8))
+	_timeline_header = _create_label(vbox, "SHIFT TIMELINE", 14, Color(0.6, 0.9, 1.0))
+	_timeline_header.visible = false
+	_timeline_label = _create_label(vbox, "", 14, Color(0.8, 0.8, 0.8))
+	_timeline_label.visible = false
 	_create_label(vbox, "HOW REAL CREWS COMPARE", 22, Color(0.6, 0.9, 1.0))
 	for fact in COMPARISONS:
 		_create_label(vbox, fact, 15, Color(0.8, 0.8, 0.8))
@@ -138,6 +144,34 @@ func _update_stats() -> void:
 	var mlog := _get_mission_log()
 	var lost_count: int = (mlog.get("entries") as Array).size() if mlog != null and "entries" in mlog else 0
 	_lost_label.text = "Crew lost on this station before you: %d" % lost_count
+	var tl := _format_timeline()
+	_timeline_header.visible = not tl.is_empty()
+	_timeline_label.text = "\n".join(tl)
+	_timeline_label.visible = not tl.is_empty()
+
+func _format_timeline(custom_hist: Array = []) -> PackedStringArray:
+	var lines := PackedStringArray()
+	var hist: Array = custom_hist
+	if hist.is_empty():
+		var mm := _get_mm()
+		if not mm or not ("history" in mm): return lines
+		hist = mm.history
+	var count := hist.size()
+	for i in range(maxi(0, count - 8), count):
+		var rec: Dictionary = hist[i]
+		var s := int(rec.get("start", 0.0))
+		var dn := String(rec.get("name", rec.get("id", "")))
+		var out := String(rec.get("outcome", ""))
+		if out == "fixed":
+			var dur := int(round(maxf(0.0, float(rec.get("end", s)) - float(rec.get("start", s)))))
+			lines.append("%d:%02d  %s  fixed in %ds" % [s / 60, s % 60, dn, dur])
+		elif out == "fatal":
+			lines.append("%d:%02d  %s  FATAL" % [s / 60, s % 60, dn])
+		elif out == "practice_mistake":
+			lines.append("%d:%02d  %s  practice mistake" % [s / 60, s % 60, dn])
+		else:
+			lines.append("%d:%02d  %s  %s" % [s / 60, s % 60, dn, out])
+	return lines
 
 func _restart() -> void:
 	get_tree().paused = false; get_tree().reload_current_scene()

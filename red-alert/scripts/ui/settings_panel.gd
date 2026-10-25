@@ -1,20 +1,16 @@
 class_name SettingsPanel
 extends VBoxContainer
 
-var _sens_slider: HSlider
-var _sens_val_label: Label
-var _invert_btn: CheckButton
-var _motion_btn: CheckButton
-var _vol_slider: HSlider
-var _vol_val_label: Label
-var _sfx_slider: HSlider
-var _sfx_val_label: Label
-var _voice_slider: HSlider
-var _voice_val_label: Label
-var _captions_btn: CheckButton
-var _contrast_btn: CheckButton
-var _shadows_btn: CheckButton
-var _hide_hud_btn: CheckButton
+var _sens_slider: HSlider; var _sens_val_label: Label
+var _invert_btn: CheckButton; var _motion_btn: CheckButton
+var _vol_slider: HSlider; var _vol_val_label: Label
+var _sfx_slider: HSlider; var _sfx_val_label: Label
+var _voice_slider: HSlider; var _voice_val_label: Label
+var _captions_btn: CheckButton; var _contrast_btn: CheckButton
+var _shadows_btn: CheckButton; var _hide_hud_btn: CheckButton
+var _fullscreen_btn: CheckButton; var _vsync_btn: CheckButton
+var _fps_btn: CheckButton
+var _scale_slider: HSlider; var _scale_val_label: Label
 var _updating: bool = false
 
 
@@ -39,10 +35,8 @@ func _build_ui() -> void:
 
 	_sens_slider = HSlider.new(); _sens_val_label = Label.new()
 	_add_slider_row("Mouse sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, _on_sens_changed)
-	_invert_btn = CheckButton.new()
-	_add_check_button(_invert_btn, "Invert Y", _on_invert_toggled)
-	_motion_btn = CheckButton.new()
-	_add_check_button(_motion_btn, "Reduce motion (no head bob or camera shake)", _on_motion_toggled)
+	_invert_btn = CheckButton.new(); _add_check_button(_invert_btn, "Invert Y", _on_invert_toggled)
+	_motion_btn = CheckButton.new(); _add_check_button(_motion_btn, "Reduce motion (no head bob or camera shake)", _on_motion_toggled)
 	_vol_slider = HSlider.new(); _vol_val_label = Label.new()
 	_add_slider_row("Master volume", _vol_slider, _vol_val_label, 0.0, 1.0, 0.01, _on_vol_changed)
 	_sfx_slider = HSlider.new(); _sfx_val_label = Label.new()
@@ -53,6 +47,11 @@ func _build_ui() -> void:
 	_contrast_btn = CheckButton.new(); _add_check_button(_contrast_btn, "High contrast", _on_contrast_toggled)
 	_shadows_btn = CheckButton.new(); _add_check_button(_shadows_btn, "Shadows (turn off on slow machines)", _on_shadows_toggled)
 	_hide_hud_btn = CheckButton.new(); _add_check_button(_hide_hud_btn, "Hide HUD (for screenshots)", _on_hide_hud_toggled)
+	_fullscreen_btn = CheckButton.new(); _add_check_button(_fullscreen_btn, "Fullscreen (F11)", _on_fullscreen_toggled)
+	_vsync_btn = CheckButton.new(); _add_check_button(_vsync_btn, "VSync", _on_vsync_toggled)
+	_fps_btn = CheckButton.new(); _add_check_button(_fps_btn, "Show FPS", _on_fps_toggled)
+	_scale_slider = HSlider.new(); _scale_val_label = Label.new()
+	_add_slider_row("Text / UI size", _scale_slider, _scale_val_label, 0.8, 1.5, 0.05, _on_scale_changed)
 
 
 func _add_slider_row(label_text: String, slider: HSlider, val_label: Label, min_v: float, max_v: float, step_v: float, callback: Callable) -> void:
@@ -72,9 +71,7 @@ func _add_slider_row(label_text: String, slider: HSlider, val_label: Label, min_
 
 
 func _add_check_button(btn: CheckButton, text: String, callback: Callable) -> void:
-	btn.text = text
-	btn.toggled.connect(callback)
-	add_child(btn)
+	btn.text = text; btn.toggled.connect(callback); add_child(btn)
 
 
 func _get_setting_val(key: String, default_val: Variant) -> Variant:
@@ -91,6 +88,7 @@ func _load_values() -> void:
 	var vol: float = float(_get_setting_val("master_volume", 0.8))
 	var sfx: float = float(_get_setting_val("sfx_volume", 1.0))
 	var voice: float = float(_get_setting_val("voice_volume", 1.0))
+	var scale_v: float = float(_get_setting_val("ui_scale", 1.0))
 	_sens_slider.value = sens; _sens_val_label.text = "%.2fx" % sens
 	_invert_btn.button_pressed = bool(_get_setting_val("invert_y", false))
 	_motion_btn.button_pressed = bool(_get_setting_val("reduce_motion", false))
@@ -101,12 +99,15 @@ func _load_values() -> void:
 	_contrast_btn.button_pressed = bool(_get_setting_val("high_contrast", false))
 	_shadows_btn.button_pressed = bool(_get_setting_val("shadows", true))
 	_hide_hud_btn.button_pressed = bool(_get_setting_val("hide_hud", false))
+	_fullscreen_btn.button_pressed = bool(_get_setting_val("fullscreen", false))
+	_vsync_btn.button_pressed = bool(_get_setting_val("vsync", true))
+	_fps_btn.button_pressed = bool(_get_setting_val("show_fps", false))
+	_scale_slider.value = scale_v; _scale_val_label.text = "%.2fx" % scale_v
 	_updating = false
 
 
 func _on_sens_changed(val: float) -> void:
-	_sens_val_label.text = "%.2fx" % val
-	if not _updating: _save_setting("mouse_sensitivity", val)
+	_sens_val_label.text = "%.2fx" % val; if not _updating: _save_setting("mouse_sensitivity", val)
 
 func _on_invert_toggled(pressed: bool) -> void:
 	if not _updating: _save_setting("invert_y", pressed)
@@ -115,16 +116,13 @@ func _on_motion_toggled(pressed: bool) -> void:
 	if not _updating: _save_setting("reduce_motion", pressed)
 
 func _on_vol_changed(val: float) -> void:
-	_vol_val_label.text = "%d%%" % roundi(val * 100.0)
-	if not _updating: _save_setting("master_volume", val)
+	_vol_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("master_volume", val)
 
 func _on_sfx_changed(val: float) -> void:
-	_sfx_val_label.text = "%d%%" % roundi(val * 100.0)
-	if not _updating: _save_setting("sfx_volume", val)
+	_sfx_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("sfx_volume", val)
 
 func _on_voice_changed(val: float) -> void:
-	_voice_val_label.text = "%d%%" % roundi(val * 100.0)
-	if not _updating: _save_setting("voice_volume", val)
+	_voice_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("voice_volume", val)
 
 func _on_captions_toggled(pressed: bool) -> void:
 	if not _updating: _save_setting("captions", pressed)
@@ -134,11 +132,18 @@ func _on_shadows_toggled(pressed: bool) -> void:
 	if not _updating: _save_setting("shadows", pressed)
 func _on_hide_hud_toggled(pressed: bool) -> void:
 	if not _updating: _save_setting("hide_hud", pressed)
+func _on_fullscreen_toggled(pressed: bool) -> void:
+	if not _updating: _save_setting("fullscreen", pressed)
+func _on_vsync_toggled(pressed: bool) -> void:
+	if not _updating: _save_setting("vsync", pressed)
+func _on_fps_toggled(pressed: bool) -> void:
+	if not _updating: _save_setting("show_fps", pressed)
+func _on_scale_changed(val: float) -> void:
+	_scale_val_label.text = "%.2fx" % val; if not _updating: _save_setting("ui_scale", val)
 
 func _save_setting(key: String, value: Variant) -> void:
 	var s := get_node_or_null("/root/Settings")
-	if s != null and s.has_method("set_setting"):
-		s.set_setting(key, value)
+	if s != null and s.has_method("set_setting"): s.set_setting(key, value)
 
 func _on_settings_changed(_key: String, _val: Variant) -> void:
 	_load_values()

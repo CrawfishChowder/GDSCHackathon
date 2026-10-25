@@ -28,7 +28,9 @@ func _initialize() -> void:
 	if start == null:
 		return _fail("no Start shift button on the title screen")
 	start.pressed.emit()
-	for i in 5:
+	# The title fades to black (0.35 s) before changing scene.
+	await create_timer(0.6).timeout
+	for i in 3:
 		await process_frame
 
 	if current_scene == null or current_scene.name != "Stage1IndustrialRoom":
