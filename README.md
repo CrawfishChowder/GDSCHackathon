@@ -41,7 +41,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Sound:** recorded effects from the Sonniss GDC bundle (credited), a 3D alarm ping at the broken station, room reverb, and Sam on a filtered radio channel.
 - **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle and a **Performance mode** for slow laptops (suggested automatically below 55 FPS), hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, PS5 DualSense controller support, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
 - **Replay value:** six achievements, an A–F shift grade with best saved, a mission log of every crew member lost, and a shift timeline on the end screens.
-- **Tests:** 68 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
+- **Tests:** 69 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
 
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*
@@ -58,7 +58,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Claude (Claude Code):** planning, task tickets, code review, merge resolution, tests and documentation.
 - **Gemini (Google Antigravity):** implemented most features from those tickets.
 
-The team designed the game, wrote the briefs, and reviewed and tested every change. Each member owns and can explain specific systems (see [`docs/QA_SHEET.md`](docs/QA_SHEET.md)). AI-authored commits are labeled in the git history. No external source code was given to the AI tools as reference.
+The team designed the game, wrote the briefs, and reviewed and tested every change. Each member owns and can explain specific systems (see [`docs/QA_SHEET.md`](docs/QA_SHEET.md)). AI-authored commits are labeled in the git history. No external source code was given to the AI tools as reference. The PS Vita controller app (`vita-controller/`) references the official VitaSDK and libvita2d API documentation and boilerplate examples for standard input, networking, display and packaging APIs.
 
 No AI-generated images or video are used. All 3D geometry, UI and signage were built by the team from Godot primitives. Sound effects are recorded effects from the Sonniss GDC bundle (credited below) plus alarm, hum and heartbeat sounds generated in code.
 
@@ -110,6 +110,8 @@ There are no other dependencies to install; Godot runs the project directly.
 | Space | Jump |
 | Esc | Pause menu (settings, restart, quit to title) |
 
+**PS Vita (optional):** the `vita-controller/` app sends sticks and buttons to the game over UDP port 27300 and shows live ship telemetry. Both devices must be on the same network, and the port must be allowed through the firewall. Protocol: [`red-alert/docs/vita_controller_protocol.md`](red-alert/docs/vita_controller_protocol.md).
+
 **PS5 DualSense / gamepad:** left stick or D-pad to move, right stick to look, Cross or R2 to interact, Square to jump, Triangle to breathe, Options to pause, Circle to go back. Menus and minigames can be navigated with the D-pad.
 
 **Demo keys (for judges)**
@@ -133,5 +135,5 @@ There are no other dependencies to install; Godot runs the project directly.
   | Eddie | power failure event and breaker |
   | Gerald | architecture, malfunction loop, minigames, AI workflow |
   | Calvin | live data and life support |
-  | Brandon | UX, accessibility, voices, history content |
+  | Brandon | UX, accessibility, voices, history content, PS Vita controller and telemetry dashboard |
 - **License:** Apache 2.0 (see [LICENSE](LICENSE)).

@@ -27,7 +27,7 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
   - `MalfunctionManager` picks a random failure, runs its countdown and emits signals. Everything else (the alarm, voices, monitors, gauges, signs) listens to those signals, so features never call each other directly.
   - The Interactor is a raycast from the camera. It walks up from whatever it hits to the first node with `interact()`.
   - Minigames pause the game, but the countdown keeps running, because the manager is set to `PROCESS_MODE_ALWAYS`.
-- **Likely Q: "How do you know it works?"** There are 68 automated headless tests. `tools/run_tests.sh` runs them all plus a smoke run of the game.
+- **Likely Q: "How do you know it works?"** There are 69 automated headless tests. `tools/run_tests.sh` runs them all plus a smoke run of the game.
 
 ## Calvin: real data and APIs
 - **Files:** `scripts/systems/space_weather.gd` (NASA DONKI), `scripts/systems/people_in_space.gd` (Open Notify), `scripts/systems/life_support.gd`
