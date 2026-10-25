@@ -1,10 +1,11 @@
-[gd_scene load_steps=27 format=3 uid="uid://4qvr2hc8f2k0"]
+[gd_scene load_steps=28 format=3 uid="uid://4qvr2hc8f2k0"]
 
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/industrial_room_shell.tscn" id="1_shell"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/sealed_bulkhead_door.tscn" id="2_door"]
 [ext_resource type="PackedScene" path="res://scenes/player/first_person_player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/normal_operations.tscn" id="6_normal"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -107,6 +108,8 @@ size = Vector3(6.32, 1.95, 0.42)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1478731389]
 environment = SubResource("Environment_stage1")
+
+[node name="NormalOperations" parent="." instance=ExtResource("6_normal")]
 
 [node name="Architecture" type="Node3D" parent="." unique_id=184199953]
 
