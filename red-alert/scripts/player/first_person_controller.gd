@@ -10,7 +10,8 @@ extends CharacterBody3D
 @export_range(0.0005, 0.01, 0.0001) var mouse_sensitivity: float = 0.0036
 @export_range(0.0005, 0.01, 0.0001) var fallback_mouse_sensitivity: float = 0.0044
 @export_range(45.0, 89.0, 1.0) var max_pitch_degrees: float = 80.0
-@export_range(1.0, 30.0, 0.5) var look_smoothing: float = 18.0
+# Higher = snappier mouse look (18 felt laggy in playtest).
+@export_range(1.0, 60.0, 0.5) var look_smoothing: float = 40.0
 @export_range(16.0, 512.0, 1.0) var max_mouse_delta: float = 256.0
 @export_range(0.1, 2.0, 0.05) var capture_probe_seconds: float = 0.6
 

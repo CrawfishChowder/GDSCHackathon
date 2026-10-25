@@ -39,6 +39,7 @@ func _process(delta: float) -> void:
 	_alarm_time += delta
 	var energy := 3.0 * (0.5 + 0.5 * sin(_alarm_time * 6.0))
 	for light: OmniLight3D in _lights:
+		light.visible = true
 		light.light_energy = energy
 
 
@@ -53,8 +54,11 @@ func stop_alarm() -> void:
 	_alarm_on = false
 	if _player != null and _player.playing:
 		_player.stop()
+	# Hidden, not just dark: zero-energy lights still count toward the
+	# per-object light limit and make other lights pop.
 	for light: OmniLight3D in _lights:
 		light.light_energy = 0.0
+		light.visible = false
 	_stop_ping()
 
 
@@ -66,7 +70,7 @@ func _setup_lights() -> void:
 	for pos: Vector3 in LIGHT_POSITIONS:
 		var light := OmniLight3D.new()
 		light.light_color = LIGHT_COLOR; light.omni_range = LIGHT_RANGE
-		light.light_energy = 0.0; light.position = pos
+		light.light_energy = 0.0; light.position = pos; light.visible = false
 		add_child(light); _lights.append(light)
 
 
