@@ -1,6 +1,7 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/stage1/breaker_box.gd" id="1_breaker"]
+[ext_resource type="Script" path="res://scripts/stage1/breaker_handle_interactable.gd" id="2_handle_interaction"]
 
 [sub_resource type="StandardMaterial3D" id="Material_enclosure"]
 resource_name = "Breaker box painted metal"
@@ -59,6 +60,9 @@ material = SubResource("Material_main_switch")
 [sub_resource type="BoxShape3D" id="Shape_enclosure"]
 size = Vector3(1.45, 1.85, 0.32)
 
+[sub_resource type="BoxShape3D" id="Shape_main_breaker_interaction"]
+size = Vector3(0.24, 0.32, 0.2)
+
 [node name="BreakerBox" type="Node3D"]
 script = ExtResource("1_breaker")
 
@@ -108,6 +112,13 @@ position = Vector3(0, 0.55, 0.31)
 rotation = Vector3(-0.22, 0, 0)
 scale = Vector3(0.12, 0.25, 0.09)
 mesh = SubResource("Mesh_switch")
+
+[node name="MainBreakerInteraction" type="Area3D" parent="."]
+position = Vector3(0, 0.55, 0.4)
+script = ExtResource("2_handle_interaction")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MainBreakerInteraction"]
+shape = SubResource("Shape_main_breaker_interaction")
 
 [node name="BreakerLeft01" type="MeshInstance3D" parent="EnclosureBody"]
 position = Vector3(-0.28, 0.12, 0.22)

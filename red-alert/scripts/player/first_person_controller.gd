@@ -16,7 +16,6 @@ extends CharacterBody3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
-@onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
@@ -29,6 +28,7 @@ var _mouse_look_active: bool = false
 var _mouse_look_mode: int = MouseLookMode.CAPTURED
 var _last_fallback_position: Vector2 = Vector2.ZERO
 var _has_fallback_position: bool = false
+# Console chair the player is sitting in (Scott). Chairs call sit_in/stand_up.
 var _active_seat: Node3D
 
 enum MouseLookMode {
@@ -53,11 +53,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_set_mouse_look_active(not _mouse_look_active)
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_action_pressed("interact"):
-		if is_instance_valid(_active_seat):
-			stand_up()
-		else:
-			_try_interact()
+	if event.is_action_pressed("interact") and is_instance_valid(_active_seat):
+		stand_up()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -86,19 +83,9 @@ func _process(delta: float) -> void:
 	head.rotation.x = lerp_angle(head.rotation.x, _target_pitch, smoothing_weight)
 
 
-func _try_interact() -> void:
-	var interaction_target := interaction_ray.get_collider() as Node
-	while interaction_target:
-		if interaction_target.has_method("interact"):
-			interaction_target.interact(self)
-			return
-		interaction_target = interaction_target.get_parent()
-
-
 func sit_in(seat: Node3D) -> bool:
 	if is_instance_valid(_active_seat) or not seat.has_method("get_sit_transform"):
 		return false
-
 	_active_seat = seat
 	velocity = Vector3.ZERO
 	collision_shape.disabled = true
@@ -107,26 +94,23 @@ func sit_in(seat: Node3D) -> bool:
 
 
 func stand_up() -> void:
-	if not is_instance_valid(_active_seat):
-		_active_seat = null
-		collision_shape.disabled = false
-		return
-
 	var seat := _active_seat
 	_active_seat = null
-	if seat.has_method("get_stand_transform"):
+	if is_instance_valid(seat) and seat.has_method("get_stand_transform"):
 		_apply_seat_transform(seat.get_stand_transform())
 	collision_shape.disabled = false
 	velocity = Vector3.ZERO
-	if seat.has_method("release"):
+	if is_instance_valid(seat) and seat.has_method("release"):
 		seat.release(self)
+
+
+func is_seated() -> bool:
+	return is_instance_valid(_active_seat)
 
 
 func _apply_seat_transform(target_transform: Transform3D) -> void:
 	global_position = target_transform.origin
-	rotation.x = 0.0
-	rotation.y = target_transform.basis.get_euler().y
-	rotation.z = 0.0
+	rotation = Vector3(0.0, target_transform.basis.get_euler().y, 0.0)
 	head.rotation = Vector3.ZERO
 	_target_yaw = rotation.y
 	_target_pitch = 0.0
@@ -177,11 +161,25 @@ func _is_usable_mouse_delta(mouse_delta: Vector2) -> bool:
 
 
 func _apply_look_delta(mouse_delta: Vector2, sensitivity: float) -> void:
+	var sens_mult: float = 1.0
+	var invert: bool = false
+	var settings := get_node_or_null("/root/Settings")
+	if settings != null and settings.has_method("get_setting"):
+		var s_val: Variant = settings.get_setting("mouse_sensitivity")
+		if s_val != null:
+			sens_mult = float(s_val)
+		var inv_val: Variant = settings.get_setting("invert_y")
+		if inv_val != null:
+			invert = bool(inv_val)
+	var eff_sens := sensitivity * sens_mult
+	var pitch_delta := mouse_delta.y * eff_sens
+	if invert:
+		pitch_delta = -pitch_delta
 	_target_yaw = wrapf(
-		_target_yaw - mouse_delta.x * sensitivity, -PI, PI
+		_target_yaw - mouse_delta.x * eff_sens, -PI, PI
 	)
 	_target_pitch = clamp(
-		_target_pitch - mouse_delta.y * sensitivity,
+		_target_pitch - pitch_delta,
 		-deg_to_rad(max_pitch_degrees),
 		deg_to_rad(max_pitch_degrees)
 	)
@@ -221,7 +219,6 @@ func _physics_process(delta: float) -> void:
 	if _active_seat != null and not is_instance_valid(_active_seat):
 		_active_seat = null
 		collision_shape.disabled = false
-
 	if is_instance_valid(_active_seat):
 		velocity = Vector3.ZERO
 		global_position = _active_seat.get_sit_transform().origin

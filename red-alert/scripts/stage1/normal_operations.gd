@@ -70,6 +70,7 @@ var _connected_owner_ids: Dictionary = {}
 
 
 func _ready() -> void:
+	process_mode = PROCESS_MODE_ALWAYS
 	_initialize_monitors()
 
 

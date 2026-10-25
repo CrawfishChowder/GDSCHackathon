@@ -11,9 +11,21 @@ config_version=5
 [application]
 
 config/name="Red Alert"
-run/main_scene="res://scenes/stage1/stage_1_room.tscn"
+run/main_scene="res://scenes/ui/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+SaveData="*res://scripts/systems/save_data.gd"
+Settings="*res://scripts/systems/settings.gd"
+MalfunctionManager="*res://scripts/systems/malfunction_manager.gd"
+MinigameHost="*res://scenes/ui/minigame_host.tscn"
+MissionLog="*res://scripts/systems/mission_log.gd"
+Voice="*res://scripts/systems/voice.gd"
+LifeSupport="*res://scripts/systems/life_support.gd"
+SpaceWeather="*res://scripts/systems/space_weather.gd"
+PeopleInSpace="*res://scripts/systems/people_in_space.gd"
 
 [display]
 
@@ -52,6 +64,11 @@ interact={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":69,"key_label":0,"unicode":101,"location":0,"echo":false,"script":null)
 ]
 }
+
+[layer_names]
+
+3d_physics/layer_1="world"
+3d_physics/layer_2="interactable"
 
 [physics]
 
