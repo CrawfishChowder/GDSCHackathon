@@ -67,6 +67,9 @@ func _process(delta: float) -> void:
 		targets["o2"] = 1.0 - 0.3 * p
 		rates["co2"] = 0.5
 		rates["o2"] = 0.5
+	elif active == "dust_storm":
+		targets["power"] = 1.0 - 0.8 * p
+		rates["power"] = 0.5
 
 	for g in GAUGES:
 		var cur: float = float(levels.get(g, 0.0))

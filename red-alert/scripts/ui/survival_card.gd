@@ -9,6 +9,7 @@ const SURVIVAL_CARDS := {
 	"power": {"title": "Apollo 12 (1969)", "story": "Lightning struck Apollo 12 twice during launch and knocked its fuel cells offline. Flight controller John Aaron called \"SCE to AUX\", the crew flipped one obscure switch, and the mission flew on."},
 	"o2": {"title": "Apollo 13 (1970)", "story": "An oxygen tank exploded on the way to the Moon. The crew used the lunar module as a lifeboat for nearly four days and made it home."},
 	"co2": {"title": "Apollo 13 scrubber adapter (1970)", "story": "With carbon dioxide rising, engineers improvised an adapter from plastic bags, cardboard and duct tape so square scrubber cartridges could fit a round socket. The crew built it from instructions read over the radio."},
+	"dust_storm": {"title": "Spirit and Opportunity (2007)", "story": "A global dust storm in 2007 sharply cut the twin rovers' solar power. Engineers switched them to a minimum-power routine, and both rovers survived to keep exploring."},
 }
 
 var _panel: PanelContainer

@@ -8,6 +8,48 @@ signal completed
 signal cancelled
 signal failed(reason: String)
 
+var _panel: PanelContainer = null
+var _base_offset_left: float = -320.0
+var _base_offset_top: float = -210.0
+var _base_offset_right: float = 320.0
+var _base_offset_bottom: float = 210.0
+var _base_captured: bool = false
+
+
+func _ready() -> void:
+	process_mode = PROCESS_MODE_ALWAYS
+
+
+func _process(_delta: float) -> void:
+	if _panel == null:
+		_panel = get_node_or_null("MinigamePanel") as PanelContainer
+		if _panel != null and not _base_captured:
+			_base_offset_left = _panel.offset_left
+			_base_offset_top = _panel.offset_top
+			_base_offset_right = _panel.offset_right
+			_base_offset_bottom = _panel.offset_bottom
+			_base_captured = true
+
+	if _panel == null:
+		return
+
+	var stress := get_node_or_null("/root/Stress")
+	var bpm: float = float(stress.get("heart_rate")) if stress != null else 0.0
+
+	if bpm > 120.0:
+		var max_offset := (bpm - 120.0) / 8.0
+		var ox := randf_range(-max_offset, max_offset)
+		var oy := randf_range(-max_offset, max_offset)
+		_panel.offset_left = _base_offset_left + ox
+		_panel.offset_right = _base_offset_right + ox
+		_panel.offset_top = _base_offset_top + oy
+		_panel.offset_bottom = _base_offset_bottom + oy
+	else:
+		_panel.offset_left = _base_offset_left
+		_panel.offset_right = _base_offset_right
+		_panel.offset_top = _base_offset_top
+		_panel.offset_bottom = _base_offset_bottom
+
 
 func complete() -> void:
 	completed.emit()
@@ -24,6 +66,7 @@ func fail(reason: String) -> void:
 ## Builds the standard centered minigame modal panel.
 ## Returns a VBoxContainer inside the panel for minigame puzzle content.
 func make_panel(title: String) -> VBoxContainer:
+	process_mode = PROCESS_MODE_ALWAYS
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_STOP
 
@@ -37,6 +80,13 @@ func make_panel(title: String) -> VBoxContainer:
 	panel.offset_bottom = 210.0
 	panel.grow_horizontal = GROW_DIRECTION_BOTH
 	panel.grow_vertical = GROW_DIRECTION_BOTH
+
+	_panel = panel
+	_base_offset_left = panel.offset_left
+	_base_offset_top = panel.offset_top
+	_base_offset_right = panel.offset_right
+	_base_offset_bottom = panel.offset_bottom
+	_base_captured = true
 
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.04, 0.06, 0.08, 0.95)

@@ -29,6 +29,12 @@ const INCIDENTS := {
 		"summary": "After the explosion, carbon dioxide rose toward dangerous levels in the lunar module because its round scrubber sockets could not take the command module's square cartridges. Ground engineers improvised an adapter in time. In your shift, nobody did.",
 		"lesson": "Without scrubbing, a crew's own breath becomes the threat.",
 	},
+	"dust_storm": {
+		"title": "Opportunity rover lost (2018)",
+		"year": "2018",
+		"summary": "In June 2018 a planet-wide dust storm blotted out the sun over the Opportunity rover's solar panels. Its batteries ran down and NASA never heard from it again; the mission was declared over in February 2019, almost 15 years after landing.",
+		"lesson": "On Mars, power depends on the weather, and a storm can last for months.",
+	},
 	"do_not_press": {
 		"title": "The Button",
 		"year": "",

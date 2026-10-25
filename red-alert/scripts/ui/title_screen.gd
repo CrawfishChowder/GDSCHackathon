@@ -2,6 +2,7 @@ extends Control
 
 var _people_label: Label
 var _settings_panel: SettingsPanel
+var _mission_log_screen: Control
 
 
 func _ready() -> void:
@@ -69,12 +70,21 @@ func _build_ui() -> void:
 	_add_btn(vbox, "Start shift", func() -> void: _start_shift("normal"))
 	_add_btn(vbox, "Practice (no deaths)", func() -> void: _start_shift("practice"))
 	_add_btn(vbox, "Hard (half the time)", func() -> void: _start_shift("hard"))
+	_add_btn(vbox, "Mission log", _open_mission_log)
 	_add_btn(vbox, "Settings", _toggle_settings)
 	_add_btn(vbox, "Quit", func() -> void: get_tree().quit())
 
 	_settings_panel = SettingsPanel.new()
 	_settings_panel.visible = false
 	vbox.add_child(_settings_panel)
+
+	var mls_script := load("res://scripts/ui/mission_log_screen.gd") as GDScript
+	if mls_script != null:
+		_mission_log_screen = mls_script.new()
+		_mission_log_screen.visible = false
+		if _mission_log_screen.has_signal("closed"):
+			_mission_log_screen.connect("closed", func() -> void: _mission_log_screen.visible = false)
+		add_child(_mission_log_screen)
 
 
 func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
@@ -86,6 +96,13 @@ func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
 	btn.pressed.connect(callback)
 	parent.add_child(btn)
 	return btn
+
+
+func _open_mission_log() -> void:
+	if _mission_log_screen != null:
+		if _mission_log_screen.has_method("refresh"):
+			_mission_log_screen.call("refresh")
+		_mission_log_screen.visible = true
 
 
 func _toggle_settings() -> void:

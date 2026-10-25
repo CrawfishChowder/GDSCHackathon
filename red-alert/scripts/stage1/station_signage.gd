@@ -17,6 +17,7 @@ const CUE_CONFIGS: Array[Dictionary] = [
 	{"name": "Cue_o2", "pos": Vector3(-2.13, 1.75, 3.7), "id": "o2"},
 	{"name": "Cue_power", "pos": Vector3(2.8, 2.25, -4.45), "id": "power"},
 	{"name": "Cue_co2", "pos": Vector3(2.13, 1.75, 3.7), "id": "co2"},
+	{"name": "Cue_dust_storm", "pos": Vector3(5.5, 2.3, -3.6), "id": "dust_storm"},
 ]
 
 var _signs: Array[Dictionary] = []
