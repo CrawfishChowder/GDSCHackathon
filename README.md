@@ -39,9 +39,9 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Modes:** an authored **Story shift** (best first play), a random **Start shift**, **Practice** (mistakes show "this would have killed you" instead of ending the run) and **Hard** (half the time).
 - **Built in code:** the room, props, live console monitors (SubViewports), signage, a procedural Mars window, the title backdrop, and the alarm, hum and heartbeat sounds are all generated in code from Godot primitives and shaders.
 - **Sound:** recorded effects from the Sonniss GDC bundle (credited), a 3D alarm ping at the broken station, room reverb, and Sam on a filtered radio channel.
-- **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle and a **Performance mode** for slow laptops (suggested automatically below 55 FPS), hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
+- **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle and a **Performance mode** for slow laptops (suggested automatically below 55 FPS), hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, PS5 DualSense controller support, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
 - **Replay value:** six achievements, an A–F shift grade with best saved, a mission log of every crew member lost, and a shift timeline on the end screens.
-- **Tests:** 66 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
+- **Tests:** 68 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
 
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*
@@ -109,6 +109,8 @@ There are no other dependencies to install; Godot runs the project directly.
 | B (hold) | Breathe slowly to lower your heart rate |
 | Space | Jump |
 | Esc | Pause menu (settings, restart, quit to title) |
+
+**PS5 DualSense / gamepad:** left stick or D-pad to move, right stick to look, Cross or R2 to interact, Square to jump, Triangle to breathe, Options to pause, Circle to go back. Menus and minigames can be navigated with the D-pad.
 
 **Demo keys (for judges)**
 | Key | Action |

@@ -17,6 +17,7 @@ All paths are relative to `red-alert/` (`res://`). Main scene: `scenes/ui/title_
 | `SpaceWeather` | `scripts/systems/space_weather.gd` | NASA DONKI flare (live, cached or offline); scales countdowns. |
 | `PeopleInSpace` | `scripts/systems/people_in_space.gd` | Open Notify crew list for the title/end screens. |
 | `Sfx` | `scripts/systems/sfx.gd` | Sound library (`assets/sfx/*.ogg` + procedural), SFX/Voice/Radio buses, heartbeat, footsteps. |
+| `ControllerSupport` | `scripts/systems/controller_support.gd` | Scott: adds DualSense/gamepad bindings to the input map; `focus_buttons(root, grab_first)` makes menus and minigames navigable by D-pad. |
 | `Achievements` | `scripts/systems/achievements.gd` | Six achievements, toasts, persisted in SaveData. |
 
 Every autoload uses `PROCESS_MODE_ALWAYS`, so it keeps running while a minigame or end screen pauses the tree.
