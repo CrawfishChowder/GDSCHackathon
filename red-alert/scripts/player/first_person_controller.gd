@@ -84,6 +84,10 @@ func _process(delta: float) -> void:
 	if stick.length() > stick_deadzone:
 		var strength := (stick.length() - stick_deadzone) / (1.0 - stick_deadzone)
 		_apply_look_delta(stick.normalized() * strength * delta, stick_look_speed)
+	# PS Vita right stick arrives as look_* actions from VitaBridge (Brandon).
+	var remote_look := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	if not remote_look.is_zero_approx():
+		_apply_look_delta(remote_look * delta, stick_look_speed)
 	if _mouse_guard_frames > 0:
 		_mouse_guard_frames -= 1
 
