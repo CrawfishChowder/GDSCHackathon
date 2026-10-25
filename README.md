@@ -13,11 +13,13 @@ A first-person survival game in a habitat module. Over one five-minute shift, li
 
 | Crisis | Station | How you fix it |
 |---|---|---|
-| Reactor | center console | repeat the control sequence |
-| Oxygen | left console | enter the filter code |
-| CO2 | right console | build the Apollo 13 scrubber adapter, step by step |
+| Reactor | center console | repeat the control sequence, or balance three coolant loops |
+| Oxygen | left console | enter the filter code, or find and seal the leaking joint |
+| CO2 | right console | build the Apollo 13 scrubber adapter, or switch to the cool, regenerated scrubber bed |
 | Power | breaker box | open the cover, cycle the main breaker OFF then ON |
-| Dust storm | east-wall solar array | balance power between life support, heaters and comms |
+| Dust storm | east-wall solar array | balance power between life support, heaters and comms, or tilt the array toward the sun |
+
+Each crisis has two minigames. The first time you see a crisis you get the original, and after that they alternate.
 
 Two characters guide you:
 - **HAL**, a cold computer, runs the alarms.
@@ -26,7 +28,7 @@ Two characters guide you:
 Your heart rate climbs under pressure, and above 120 BPM your hands shake (the minigames jitter). Hold **B** to breathe slowly.
 
 **The problem it solves.** Space-safety history (Apollo 1, Soyuz 11, Apollo 13) is usually taught as dates and names. Red Alert makes it *felt*:
-- **When you fail,** the run ends with an accurate lesson about the real incident: SL-1 (1961), Apollo 1 (1967), Soyuz 11 (1971), Apollo 13 (1970), or the Opportunity rover (2018).
+- **When you fail,** the run ends with an accurate lesson about the real incident: SL-1 (1961), Chernobyl (1986), Apollo 1 (1967), the Soyuz T-10-1 pad abort (1983), Soyuz 11 (1971), Apollo 13 (1970), or the Opportunity (2018) and Spirit (2010) rovers. HAL reads the incident aloud.
 - **When you succeed,** a card shows how a real crew pulled through: Apollo 12, Apollo 13, Kilopower, or Spirit and Opportunity.
 - **At the end of the shift,** you see an A–F grade and a comparison with real crews (Scott Kelly, Valeri Polyakov, Apollo 13).
 
@@ -37,9 +39,9 @@ It's aimed at STEM classrooms, museums and outreach events.
 - **Modes:** an authored **Story shift** (best first play), a random **Start shift**, **Practice** (mistakes show "this would have killed you" instead of ending the run) and **Hard** (half the time).
 - **Built in code:** the room, props, live console monitors (SubViewports), signage, a procedural Mars window, the title backdrop, and the alarm, hum and heartbeat sounds are all generated in code from Godot primitives and shaders.
 - **Sound:** recorded effects from the Sonniss GDC bundle (credited), a 3D alarm ping at the broken station, room reverb, and Sam on a filtered radio channel.
-- **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle for slow machines, hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
+- **Accessibility and personalization:** always-on captions, high contrast, reduce motion, separate SFX and voice volume, text/UI scale, fullscreen and VSync, a shadows toggle and a **Performance mode** for slow laptops (suggested automatically below 55 FPS), hide HUD, adjustable sensitivity and invert Y, keyboard shortcuts in every minigame, and status that's never shown by color alone. New players get a guided tutorial, an **H** controls panel and a "NEW CRISIS" brief (with extra time) the first time each crisis appears.
 - **Replay value:** six achievements, an A–F shift grade with best saved, a mission log of every crew member lost, and a shift timeline on the end screens.
-- **Tests:** 58 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
+- **Tests:** 66 headless test scenes (including a full end-to-end shift and robustness suites) plus a smoke run, all run by `tools/run_tests.sh`.
 
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*

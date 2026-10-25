@@ -49,15 +49,16 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
   - Practice mode, where mistakes don't kill you
   - A first-run tutorial
 - **Voices:** HAL (the computer) and Sam (the crewmate) are generated with ElevenLabs by `tools/generate_voices.py` (a sponsor). If an audio file is missing, the caption still plays.
-- **History:** every death and survival card uses vetted text about real incidents: SL-1 (1961), Apollo 1 (1967), Soyuz 11 (1971), Apollo 13 (1970), the Opportunity rover (2018), Apollo 12 (1969) and Kilopower (2018).
+- **History:** every death and survival card uses vetted text about real incidents: SL-1 (1961), Chernobyl (1986), Apollo 1 (1967), Soyuz T-10-1 (1983), Soyuz 11 (1971), Apollo 13 (1970), the Opportunity (2018) and Spirit (2010) rovers, Apollo 12 (1969), Kilopower (2018), Skylab, the Mir fire and the ISS ammonia leak. Each cause has up to two incidents, chosen at random, never the same twice in a row.
 
 ## Newer systems (assign an owner)
 - **Sound** (`scripts/systems/sfx.gd`): recorded Sonniss effects plus procedural ones, on three buses (SFX with room reverb, Voice, and Radio, a band-pass filter for Sam). Each broken station emits a 3D alarm ping, so you can hear where to go. Heartbeat audio follows your BPM.
 - **Story shift** (`scripts/stage1/story_director.gd`): the random scheduler is switched off (`scripted`), and the director triggers fixed beats by shift time, ending with the relief crew opening the north door.
 - **Heart rate** (`scripts/systems/stress.gd`): BPM rises with alarms and mistakes; above 120 the minigames shake; hold B to breathe. `external_heart_rate` is the hook for a real sensor.
 - **Achievements, grade and timeline** (`achievements.gd`, `shift_grade.gd`, `history` in the manager): stored in `SaveData` (`user://save.json`).
+- **Minigame variants** (`scripts/minigames/catalog.gd`): each crisis has two minigames. The station picks when the crisis starts: the original first (it's what the tutorial teaches), then it alternates.
 - **Robustness:** every timer wait re-checks that its node still exists, every pausing screen can unpause, and minigames ignore input after they finish. These are covered by four robustness test suites.
-- **Likely Q: "How do you handle a laptop that can't run it?"** Settings has a shadows toggle, VSync, fullscreen and text scale, and there's an FPS counter to check.
+- **Likely Q: "How do you handle a laptop that can't run it?"** Settings has a Performance mode (3D at 0.75 scale, no shadows, fog or glow, monitors at 15 Hz), suggested automatically if FPS stays under 55, plus shadows, VSync, fullscreen, text scale and an FPS counter. MSAA is always off and the monitor screens are capped at 512×288.
 
 ---
 
