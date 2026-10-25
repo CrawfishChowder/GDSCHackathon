@@ -31,6 +31,9 @@ func _ready() -> void:
 func interact(_interactor: Node = null) -> void:
 	is_open = not is_open
 	handle_hitbox.set_deferred("disabled", not is_open)
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("creak", global_position)
 	if _cover_tween and _cover_tween.is_valid():
 		_cover_tween.kill()
 
@@ -58,6 +61,9 @@ func toggle_main_breaker() -> void:
 		return
 
 	is_main_breaker_on = not is_main_breaker_on
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("clunk", global_position)
 	if _handle_tween and _handle_tween.is_valid():
 		_handle_tween.kill()
 

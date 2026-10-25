@@ -1,6 +1,35 @@
 class_name MonitorDisplay
 extends Node3D
 
+const CRT_SHADER_CODE := """shader_type spatial;
+render_mode unshaded;
+
+uniform sampler2D screen_tex;
+
+void fragment() {
+	vec2 centered = UV - vec2(0.5);
+	vec2 uv = centered * (1.0 + dot(centered, centered) * 0.08) + vec2(0.5);
+
+	float r = texture(screen_tex, uv + vec2(0.0015, 0.0)).r;
+	float g = texture(screen_tex, uv).g;
+	float b = texture(screen_tex, uv - vec2(0.0015, 0.0)).b;
+	vec3 col = vec3(r, g, b);
+
+	col *= 0.85 + 0.15 * sin(UV.y * 900.0);
+
+	float vig = clamp(1.0 - dot(centered, centered) * 1.5, 0.0, 1.0);
+	col *= vig;
+
+	col *= 0.97 + 0.03 * sin(TIME * 60.0);
+
+	if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+		col = vec3(0.0);
+	}
+
+	ALBEDO = col * 1.25;
+}
+"""
+
 var viewport: SubViewport
 var mesh_instance: MeshInstance3D
 var root_control: Control
@@ -33,9 +62,13 @@ func setup(size_m: Vector2, resolution: Vector2i) -> Control:
 	var quad := QuadMesh.new()
 	quad.size = size_m
 
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_texture = viewport.get_texture()
+	var shader := Shader.new()
+	shader.code = CRT_SHADER_CODE
+
+	var mat := ShaderMaterial.new()
+	mat.shader = shader
+	mat.set_shader_parameter("screen_tex", viewport.get_texture())
+	quad.material = mat
 
 	mesh_instance = MeshInstance3D.new()
 	mesh_instance.name = "ScreenMesh"

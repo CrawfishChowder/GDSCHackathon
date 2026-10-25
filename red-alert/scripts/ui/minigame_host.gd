@@ -30,6 +30,9 @@ func open(scene: PackedScene, malfunction_id: String) -> void:
 	add_child(current)
 
 	current.completed.connect(func() -> void:
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("success")
 		MalfunctionManager.fix(malfunction_id)
 		close()
 	)
@@ -37,6 +40,18 @@ func open(scene: PackedScene, malfunction_id: String) -> void:
 		close()
 	)
 	current.failed.connect(func(reason: String) -> void:
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("beep_error")
+			var tree_for_timer := get_tree()
+			if tree_for_timer != null:
+				tree_for_timer.create_timer(0.25, true, false, true).timeout.connect(func() -> void:
+					var sfx_fail: Node = get_node_or_null("/root/Sfx")
+					if sfx_fail != null and sfx_fail.has_method("play"):
+						sfx_fail.play("fail")
+				)
+			else:
+				sfx.play("fail")
 		if current != null:
 			var to_free := current
 			current = null

@@ -35,29 +35,23 @@ func _process(_delta: float) -> void:
 
 	var stress := get_node_or_null("/root/Stress")
 	var bpm: float = float(stress.get("heart_rate")) if stress != null else 0.0
-
+	var ox := 0.0
+	var oy := 0.0
 	if bpm > 120.0:
 		var max_offset := (bpm - 120.0) / 8.0
-		var ox := randf_range(-max_offset, max_offset)
-		var oy := randf_range(-max_offset, max_offset)
-		_panel.offset_left = _base_offset_left + ox
-		_panel.offset_right = _base_offset_right + ox
-		_panel.offset_top = _base_offset_top + oy
-		_panel.offset_bottom = _base_offset_bottom + oy
-	else:
-		_panel.offset_left = _base_offset_left
-		_panel.offset_right = _base_offset_right
-		_panel.offset_top = _base_offset_top
-		_panel.offset_bottom = _base_offset_bottom
+		ox = randf_range(-max_offset, max_offset)
+		oy = randf_range(-max_offset, max_offset)
+	_panel.offset_left = _base_offset_left + ox
+	_panel.offset_right = _base_offset_right + ox
+	_panel.offset_top = _base_offset_top + oy
+	_panel.offset_bottom = _base_offset_bottom + oy
 
 
 func complete() -> void:
 	completed.emit()
 
-
 func cancel() -> void:
 	cancelled.emit()
-
 
 func fail(reason: String) -> void:
 	failed.emit(reason)
@@ -93,12 +87,17 @@ func make_panel(title: String) -> VBoxContainer:
 	style.set_border_width_all(2)
 	style.border_color = Color.CYAN
 	style.set_corner_radius_all(8)
+	style.set_content_margin_all(20.0)
 	style.content_margin_left = 24.0
-	style.content_margin_top = 20.0
 	style.content_margin_right = 24.0
-	style.content_margin_bottom = 20.0
 	panel.add_theme_stylebox_override("panel", style)
 	add_child(panel)
+
+	panel.scale = Vector2(0.92, 0.92)
+	panel.modulate.a = 0.0
+	panel.pivot_offset = panel.custom_minimum_size * 0.5
+	_set_panel_pivot.call_deferred(panel)
+	_start_panel_tween(panel)
 
 	var root_vbox := VBoxContainer.new()
 	root_vbox.name = "RootVBox"
@@ -129,5 +128,22 @@ func make_panel(title: String) -> VBoxContainer:
 	content.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_theme_constant_override("separation", 16)
 	root_vbox.add_child(content)
-
 	return content
+
+
+func _start_panel_tween(panel: PanelContainer) -> void:
+	if not is_inside_tree():
+		tree_entered.connect(func() -> void: _start_panel_tween(panel), CONNECT_ONE_SHOT)
+		return
+	if not is_instance_valid(panel):
+		return
+	var tween := create_tween()
+	if tween != null:
+		tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.18)
+		tween.parallel().tween_property(panel, "modulate:a", 1.0, 0.18)
+
+
+func _set_panel_pivot(panel: PanelContainer) -> void:
+	if is_instance_valid(panel):
+		panel.pivot_offset = panel.size * 0.5
