@@ -71,6 +71,10 @@ func press(index: int) -> void:
 	if not accepting_input:
 		return
 
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("click")
+
 	if index == sequence[_current_step]:
 		_current_step += 1
 		if _current_step >= sequence.size():
@@ -93,6 +97,9 @@ func _play_sequence() -> void:
 		if not is_inside_tree():
 			return
 		_set_button_lit(idx, true)
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("beep")
 		await get_tree().create_timer(0.4, true, false, true).timeout
 		if not is_inside_tree():
 			return

@@ -89,7 +89,8 @@ func _initialize() -> void:
 		return
 
 	mm.time_left = 0.05
-	await create_timer(0.3, true, false, true).timeout
+	# GameOver now plays a ~2.6 s death sequence before it reports is_showing().
+	await create_timer(3.2, true, false, true).timeout
 
 	var game_over: Node = room.get_node_or_null("FirstPersonPlayer/HUD/GameOver")
 	if game_over == null:

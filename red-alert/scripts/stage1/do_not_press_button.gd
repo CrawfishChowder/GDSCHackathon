@@ -16,6 +16,19 @@ func interact(_by: Node = null) -> void:
 		return
 	enabled = false
 
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("clunk", global_position)
+		var tree := get_tree()
+		if tree != null:
+			tree.create_timer(0.3, true, false, true).timeout.connect(func() -> void:
+				var sfx2: Node = get_node_or_null("/root/Sfx")
+				if sfx2 != null and sfx2.has_method("play"):
+					sfx2.play("siren")
+			)
+		else:
+			sfx.play("siren")
+
 	if _button_mesh != null:
 		var tween := create_tween()
 		tween.tween_property(_button_mesh, "position:y", _button_mesh.position.y - 0.03, 0.15)

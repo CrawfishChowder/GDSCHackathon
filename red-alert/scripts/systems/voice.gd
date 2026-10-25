@@ -20,13 +20,11 @@ func _ready() -> void:
 	add_child(_audio_player); _setup_caption_ui(); _connect_signals()
 
 func _process(_delta: float) -> void:
-	if not _connected:
-		_connect_signals()
+	if not _connected: _connect_signals()
 	var mm := get_node_or_null("/root/MalfunctionManager")
 	if mm != null and mm.running and mm.active_id != "":
 		if mm.time_left < 10.0 and not _warning_10_fired:
-			_warning_10_fired = true
-			say("hal_warning_10")
+			_warning_10_fired = true; say("hal_warning_10")
 	elif mm == null or mm.active_id == "":
 		_warning_10_fired = false
 
@@ -38,8 +36,7 @@ func say(line_id: String) -> void:
 
 func say_text(speaker: String, text: String) -> void:
 	if text.is_empty(): return
-	_queue.append({"id": "", "speaker": speaker, "text": text})
-	if not _is_playing: _play_next()
+	_queue.append({"id": "", "speaker": speaker, "text": text}); if not _is_playing: _play_next()
 
 func is_speaking() -> bool: return _is_playing or not _queue.is_empty()
 
@@ -58,20 +55,17 @@ func _setup_caption_ui() -> void:
 	_caption_style.bg_color = Color(0.04, 0.06, 0.08, 0.85); _caption_style.set_content_margin_all(10.0)
 	_caption_style.content_margin_left = 20.0; _caption_style.content_margin_right = 20.0; _caption_style.set_corner_radius_all(6)
 
-	caption_panel = PanelContainer.new()
-	caption_panel.add_theme_stylebox_override("panel", _caption_style)
+	caption_panel = PanelContainer.new(); caption_panel.add_theme_stylebox_override("panel", _caption_style)
 	caption_panel.anchors_preset = Control.PRESET_CENTER_BOTTOM
 	caption_panel.anchor_left = 0.5; caption_panel.anchor_right = 0.5; caption_panel.anchor_top = 1.0; caption_panel.anchor_bottom = 1.0
 	caption_panel.offset_left = -450.0; caption_panel.offset_right = 450.0; caption_panel.offset_bottom = -32.0
 	caption_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH; caption_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	caption_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; caption_panel.visible = false
-	caption_layer.add_child(caption_panel)
+	caption_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; caption_panel.visible = false; caption_layer.add_child(caption_panel)
 
 	caption_label = Label.new()
 	caption_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; caption_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	caption_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; caption_label.add_theme_font_size_override("font_size", 22)
-	caption_label.mouse_filter = Control.MOUSE_FILTER_IGNORE; caption_panel.add_child(caption_label)
-	_apply_settings()
+	caption_label.mouse_filter = Control.MOUSE_FILTER_IGNORE; caption_panel.add_child(caption_label); _apply_settings()
 
 func _apply_settings() -> void:
 	var s := get_node_or_null("/root/Settings")
@@ -98,16 +92,18 @@ func _connect_signals() -> void:
 		if _audio_player != null: _audio_player.stop()
 		_play_token += 1; _is_playing = false; say("hal_death")
 	)
-	mm.shift_completed.connect(func() -> void: say("crew_shift_done"))
-	_connected = true
+	mm.shift_completed.connect(func() -> void: say("crew_shift_done")); _connected = true
 
 func _on_settings_changed(_k: String, _v: Variant) -> void: _apply_settings()
 
 func _on_run_started() -> void:
 	say("hal_wake"); say("crew_wake")
 	var sd := get_node_or_null("/root/SaveData")
-	if sd != null and sd.has_method("get_value") and int(sd.get_value("do_not_press_count", 0)) > 0:
-		say("hal_welcome_back")
+	if sd != null and sd.has_method("get_value") and int(sd.get_value("do_not_press_count", 0)) > 0: say("hal_welcome_back")
+
+func _play_sfx(id: String, vol: float = 0.0, bus: String = "SFX") -> void:
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"): sfx.play(id, null, vol, bus)
 
 func _play_next() -> void:
 	if _queue.is_empty():
@@ -126,6 +122,11 @@ func _play_next() -> void:
 	var caps: bool = bool(s.get_setting("captions")) if s != null and s.has_method("get_setting") else true
 	caption_panel.visible = caps
 
+	if speaker == "hal":
+		_audio_player.bus = "Voice"
+	else:
+		_audio_player.bus = "Radio"; _play_sfx("static", -12.0, "SFX")
+
 	var wait_sec := 1.2 + 0.06 * float(text.length())
 	var played_audio := false
 	if id != "":
@@ -134,11 +135,15 @@ func _play_next() -> void:
 			var stream := load(mp3) as AudioStream
 			if stream != null:
 				played_audio = true
-				_audio_player.stream = stream; _audio_player.play()
-				await _audio_player.finished
+				_audio_player.stream = stream
+				if DisplayServer.get_name() != "headless":
+					_audio_player.play(); await _audio_player.finished
+				else:
+					await get_tree().create_timer(0.05, true, false, true).timeout
 
 	if not played_audio:
 		await get_tree().create_timer(wait_sec, true).timeout
 
 	if token == _play_token:
+		if speaker != "hal": _play_sfx("static", -12.0, "SFX")
 		_play_next()

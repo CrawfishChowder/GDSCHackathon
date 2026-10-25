@@ -55,6 +55,9 @@ func unseal() -> void:
 		return
 
 	_state = State.OPENING
+	var sfx: Node = get_node_or_null("/root/Sfx") if is_inside_tree() else null
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("hiss", global_position)
 	if not is_node_ready():
 		await ready
 
