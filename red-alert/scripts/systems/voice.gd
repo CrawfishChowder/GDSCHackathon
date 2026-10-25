@@ -138,7 +138,7 @@ func _play_next() -> void:
 					_audio_player.play(); await _audio_player.finished
 				else:
 					var tree: SceneTree = get_tree()
-					if tree != null: await tree.create_timer(0.05, true, false, true).timeout
+					if tree != null: await tree.create_timer(minf(stream.get_length(), 0.5), true, false, true).timeout
 				if not is_inside_tree(): return
 	if not played_audio:
 		var tree: SceneTree = get_tree()

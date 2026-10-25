@@ -46,7 +46,7 @@ It's aimed at STEM classrooms, museums and outreach events.
 **External tools and APIs.**
 - **NASA DONKI** (`api.nasa.gov`): the latest real solar flare. M-class and X-class flares shorten every countdown and trigger a mid-shift blackout. If the API is unreachable, the game falls back to the last cached flare, then to an offline message. *External API #1.*
 - **Open Notify** (`api.open-notify.org`): the number and names of people in space right now. *External API #2.*
-- **ElevenLabs** (sponsor): `tools/generate_voices.py` turns the 38 HAL and Sam lines the team wrote into speech. The audio isn't bundled in this build; the game shows every line as a caption and plays the audio files when they're present.
+- **ElevenLabs** (sponsor): all 38 HAL and Sam lines, written by the team, are voiced with ElevenLabs text-to-speech (HAL: "Daniel", Sam: "Rachel") via `tools/generate_voices.py`. Every line is also captioned.
 - **Godot Engine 4.7:** the game engine.
 - **Sonniss GDC 2015 Game Audio Bundle:** 13 royalty-free recorded sound effects, trimmed and converted by us. Sources are listed in [`red-alert/assets/sfx/CREDITS.md`](red-alert/assets/sfx/CREDITS.md).
 - **NASA life-support planning figures:** about 0.84 kg of oxygen and about 1 kg of CO2 per crew member per day.
