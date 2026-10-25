@@ -86,6 +86,7 @@ func _build_ui() -> void:
 	btn.add_theme_font_size_override("font_size", 18); btn.process_mode = PROCESS_MODE_ALWAYS
 	btn.pressed.connect(func() -> void: if _seq_running: skip_sequence() else: _restart())
 	vbox.add_child(btn)
+	ControllerSupport.focus_buttons(self)
 
 func _add_full_rect(n: String, c: Color, mat: Material = null) -> ColorRect:
 	var r := _full_ctrl(ColorRect.new(), self) as ColorRect
@@ -119,6 +120,7 @@ func _on_entry_added(entry: Dictionary) -> void:
 	var ml := _get_mission_log()
 	_lbls["lost"].text = "Crew lost on this station: %d" % ((ml.entries as Array).size() if ml and "entries" in ml else 1)
 	visible = true; get_tree().paused = true; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	ControllerSupport.focus_buttons(self, true)
 	_start_death_sequence()
 
 func _start_death_sequence() -> void:

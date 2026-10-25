@@ -18,10 +18,9 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if visible and event is InputEventKey and event.pressed and not event.echo:
-		if event.physical_keycode == KEY_ESCAPE or event.keycode == KEY_ESCAPE:
-			get_viewport().set_input_as_handled()
-			closed.emit()
+	if visible and event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		closed.emit()
 
 
 func entry_count_shown() -> int:

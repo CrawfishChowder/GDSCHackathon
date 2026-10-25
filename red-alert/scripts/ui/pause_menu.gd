@@ -12,7 +12,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel"):
+	var escape_key := event is InputEventKey and event.is_action_pressed("ui_cancel")
+	if not escape_key and not event.is_action_pressed("controller_pause") and not (visible and event.is_action_pressed("ui_cancel")):
 		return
 
 	# Ignore if MinigameHost is open
@@ -34,7 +35,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	get_viewport().set_input_as_handled()
 	if visible:
-		_resume()
+		if _settings_panel.visible and not event.is_action_pressed("controller_pause"):
+			_settings_panel.visible = false
+			ControllerSupport.focus_buttons(self, true)
+		else:
+			_resume()
 	else:
 		_open()
 
@@ -97,6 +102,7 @@ func _build_ui() -> void:
 	_controls_panel = ControlsPanel.new()
 	_controls_panel.visible = false
 	vbox.add_child(_controls_panel)
+	ControllerSupport.focus_buttons(vbox)
 
 
 func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
@@ -119,6 +125,7 @@ func _open() -> void:
 	visible = true
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _resume() -> void:
@@ -132,7 +139,9 @@ func _resume() -> void:
 
 
 func _toggle_settings() -> void:
-	if _settings_panel != null: _settings_panel.visible = not _settings_panel.visible
+	if _settings_panel != null:
+		_settings_panel.visible = not _settings_panel.visible
+		if _settings_panel.visible: ControllerSupport.focus_buttons(_settings_panel, true)
 
 func _toggle_controls() -> void:
 	if _controls_panel != null: _controls_panel.toggle()

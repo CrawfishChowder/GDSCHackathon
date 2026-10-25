@@ -58,6 +58,7 @@ func _ready() -> void:
 			sequence.append(randi_range(0, 3))
 
 	_play_sequence()
+	ControllerSupport.focus_buttons(self, true)
 
 
 func press(index: int) -> void:

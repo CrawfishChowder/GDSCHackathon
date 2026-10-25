@@ -48,10 +48,12 @@ func _build_ui() -> void:
 	_add_spacer(vbox, 4)
 	_add_heading(vbox, "MOVE")
 	_add_text(vbox, "WASD move · Mouse look · Space jump")
+	_add_text(vbox, "DualSense: left stick / D-pad move · right stick look · Square jump")
 
 	_add_spacer(vbox, 4)
 	_add_heading(vbox, "ACT")
 	_add_text(vbox, "E interact / sit / fix")
+	_add_text(vbox, "DualSense: Cross / R2 interact · Triangle breathe")
 	_add_text(vbox, "In minigames: number keys, Enter, Backspace (shown in [brackets])")
 
 	_add_spacer(vbox, 4)
@@ -64,6 +66,7 @@ func _build_ui() -> void:
 	_add_spacer(vbox, 4)
 	_add_heading(vbox, "MENUS")
 	_add_text(vbox, "Esc pause / settings · F12 demo keys")
+	_add_text(vbox, "DualSense: Options pause · D-pad navigate · Cross select · Circle back")
 
 	_add_spacer(vbox, 6)
 	_add_text(vbox, "The HUD can be hidden in Settings.", 13, Color(0.6, 0.6, 0.6))

@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+ControllerSupport="*res://scripts/systems/controller_support.gd"
 SaveData="*res://scripts/systems/save_data.gd"
 Settings="*res://scripts/systems/settings.gd"
 MalfunctionManager="*res://scripts/systems/malfunction_manager.gd"

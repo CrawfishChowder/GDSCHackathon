@@ -113,7 +113,7 @@ func make_panel(title: String) -> VBoxContainer:
 
 	var hint_label := Label.new()
 	hint_label.name = "HintLabel"
-	hint_label.text = "Esc to close · keyboard shortcuts shown in [brackets]"
+	hint_label.text = "Esc / Circle to close · D-pad and Cross select · keyboard shortcuts in [brackets]"
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_label.add_theme_font_size_override("font_size", 14)
 	hint_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))

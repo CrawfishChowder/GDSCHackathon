@@ -19,6 +19,7 @@ func _ready() -> void:
 	var pis := get_node_or_null("/root/PeopleInSpace")
 	if pis != null and pis.has_signal("loaded"):
 		pis.loaded.connect(func(_cnt: int, _names: Array) -> void: _update_people())
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _build_ui() -> void:
@@ -89,7 +90,7 @@ func _build_ui() -> void:
 		_mission_log_screen = mls_script.new()
 		_mission_log_screen.visible = false
 		if _mission_log_screen.has_signal("closed"):
-			_mission_log_screen.connect("closed", func() -> void: _mission_log_screen.visible = false)
+			_mission_log_screen.connect("closed", func() -> void: _mission_log_screen.visible = false; ControllerSupport.focus_buttons(self, true))
 		add_child(_mission_log_screen)
 
 	var cs_script := load("res://scripts/ui/credits_screen.gd") as GDScript
@@ -97,7 +98,7 @@ func _build_ui() -> void:
 		_credits_screen = cs_script.new()
 		_credits_screen.visible = false
 		if _credits_screen.has_signal("closed"):
-			_credits_screen.connect("closed", func() -> void: _credits_screen.visible = false)
+			_credits_screen.connect("closed", func() -> void: _credits_screen.visible = false; ControllerSupport.focus_buttons(self, true))
 		add_child(_credits_screen)
 
 
@@ -117,16 +118,19 @@ func _open_mission_log() -> void:
 		if _mission_log_screen.has_method("refresh"):
 			_mission_log_screen.call("refresh")
 		_mission_log_screen.visible = true
+		ControllerSupport.focus_buttons(_mission_log_screen, true)
 
 
 func _open_credits() -> void:
 	if _credits_screen != null:
 		_credits_screen.visible = true
+		ControllerSupport.focus_buttons(_credits_screen, true)
 
 
 func _toggle_settings() -> void:
 	if _settings_panel != null:
 		_settings_panel.visible = not _settings_panel.visible
+		if _settings_panel.visible: ControllerSupport.focus_buttons(_settings_panel, true)
 
 
 func _start_shift(mode: String) -> void:

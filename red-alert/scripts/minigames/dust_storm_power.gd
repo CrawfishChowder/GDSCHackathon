@@ -20,7 +20,7 @@ func _ready() -> void:
 	if content == null:
 		content = VBoxContainer.new(); add_child(content)
 
-	add_instruction(content, "Drag the sliders so every system is at or above its minimum and the total is 90 or less, then ENGAGE.")
+	add_instruction(content, "Drag or use the D-pad to set every system above its minimum and total at 90 or less, then ENGAGE.")
 
 	var panel: PanelContainer = get_node_or_null("MinigamePanel") as PanelContainer
 	if panel != null:
@@ -79,6 +79,7 @@ func _ready() -> void:
 	content.add_child(engage_btn)
 
 	_update_ui()
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _unhandled_input(event: InputEvent) -> void:

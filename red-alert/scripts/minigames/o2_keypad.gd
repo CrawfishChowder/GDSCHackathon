@@ -83,6 +83,7 @@ func _ready() -> void:
 		grid.add_child(btn)
 
 	content.add_child(grid)
+	ControllerSupport.focus_buttons(self, true)
 
 
 func _unhandled_input(event: InputEvent) -> void:

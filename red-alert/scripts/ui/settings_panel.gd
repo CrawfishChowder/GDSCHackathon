@@ -38,7 +38,7 @@ func _build_ui() -> void:
 	add_child(title)
 
 	_sens_slider = HSlider.new(); _sens_val_label = Label.new()
-	_add_slider_row("Mouse sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, _on_sens_changed)
+	_add_slider_row("Look sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, _on_sens_changed)
 	_invert_btn = CheckButton.new()
 	_add_check_button(_invert_btn, "Invert Y", _on_invert_toggled)
 	_motion_btn = CheckButton.new()
