@@ -10,6 +10,7 @@ var _sliders: Array[HSlider] = []
 var _value_labels: Array[Label] = []
 var _total_label: Label
 var _finished: bool = false
+var _last_slider_sfx_msec: int = -100
 
 
 func _ready() -> void:
@@ -90,15 +91,26 @@ func _ready() -> void:
 func set_allocation(i: int, value: int) -> void:
 	if i < 0 or i >= allocations.size():
 		return
+	var changed: bool = (allocations[i] != value)
 	allocations[i] = value
 	if i < _sliders.size() and _sliders[i] != null and int(round(_sliders[i].value)) != value:
 		_sliders[i].value = value
 	_update_ui()
+	if changed:
+		var now := Time.get_ticks_msec()
+		if now - _last_slider_sfx_msec >= 80:
+			_last_slider_sfx_msec = now
+			var sfx: Node = get_node_or_null("/root/Sfx")
+			if sfx != null and sfx.has_method("play"):
+				sfx.play("click")
 
 
 func engage() -> void:
 	if _finished:
 		return
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("click")
 
 	var total: int = allocations[0] + allocations[1] + allocations[2]
 	if total > TOTAL_BUDGET:

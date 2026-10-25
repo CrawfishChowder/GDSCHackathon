@@ -15,18 +15,15 @@ var _new_best_label: Label
 var _notes_label: Label
 var _lost_label: Label
 var _restart_btn: Button
+var _flash_rect: ColorRect
 var _connected: bool = false
 
 func _ready() -> void:
-	process_mode = PROCESS_MODE_ALWAYS
-	layer = 20
-	visible = false
-	_build_ui()
-	_connect_malfunction_manager()
+	process_mode = PROCESS_MODE_ALWAYS; layer = 20; visible = false
+	_build_ui(); _connect_malfunction_manager()
 
 func _process(_delta: float) -> void:
-	if not _connected:
-		_connect_malfunction_manager()
+	if not _connected: _connect_malfunction_manager()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if visible and event is InputEventKey and event.pressed and not event.echo:
@@ -34,8 +31,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			_restart()
 
-func is_showing() -> bool:
-	return visible
+func is_showing() -> bool: return visible
 
 func _build_ui() -> void:
 	var bg := ColorRect.new()
@@ -71,6 +67,12 @@ func _build_ui() -> void:
 	_restart_btn.process_mode = PROCESS_MODE_ALWAYS
 	_restart_btn.pressed.connect(_restart)
 	vbox.add_child(_restart_btn)
+	_flash_rect = ColorRect.new()
+	_flash_rect.name = "FlashRect"
+	_flash_rect.color = Color(0.7, 1.0, 1.0, 0.0)
+	_flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_flash_rect)
 
 func _create_label(parent: Control, text: String, font_size: int, color: Color) -> Label:
 	var label := Label.new()
@@ -88,18 +90,21 @@ func _on_shift_completed() -> void:
 	visible = true
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_flash_rect.color.a = 0.4
+	var tw := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tw.tween_property(_flash_rect, "color:a", 0.0, 0.5)
+	tw.tween_callback(func() -> void:
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("success")
+	)
 
 func _update_stats() -> void:
-	var surv_secs_float := 0.0
-	var fixes := 0
-	var close_calls := 0
-	var practice_mistakes := 0
 	var mm := _get_mm()
-	if mm != null:
-		surv_secs_float = float(mm.survived_seconds)
-		fixes = int(mm.fixes_count)
-		close_calls = int(mm.get("close_calls"))
-		practice_mistakes = int(mm.get("practice_mistakes"))
+	var surv_secs_float := float(mm.survived_seconds) if mm != null else 0.0
+	var fixes := int(mm.fixes_count) if mm != null else 0
+	var close_calls := int(mm.get("close_calls")) if mm != null else 0
+	var practice_mistakes := int(mm.get("practice_mistakes")) if mm != null else 0
 
 	var surv_total := int(surv_secs_float)
 	_summary_label.text = "You kept the habitat alive for %d:%02d and fixed %d failures." % [surv_total / 60, surv_total % 60, fixes]
@@ -131,19 +136,13 @@ func _update_stats() -> void:
 	_lost_label.text = "Crew lost on this station before you: %d" % lost_count
 
 func _restart() -> void:
-	get_tree().paused = false
-	get_tree().reload_current_scene()
+	get_tree().paused = false; get_tree().reload_current_scene()
 
 func _connect_malfunction_manager() -> void:
 	if not _connected and _get_mm() != null:
 		_get_mm().shift_completed.connect(_on_shift_completed)
 		_connected = true
 
-func _get_mm() -> Node:
-	return get_node_or_null("/root/MalfunctionManager")
-
-func _get_mission_log() -> Node:
-	return get_node_or_null("/root/MissionLog")
-
-func _get_save_data() -> Node:
-	return get_node_or_null("/root/SaveData")
+func _get_mm() -> Node: return get_node_or_null("/root/MalfunctionManager")
+func _get_mission_log() -> Node: return get_node_or_null("/root/MissionLog")
+func _get_save_data() -> Node: return get_node_or_null("/root/SaveData")

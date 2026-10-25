@@ -95,6 +95,10 @@ func press_step(step_index: int) -> void:
 	if _finished:
 		return
 
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		sfx.play("click")
+
 	if step_index == _current_step:
 		if _current_step < _step_labels.size() and _step_labels[_current_step] != null:
 			_step_labels[_current_step].text = "✓ %d. %s" % [_current_step + 1, STEPS[_current_step]]

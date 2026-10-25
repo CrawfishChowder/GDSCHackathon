@@ -10,7 +10,8 @@ extends CharacterBody3D
 @export_range(0.0005, 0.01, 0.0001) var mouse_sensitivity: float = 0.0063
 @export_range(0.0005, 0.01, 0.0001) var fallback_mouse_sensitivity: float = 0.0077
 @export_range(45.0, 89.0, 1.0) var max_pitch_degrees: float = 80.0
-@export_range(1.0, 30.0, 0.5) var look_smoothing: float = 30.0
+# Higher = snappier mouse look.
+@export_range(1.0, 60.0, 0.5) var look_smoothing: float = 30.0
 @export_range(16.0, 512.0, 1.0) var max_mouse_delta: float = 256.0
 @export_range(0.1, 2.0, 0.05) var capture_probe_seconds: float = 0.6
 
@@ -30,6 +31,11 @@ var _last_fallback_position: Vector2 = Vector2.ZERO
 var _has_fallback_position: bool = false
 # Console chair the player is sitting in (Scott). Chairs call sit_in/stand_up.
 var _active_seat: Node3D
+# Head bob & camera shake (T9c1)
+var _bob_time: float = 0.0
+var _shake_strength: float = 0.0
+var _shake_duration: float = 0.0
+var _shake_timer: float = 0.0
 
 enum MouseLookMode {
 	CAPTURED,
@@ -45,9 +51,11 @@ func _ready() -> void:
 	rotation.z = 0.0
 	head.rotation = Vector3.ZERO
 	camera.rotation = Vector3.ZERO
+	camera.position = Vector3.ZERO
 	_target_yaw = rotation.y
 	_target_pitch = 0.0
 	_set_mouse_look_active(true)
+	_connect_malfunction_manager()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -84,12 +92,17 @@ func _process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, _target_yaw, smoothing_weight)
 	head.rotation.x = lerp_angle(head.rotation.x, _target_pitch, smoothing_weight)
 
+	_update_head_bob(delta)
+	_update_shake(delta)
+
 
 func sit_in(seat: Node3D) -> bool:
 	if is_instance_valid(_active_seat) or not seat.has_method("get_sit_transform"):
 		return false
 	_active_seat = seat
 	velocity = Vector3.ZERO
+	_bob_time = 0.0
+	camera.position = Vector3.ZERO
 	collision_shape.disabled = true
 	_apply_seat_transform(seat.get_sit_transform())
 	return true
@@ -102,6 +115,8 @@ func stand_up() -> void:
 		_apply_seat_transform(seat.get_stand_transform())
 	collision_shape.disabled = false
 	velocity = Vector3.ZERO
+	_bob_time = 0.0
+	camera.position = Vector3.ZERO
 	if is_instance_valid(seat) and seat.has_method("release"):
 		seat.release(self)
 
@@ -259,3 +274,88 @@ func _physics_process(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, target_velocity.x, rate * delta)
 	velocity.z = move_toward(velocity.z, target_velocity.z, rate * delta)
 	move_and_slide()
+
+
+func shake(strength: float, duration: float) -> void:
+	if strength <= 0.0 or duration <= 0.0:
+		return
+	_shake_strength = strength
+	_shake_duration = duration
+	_shake_timer = duration
+	if camera == null:
+		return
+	var max_rad := deg_to_rad(strength * 1.5)
+	camera.rotation = Vector3(
+		randf_range(-max_rad, max_rad),
+		randf_range(-max_rad, max_rad),
+		randf_range(-max_rad, max_rad)
+	)
+	if camera.rotation.is_zero_approx():
+		camera.rotation.x = max_rad
+
+
+func _update_shake(delta: float) -> void:
+	if camera == null:
+		return
+	if _shake_timer <= 0.0:
+		if camera.rotation != Vector3.ZERO:
+			camera.rotation = Vector3.ZERO
+		return
+	_shake_timer = maxf(_shake_timer - delta, 0.0)
+	if _shake_timer <= 0.0:
+		camera.rotation = Vector3.ZERO
+		return
+	var decay := _shake_timer / _shake_duration
+	var max_rad := deg_to_rad(_shake_strength * 1.5) * decay
+	camera.rotation = Vector3(
+		randf_range(-max_rad, max_rad),
+		randf_range(-max_rad, max_rad),
+		randf_range(-max_rad, max_rad)
+	)
+	if camera.rotation.is_zero_approx():
+		camera.rotation.x = max_rad * 0.5
+
+
+func _update_head_bob(delta: float) -> void:
+	if camera == null:
+		return
+	if is_seated():
+		_bob_time = 0.0
+		camera.position.x = move_toward(camera.position.x, 0.0, delta * 0.15)
+		camera.position.y = move_toward(camera.position.y, 0.0, delta * 0.15)
+		return
+
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	if is_on_floor() and horizontal_speed > 0.1:
+		_bob_time += delta
+		var speed_factor := horizontal_speed / maxf(move_speed, 0.001)
+		camera.position.x = cos(_bob_time * 4.5) * 0.02
+		camera.position.y = sin(_bob_time * 9.0) * 0.035 * speed_factor
+	else:
+		_bob_time = 0.0
+		camera.position.x = move_toward(camera.position.x, 0.0, delta * 0.15)
+		camera.position.y = move_toward(camera.position.y, 0.0, delta * 0.15)
+
+
+func _connect_malfunction_manager() -> void:
+	var mm := get_node_or_null("/root/MalfunctionManager")
+	if mm == null:
+		return
+	if mm.has_signal("malfunction_started"):
+		mm.connect("malfunction_started", _on_malfunction_started)
+	if mm.has_signal("practice_mistake"):
+		mm.connect("practice_mistake", _on_practice_mistake)
+	if mm.has_signal("player_died"):
+		mm.connect("player_died", _on_player_died)
+
+
+func _on_malfunction_started(_id: Variant = "", _display_name: Variant = "", _time_limit: Variant = 0.0) -> void:
+	shake(0.6, 0.5)
+
+
+func _on_practice_mistake(_cause_id: Variant = "", _detail: Variant = "") -> void:
+	shake(1.2, 0.6)
+
+
+func _on_player_died(_cause_id: Variant = "", _display_name: Variant = "") -> void:
+	shake(2.0, 0.8)

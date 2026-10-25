@@ -21,6 +21,9 @@ func interact(interactor: Node = null) -> void:
 
 	if interactor.sit_in(self):
 		occupant = interactor
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("click")
 
 
 func get_sit_transform() -> Transform3D:
@@ -34,3 +37,6 @@ func get_stand_transform() -> Transform3D:
 func release(interactor: Node) -> void:
 	if occupant == interactor:
 		occupant = null
+		var sfx: Node = get_node_or_null("/root/Sfx")
+		if sfx != null and sfx.has_method("play"):
+			sfx.play("click")

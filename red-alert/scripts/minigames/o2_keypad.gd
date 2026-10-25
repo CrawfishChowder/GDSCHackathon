@@ -87,6 +87,13 @@ func _ready() -> void:
 
 
 func press_key(key: String) -> void:
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	if sfx != null and sfx.has_method("play"):
+		if key.length() == 1 and key >= "0" and key <= "9":
+			sfx.play("beep")
+		else:
+			sfx.play("click")
+
 	match key.to_upper():
 		"CLR":
 			entered = ""

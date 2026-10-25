@@ -363,7 +363,9 @@ func _build_lighting(parent: Node3D) -> void:
 			light.light_energy = 5.5
 			light.omni_range = 6.5
 			light.omni_attenuation = 1.1
-			light.shadow_enabled = true
+			# Only the center light casts shadows: nine shadowed omni lights cost a lot
+			# of frame time in the Compatibility renderer (playtest: mouse lag).
+			light.shadow_enabled = row_index == 1 and column_index == 1
 			parent.add_child(light)
 			_overhead_lights.append(light)
 

@@ -2,16 +2,21 @@ class_name AlarmController
 extends Node3D
 
 const LIGHT_POSITIONS: Array[Vector3] = [
-	Vector3(-4.5, 3.0, -3.5),
-	Vector3(-4.5, 3.0, 3.5),
-	Vector3(4.5, 3.0, -3.5),
-	Vector3(4.5, 3.0, 3.5),
+	Vector3(-4.5, 3.0, -3.5), Vector3(-4.5, 3.0, 3.5),
+	Vector3(4.5, 3.0, -3.5), Vector3(4.5, 3.0, 3.5),
 ]
 const LIGHT_COLOR := Color(1.0, 0.08, 0.04)
 const LIGHT_RANGE := 7.0
 
+const STATION_POSITIONS: Dictionary = {
+	"reactor": Vector3(0.0, 1.4, 3.9), "o2": Vector3(-2.13, 1.4, 3.9),
+	"co2": Vector3(2.13, 1.4, 3.9), "power": Vector3(2.8, 1.55, -4.6),
+	"dust_storm": Vector3(5.6, 1.5, -3.6),
+}
+
 var _lights: Array[OmniLight3D] = []
 var _player: AudioStreamPlayer = null
+var _ping_player: AudioStreamPlayer3D = null
 var _alarm_on: bool = false
 var _alarm_time: float = 0.0
 var _connected: bool = false
@@ -34,13 +39,14 @@ func _process(delta: float) -> void:
 	_alarm_time += delta
 	var energy := 3.0 * (0.5 + 0.5 * sin(_alarm_time * 6.0))
 	for light: OmniLight3D in _lights:
+		light.visible = true
 		light.light_energy = energy
 
 
 func start_alarm() -> void:
 	_alarm_on = true
 	_alarm_time = 0.0
-	if _player != null and not _player.playing:
+	if _player != null and not _player.playing and DisplayServer.get_name() != "headless":
 		_player.play()
 
 
@@ -48,8 +54,12 @@ func stop_alarm() -> void:
 	_alarm_on = false
 	if _player != null and _player.playing:
 		_player.stop()
+	# Hidden, not just dark: zero-energy lights still count toward the
+	# per-object light limit and make other lights pop.
 	for light: OmniLight3D in _lights:
 		light.light_energy = 0.0
+		light.visible = false
+	_stop_ping()
 
 
 func is_alarm_on() -> bool:
@@ -59,12 +69,9 @@ func is_alarm_on() -> bool:
 func _setup_lights() -> void:
 	for pos: Vector3 in LIGHT_POSITIONS:
 		var light := OmniLight3D.new()
-		light.light_color = LIGHT_COLOR
-		light.omni_range = LIGHT_RANGE
-		light.light_energy = 0.0
-		light.position = pos
-		add_child(light)
-		_lights.append(light)
+		light.light_color = LIGHT_COLOR; light.omni_range = LIGHT_RANGE
+		light.light_energy = 0.0; light.position = pos; light.visible = false
+		add_child(light); _lights.append(light)
 
 
 func _setup_audio() -> void:
@@ -83,19 +90,40 @@ func _setup_audio() -> void:
 		data.encode_s16(i * 2, sample_val)
 
 	var wav := AudioStreamWAV.new()
-	wav.format = AudioStreamWAV.FORMAT_16_BITS
-	wav.mix_rate = mix_rate
-	wav.stereo = false
-	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	wav.loop_begin = 0
-	wav.loop_end = sample_count
+	wav.format = AudioStreamWAV.FORMAT_16_BITS; wav.mix_rate = mix_rate; wav.stereo = false
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD; wav.loop_begin = 0; wav.loop_end = sample_count
 	wav.data = data
 
 	_player = AudioStreamPlayer.new()
-	_player.stream = wav
-	_player.volume_db = -10.0
-	_player.process_mode = PROCESS_MODE_ALWAYS
-	add_child(_player)
+	_player.stream = wav; _player.bus = "SFX"; _player.volume_db = -14.0
+	_player.process_mode = PROCESS_MODE_ALWAYS; add_child(_player)
+
+
+func _start_ping(id: String) -> void:
+	_stop_ping()
+	var sfx: Node = get_node_or_null("/root/Sfx")
+	var stream: AudioStream = sfx.get_stream("alarm_ping") if sfx != null and sfx.has_method("get_stream") else null
+	_ping_player = AudioStreamPlayer3D.new()
+	_ping_player.name = "AlarmPingPlayer"; _ping_player.bus = "SFX"
+	_ping_player.volume_db = -6.0; _ping_player.process_mode = PROCESS_MODE_ALWAYS
+	if stream != null:
+		_ping_player.stream = stream
+	if STATION_POSITIONS.has(id):
+		_ping_player.position = STATION_POSITIONS[id]
+	add_child(_ping_player)
+	_ping_player.finished.connect(func() -> void:
+		if is_instance_valid(_ping_player) and not _ping_player.playing and DisplayServer.get_name() != "headless":
+			_ping_player.play()
+	)
+	if DisplayServer.get_name() != "headless":
+		_ping_player.play()
+
+
+func _stop_ping() -> void:
+	if _ping_player != null:
+		if is_instance_valid(_ping_player):
+			_ping_player.stop(); _ping_player.queue_free()
+		_ping_player = null
 
 
 func _connect_malfunction_manager() -> void:
@@ -108,22 +136,17 @@ func _connect_malfunction_manager() -> void:
 		mm.player_died.connect(_on_player_died)
 		_connected = true
 		if mm.get("active_id") != "":
-			start_alarm()
+			start_alarm(); _start_ping(String(mm.get("active_id")))
 
 
 func _get_mm() -> Node:
-	if has_node("/root/MalfunctionManager"):
-		return get_node("/root/MalfunctionManager")
-	return null
+	return get_node_or_null("/root/MalfunctionManager")
 
-
-func _on_malfunction_started(_id: String, _display_name: String, _time_limit: float) -> void:
-	start_alarm()
-
+func _on_malfunction_started(id: String, _display_name: String, _time_limit: float) -> void:
+	start_alarm(); _start_ping(id)
 
 func _on_malfunction_fixed(_id: String) -> void:
 	stop_alarm()
-
 
 func _on_player_died(_cause_id: String, _display_name: String) -> void:
 	stop_alarm()
