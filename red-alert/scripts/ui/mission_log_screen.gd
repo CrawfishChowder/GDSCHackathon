@@ -1,5 +1,7 @@
 class_name MissionLogScreen
 extends Control
+# MissionLogScreen displays the historical incident log and achievements.
+# Opened from the title screen; emits closed when dismissed.
 
 signal closed
 
@@ -11,9 +13,9 @@ func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
 	set_anchors_preset(PRESET_FULL_RECT)
 	_build_ui(); refresh()
-	var ml := get_node_or_null("/root/MissionLog")
+	var ml: Node = get_node_or_null("/root/MissionLog")
 	if ml != null and ml.has_signal("entry_added"): ml.entry_added.connect(func(_entry: Dictionary) -> void: refresh())
-	var ach := get_node_or_null("/root/Achievements")
+	var ach: Node = get_node_or_null("/root/Achievements")
 	if ach != null and ach.has_signal("unlocked"): ach.unlocked.connect(func(_id: String, _title: String) -> void: refresh())
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -26,9 +28,9 @@ func entry_count_shown() -> int:
 
 func refresh() -> void:
 	if _summary_label == null or _entries_vbox == null: return
-	var ml := get_node_or_null("/root/MissionLog")
+	var ml: Node = get_node_or_null("/root/MissionLog")
 	var entries_list: Array = ml.entries if (ml != null and "entries" in ml and ml.entries is Array) else []
-	var sd := get_node_or_null("/root/SaveData")
+	var sd: Node = get_node_or_null("/root/SaveData")
 	var do_not_press: int = int(sd.get_value("do_not_press_count", 0)) if (sd != null and sd.has_method("get_value")) else 0
 	var grade_val: Variant = sd.get_value("best_grade", null) if (sd != null and sd.has_method("get_value")) else null
 	var best_grade: String = str(grade_val) if (grade_val != null and str(grade_val) != "") else "--"
@@ -52,7 +54,7 @@ func refresh() -> void:
 			_create_entry_panel(item); _entry_count_shown += 1
 
 func _build_achievements_section() -> void:
-	var ach := get_node_or_null("/root/Achievements")
+	var ach: Node = get_node_or_null("/root/Achievements")
 	var all_ids: Array = ach.all_ids() if (ach != null and ach.has_method("all_ids")) else [
 		"first_shift", "steady_hands", "by_the_book", "curiosity", "calm", "historian"
 	]
@@ -121,5 +123,4 @@ func _add_lbl(parent: Control, text: String, sz: int, col: Color, wrap: bool = f
 	var l := Label.new(); l.text = text
 	l.add_theme_font_size_override("font_size", sz); l.add_theme_color_override("font_color", col)
 	if wrap: l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	parent.add_child(l)
-	return l
+	parent.add_child(l); return l

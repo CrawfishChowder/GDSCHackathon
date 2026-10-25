@@ -1,5 +1,7 @@
 class_name TitleBackground
 extends ColorRect
+# Mars horizon background for the title screen using a canvas_item shader.
+# Renders procedural sky, sun, parallax dune layers, and subtle dust drift.
 
 const SHADER_SRC := """shader_type canvas_item;
 
@@ -57,14 +59,13 @@ void fragment() {
 }
 """
 
-
 func _init() -> void:
 	name = "TitleBackground"
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	_setup_shader()
 
-
+# Compiles and attaches the Mars horizon procedural canvas shader.
 func _setup_shader() -> void:
 	var shader := Shader.new()
 	shader.code = SHADER_SRC

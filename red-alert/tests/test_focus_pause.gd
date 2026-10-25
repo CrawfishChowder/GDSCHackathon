@@ -63,7 +63,7 @@ func _initialize() -> void:
 		return _fail("SceneTree should not be paused initially")
 
 	# Test NOTIFICATION_APPLICATION_FOCUS_OUT
-	pause_menu._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	pause_menu.on_focus_lost()
 	await process_frame
 
 	var is_open: bool = bool(pause_menu.call("is_open_menu"))
@@ -83,7 +83,7 @@ func _initialize() -> void:
 		return _fail("PauseMenu should not be open after calling resume")
 
 	# Test NOTIFICATION_WM_WINDOW_FOCUS_OUT
-	pause_menu._notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+	pause_menu.on_focus_lost()
 	await process_frame
 
 	is_open = bool(pause_menu.call("is_open_menu"))
@@ -100,7 +100,7 @@ func _initialize() -> void:
 
 	# Test guard: do not open if tree is already paused
 	paused = true
-	pause_menu._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	pause_menu.on_focus_lost()
 	await process_frame
 	if bool(pause_menu.call("is_open_menu")):
 		return _fail("PauseMenu should not open if tree is already paused")

@@ -68,7 +68,9 @@ func _initialize() -> void:
 	if String(mm.get("death_detail")) != "Demo: instant failure.":
 		return _fail("expected death_detail == 'Demo: instant failure.', got '%s'" % String(mm.get("death_detail")))
 
-	# 6. F4 -> trigger("co2")
+	# 6. F4 -> trigger("co2"). The F7 death opened GameOver, which pauses the tree,
+	# and demo keys are (correctly) ignored while paused, so unpause first.
+	paused = false
 	mm.call("start_run")
 	await process_frame
 	demo_helper.call("handle_key", KEY_F4)

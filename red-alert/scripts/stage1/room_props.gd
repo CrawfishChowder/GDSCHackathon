@@ -1,3 +1,6 @@
+# RoomProps: Procedural decor generator for the habitat interior.
+# Builds conduits, ceiling vents, storage lockers, cable trays, and hazard stripes.
+# Static visual node instantiated under Polish/RoomProps.
 extends Node3D
 
 var _mat_cache: Dictionary = {}
@@ -57,7 +60,9 @@ func _build_pipes() -> void:
 
 	for wall_sign in [-1.0, 1.0]:
 		var wall_x: float = wall_sign * 6.0
-		var side_name: String = "W" if wall_sign < 0.0 else "E"
+		var side_name: String = "E"
+		if wall_sign < 0.0:
+			side_name = "W"
 		for i in range(3):
 			var px: float = wall_x - wall_sign * insets[i]
 			var radius: float = radii[i]
@@ -92,7 +97,9 @@ func _build_vents() -> void:
 	for v in range(vent_coords.size()):
 		var vc: Vector3 = vent_coords[v]
 		_box("VentFrame_%d" % v, Vector3(0.6, 0.35, 0.04), vc, dark_steel)
-		var z_dir: float = -1.0 if vc.z > 0.0 else 1.0
+		var z_dir: float = 1.0
+		if vc.z > 0.0:
+			z_dir = -1.0
 		for s in range(5):
 			var sy: float = vc.y - 0.12 + float(s) * 0.06
 			var sz: float = vc.z + z_dir * 0.02
@@ -134,5 +141,7 @@ func _build_hazard_stripes() -> void:
 				continue
 			var px: float = 4.275 + float(i) * 0.15
 			var pz: float = 3.275 + float(j) * 0.15
-			var c: Color = yellow if (i + j) % 2 == 0 else black
+			var c: Color = black
+			if (i + j) % 2 == 0:
+				c = yellow
 			_box("HazardStripe_%d_%d" % [i, j], Vector3(0.15, 0.01, 0.15), Vector3(px, 0.005, pz), c)

@@ -1,6 +1,6 @@
+# Archives death incidents and maps game failures to historical spaceflight disasters.
+# Listened to by HUD (GameOver), Achievements, and the mission log UI via entry_added.
 extends Node
-
-# Records every death with the real-world spaceflight incident behind it.
 
 signal entry_added(entry: Dictionary)
 
@@ -49,32 +49,33 @@ var last_entry: Dictionary = {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var sd := _get_save_data()
-	if sd != null:
+	var sd: Node = _get_save_data()
+	if sd != null and sd.has_method("get_value"):
 		var raw_entries: Variant = sd.get_value("mission_log", [])
 		if raw_entries is Array:
 			entries.clear()
-			for item: Variant in raw_entries:
+			for item: Variant in (raw_entries as Array):
 				if item is Dictionary:
-					entries.append(item)
+					entries.append(item as Dictionary)
 			while entries.size() > 50:
 				entries.pop_front()
 
-	var mm := _get_mm()
-	if mm != null:
+	var mm: Node = _get_mm()
+	if mm != null and mm.has_signal("player_died"):
 		mm.player_died.connect(func(cause_id: String, _display_name: String) -> void:
-			record_death(cause_id, String(mm.death_kind), String(mm.death_detail))
+			record_death(cause_id, String(mm.get("death_kind")), String(mm.get("death_detail")))
 		)
 
 
+# Logs a casualty with historical context, persisting to SaveData (capped at 50).
 func record_death(cause_id: String, kind: String, detail: String) -> Dictionary:
 	var incident: Dictionary = incident_for(cause_id)
 	var survived: float = 0.0
 	var fixes_cnt: int = 0
-	var mm := _get_mm()
+	var mm: Node = _get_mm()
 	if mm != null:
-		survived = float(mm.survived_seconds)
-		fixes_cnt = int(mm.fixes_count)
+		survived = float(mm.get("survived_seconds"))
+		fixes_cnt = int(mm.get("fixes_count"))
 
 	var entry: Dictionary = {
 		"cause_id": cause_id,
@@ -95,8 +96,8 @@ func record_death(cause_id: String, kind: String, detail: String) -> Dictionary:
 
 	last_entry = entry
 
-	var sd := _get_save_data()
-	if sd != null:
+	var sd: Node = _get_save_data()
+	if sd != null and sd.has_method("set_value"):
 		sd.set_value("mission_log", entries)
 
 	entry_added.emit(entry)
@@ -108,12 +109,8 @@ func incident_for(cause_id: String) -> Dictionary:
 
 
 func _get_save_data() -> Node:
-	if has_node("/root/SaveData"):
-		return get_node("/root/SaveData")
-	return null
+	return get_node_or_null("/root/SaveData")
 
 
 func _get_mm() -> Node:
-	if has_node("/root/MalfunctionManager"):
-		return get_node("/root/MalfunctionManager")
-	return null
+	return get_node_or_null("/root/MalfunctionManager")

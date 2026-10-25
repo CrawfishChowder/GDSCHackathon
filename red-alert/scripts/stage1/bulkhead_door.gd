@@ -1,3 +1,6 @@
+# BulkheadDoor: Animated blast door sealing room corridors.
+# Slides open vertically when unsealed; updates status lights and monitors.
+# Signals: opened (emitted when unseal animation finishes).
 class_name BulkheadDoor
 extends StaticBody3D
 
@@ -30,7 +33,7 @@ var _screen_overlay: Node
 
 
 func _ready() -> void:
-	if initial_screen_overlay:
+	if initial_screen_overlay != null:
 		set_screen_overlay(initial_screen_overlay)
 	var base_mat: Material = sealed_indicator.material_override
 	if base_mat == null and sealed_indicator.mesh != null:
@@ -50,6 +53,7 @@ func _ready() -> void:
 		_state = State.SEALED
 
 
+# Triggers the unsealing sequence: plays hiss SFX, lights turn green, slab slides up.
 func unseal() -> void:
 	if _state != State.SEALED:
 		return
@@ -60,10 +64,12 @@ func unseal() -> void:
 		sfx.play("hiss", global_position)
 	if not is_node_ready():
 		await ready
+		if not is_inside_tree():
+			return
 
 	_set_light_green()
 
-	var target_y := door_slab.position.y + slide_height
+	var target_y: float = door_slab.position.y + slide_height
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE)
 	tween.set_ease(Tween.EASE_IN_OUT)
@@ -82,6 +88,8 @@ func _set_light_green() -> void:
 
 
 func _on_open_finished() -> void:
+	if not is_inside_tree():
+		return
 	door_collision.set_deferred("disabled", true)
 	_state = State.OPEN
 	opened.emit()

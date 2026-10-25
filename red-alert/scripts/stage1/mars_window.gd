@@ -1,3 +1,6 @@
+# MarsWindow: Exterior viewing port showing Mars surface and procedural dust storms.
+# Drives custom spatial shader with noise-based terrain and dynamic storm density.
+# Reads active malfunction from MalfunctionManager.
 class_name MarsWindow
 extends Node3D
 
@@ -72,9 +75,13 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	var mm: Node = get_node_or_null("/root/MalfunctionManager")
-	var is_dust_storm: bool = mm != null and mm.get("active_id") == "dust_storm"
-	var target: float = 1.0 if is_dust_storm else 0.0
+	var mm: Node = get_node_or_null("/root/MalfunctionManager") if is_inside_tree() else null
+	var is_dust_storm: bool = false
+	if mm != null and mm.get("active_id") != null:
+		is_dust_storm = String(mm.get("active_id")) == "dust_storm"
+	var target: float = 0.0
+	if is_dust_storm:
+		target = 1.0
 	_storm = lerpf(_storm, target, 1.0 - exp(-2.0 * delta))
 	if absf(_storm - target) < 0.002:
 		_storm = target

@@ -1,3 +1,6 @@
+# StationSignage: Overhead text signs and pulsating ">> FIX HERE <<" visual cues.
+# Highlights the active malfunction station with blinking red text and cue lighting.
+# Reads active malfunction from MalfunctionManager.
 class_name StationSignage
 extends Node3D
 
@@ -83,7 +86,7 @@ func _process(delta: float) -> void:
 	_time += delta
 	_blink_timer += delta
 
-	var mm: Node = get_node_or_null("/root/MalfunctionManager")
+	var mm: Node = get_node_or_null("/root/MalfunctionManager") if is_inside_tree() else null
 	var active_id: String = ""
 	if mm != null:
 		var raw_id: Variant = mm.get("active_id")
@@ -97,6 +100,8 @@ func _process(delta: float) -> void:
 	var blink_visible: bool = fposmod(_blink_timer, 0.8) < 0.4
 	for s: Dictionary in _signs:
 		var sign_node: Label3D = s["node"]
+		if not is_instance_valid(sign_node):
+			continue
 		var id: String = s["id"]
 		if id != "" and id == active_id:
 			sign_node.modulate = COLOR_RED
@@ -109,11 +114,15 @@ func _process(delta: float) -> void:
 	var bob_y: float = sin(_time * 4.0) * 0.05
 	for c: Dictionary in _cues:
 		var cue_node: Node3D = c["node"]
+		if not is_instance_valid(cue_node):
+			continue
 		var id: String = c["id"]
-		var is_active: bool = (id == active_id and active_id != "")
+		var is_active: bool = (id == active_id and not active_id.is_empty())
 		cue_node.visible = is_active
 		if is_active:
 			var light: OmniLight3D = c["light"]
 			var label: Label3D = c["label"]
-			light.light_energy = pulse_energy
-			label.position.y = bob_y
+			if is_instance_valid(light):
+				light.light_energy = pulse_energy
+			if is_instance_valid(label):
+				label.position.y = bob_y

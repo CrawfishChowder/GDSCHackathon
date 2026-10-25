@@ -16,7 +16,7 @@ First-person survival game in a habitat module (Godot 4.7, GDScript). Survive a 
 - Prefer `grep -n` and a targeted read over reading whole files.
 
 ## Code rules
-- Typed GDScript, tabs, scripts ≤ 150 lines. Build UI and meshes in code in `_ready()`; keep `.tscn` files minimal.
+- Typed GDScript, tabs. Aim for scripts ≤ 150 lines, but **readability beats line count**: one statement per line, never join statements with `;`, and never one-line `if a: b() else: c()`. Build UI and meshes in code in `_ready()`; keep `.tscn` files minimal.
 - Cross-feature communication goes through autoload signals (see ARCHITECTURE).
 - Anything interactable is a node with `interact(by)`, plus optional `prompt_text` and `enabled`.
 - Tests are `extends SceneTree` in `red-alert/tests/`. They must look up autoloads with `root.get_node("Name")` and never cast to classes whose scripts use autoloads.

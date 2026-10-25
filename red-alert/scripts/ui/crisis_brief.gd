@@ -1,5 +1,7 @@
 class_name CrisisBrief
 extends CanvasLayer
+# CrisisBrief shows a first-encounter instruction banner for each malfunction.
+# Awards first-time grace and explains how to solve the active crisis.
 
 const AMBER_COLOR := Color(1.0, 0.72, 0.1)
 const GREY_COLOR := Color(0.7, 0.7, 0.7)
@@ -33,40 +35,24 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if not _connected: _connect_manager()
 
-func is_showing() -> bool:
-	return _is_showing and visible
-
-func current_text() -> String:
-	return _current_text if is_showing() else ""
+func is_showing() -> bool: return _is_showing and visible
+func current_text() -> String: return _current_text if is_showing() else ""
 
 func _build_ui() -> void:
-	_panel = PanelContainer.new()
-	_panel.name = "BriefPanel"; _panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_panel.anchor_left = 0.5; _panel.anchor_right = 0.5
+	_panel = PanelContainer.new(); _panel.name = "BriefPanel"; _panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel.set_anchors_preset(Control.PRESET_CENTER_TOP); _panel.anchor_left = 0.5; _panel.anchor_right = 0.5
 	_panel.offset_left = -280.0; _panel.offset_right = 280.0; _panel.offset_top = 70.0; _panel.offset_bottom = 190.0
-	_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH; _panel.grow_vertical = Control.GROW_DIRECTION_END
-	_panel.custom_minimum_size = Vector2(560.0, 0.0)
-
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.06, 0.08, 0.95); style.set_border_width_all(2); style.border_color = AMBER_COLOR
-	style.set_corner_radius_all(6); style.content_margin_left = 18.0; style.content_margin_top = 12.0
-	style.content_margin_right = 18.0; style.content_margin_bottom = 12.0
+	_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH; _panel.grow_vertical = Control.GROW_DIRECTION_END; _panel.custom_minimum_size = Vector2(560.0, 0.0)
+	var style := StyleBoxFlat.new(); style.bg_color = Color(0.04, 0.06, 0.08, 0.95); style.set_border_width_all(2); style.border_color = AMBER_COLOR; style.set_corner_radius_all(6); style.set_content_margin_all(12.0)
 	_panel.add_theme_stylebox_override("panel", style)
-
-	var vbox := VBoxContainer.new()
-	vbox.name = "VBox"; vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_theme_constant_override("separation", 6); _panel.add_child(vbox)
-
+	var vbox := VBoxContainer.new(); vbox.name = "VBox"; vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE; vbox.add_theme_constant_override("separation", 6); _panel.add_child(vbox)
 	_header_label = _make_label(vbox, "HeaderLabel", 24, AMBER_COLOR, false)
 	_how_to_label = _make_label(vbox, "HowToLabel", 16, TEXT_COLOR, true)
-	_grace_label = _make_label(vbox, "GraceLabel", 14, GREY_COLOR, false)
-	_grace_label.text = "+15 s first-time grace"
+	_grace_label = _make_label(vbox, "GraceLabel", 14, GREY_COLOR, false); _grace_label.text = "+15 s first-time grace"
 	add_child(_panel)
 
 func _make_label(p: Control, n: String, sz: int, col: Color, wrap: bool) -> Label:
-	var l := Label.new()
-	l.name = n; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var l := Label.new(); l.name = n; l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	l.add_theme_font_size_override("font_size", sz); l.add_theme_color_override("font_color", col)
 	l.add_theme_constant_override("outline_size", 4); l.add_theme_color_override("font_outline_color", Color.BLACK)
 	if wrap: l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -114,10 +100,10 @@ func _show_brief(id: String, display_name: String) -> void:
 	_current_text = "%s\n%s\n%s" % [header, how_to, _grace_label.text]
 	if _tween != null and _tween.is_valid(): _tween.kill()
 	_is_showing = true; visible = true; _panel.visible = true; _panel.modulate.a = 1.0
-	_tween = create_tween(); _tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	_tween.tween_interval(8.0)
-	_tween.tween_property(_panel, "modulate:a", 0.0, 0.3)
-	_tween.tween_callback(_hide_brief)
+	_tween = create_tween()
+	if _tween != null:
+		_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS); _tween.tween_interval(8.0)
+		_tween.tween_property(_panel, "modulate:a", 0.0, 0.3); _tween.tween_callback(_hide_brief)
 
 func _hide_brief() -> void:
 	if _tween != null and _tween.is_valid(): _tween.kill()

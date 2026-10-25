@@ -1,3 +1,6 @@
+# Doorways: Procedurally builds corridor geometry leading beyond bulkhead doors.
+# Generates North (Crew Quarters), East (Airlock/Mars Window), and West (Greenhouse) halls.
+# Static environment node instantiated under Polish/Doorways.
 extends Node3D
 
 var _steel_mat: StandardMaterial3D
@@ -70,12 +73,17 @@ func _add_label(parent: Node3D, text: String, pos: Vector3, rot_y: float) -> voi
 
 
 func _add_stripes(parent: Node3D, start_pos: Vector3, step: Vector3, is_z_axis: bool) -> void:
-	var size := Vector3(0.25, 0.01, 0.3) if is_z_axis else Vector3(0.3, 0.01, 0.25)
+	var size := Vector3(0.3, 0.01, 0.25)
+	if is_z_axis:
+		size = Vector3(0.25, 0.01, 0.3)
 	for i in range(12):
 		var mi := MeshInstance3D.new()
 		var mesh := BoxMesh.new()
 		mesh.size = size
-		mesh.material = _hazard_yellow_mat if i % 2 == 0 else _hazard_black_mat
+		var mat := _hazard_black_mat
+		if i % 2 == 0:
+			mat = _hazard_yellow_mat
+		mesh.material = mat
 		mi.mesh = mesh
 		mi.position = start_pos + step * float(i)
 		parent.add_child(mi)
@@ -104,11 +112,13 @@ func _build_corridors() -> void:
 	_add_solid_box(self, body, "East_WallEnd", Vector3(0.2, 3.0, 4.0), Vector3(9.1, 1.3, 0.0))
 	_add_light(self, Vector3(7.5, 2.4, 0.0))
 	_add_label(self, "AIRLOCK: EVA PREP", Vector3(8.98, 2.3, 0.0), -PI * 0.5)
-	var mars_window: Node3D = load("res://scripts/stage1/mars_window.gd").new()
-	mars_window.name = "MarsWindow"
-	mars_window.position = Vector3(8.95, 1.3, 0.0)
-	mars_window.rotation.y = -PI * 0.5
-	add_child(mars_window)
+	var mars_window_script := load("res://scripts/stage1/mars_window.gd") as GDScript
+	if mars_window_script != null:
+		var mars_window: Node3D = mars_window_script.new()
+		mars_window.name = "MarsWindow"
+		mars_window.position = Vector3(8.95, 1.3, 0.0)
+		mars_window.rotation.y = -PI * 0.5
+		add_child(mars_window)
 	_add_stripes(self, Vector3(6.0, 0.005, -1.65), Vector3(0.0, 0.0, 0.3), true)
 
 	# West corridor (x = -6 to -9, z centered on 0)

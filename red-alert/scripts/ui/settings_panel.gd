@@ -1,18 +1,28 @@
 class_name SettingsPanel
 extends VBoxContainer
+# SettingsPanel provides controls for audio, gameplay, accessibility, and graphics.
+# Writes changes to the Settings autoload and listens for external updates.
 
-var _sens_slider: HSlider; var _sens_val_label: Label
-var _invert_btn: CheckButton; var _motion_btn: CheckButton
-var _vol_slider: HSlider; var _vol_val_label: Label
-var _sfx_slider: HSlider; var _sfx_val_label: Label
-var _voice_slider: HSlider; var _voice_val_label: Label
-var _captions_btn: CheckButton; var _contrast_btn: CheckButton
-var _shadows_btn: CheckButton; var _hide_hud_btn: CheckButton
-var _fullscreen_btn: CheckButton; var _vsync_btn: CheckButton
+var _sens_slider: HSlider
+var _sens_val_label: Label
+var _invert_btn: CheckButton
+var _motion_btn: CheckButton
+var _vol_slider: HSlider
+var _vol_val_label: Label
+var _sfx_slider: HSlider
+var _sfx_val_label: Label
+var _voice_slider: HSlider
+var _voice_val_label: Label
+var _captions_btn: CheckButton
+var _contrast_btn: CheckButton
+var _shadows_btn: CheckButton
+var _hide_hud_btn: CheckButton
+var _fullscreen_btn: CheckButton
+var _vsync_btn: CheckButton
 var _fps_btn: CheckButton
-var _scale_slider: HSlider; var _scale_val_label: Label
+var _scale_slider: HSlider
+var _scale_val_label: Label
 var _updating: bool = false
-
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
@@ -20,10 +30,9 @@ func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	_build_ui()
 	_load_values()
-	var s := get_node_or_null("/root/Settings")
+	var s: Node = get_node_or_null("/root/Settings")
 	if s != null and s.has_signal("settings_changed"):
-		s.settings_changed.connect(_on_settings_changed)
-
+		s.connect("settings_changed", func(_k: String, _v: Variant) -> void: _load_values())
 
 func _build_ui() -> void:
 	var title := Label.new()
@@ -34,53 +43,64 @@ func _build_ui() -> void:
 	add_child(title)
 
 	_sens_slider = HSlider.new(); _sens_val_label = Label.new()
-	_add_slider_row("Mouse sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, _on_sens_changed)
-	_invert_btn = CheckButton.new(); _add_check_button(_invert_btn, "Invert Y", _on_invert_toggled)
-	_motion_btn = CheckButton.new(); _add_check_button(_motion_btn, "Reduce motion (no head bob or camera shake)", _on_motion_toggled)
+	_add_slider("mouse_sensitivity", "Mouse sensitivity", _sens_slider, _sens_val_label, 0.3, 2.5, 0.05, false)
+	_invert_btn = _add_check("invert_y", "Invert Y")
+	_motion_btn = _add_check("reduce_motion", "Reduce motion (no head bob or camera shake)")
 	_vol_slider = HSlider.new(); _vol_val_label = Label.new()
-	_add_slider_row("Master volume", _vol_slider, _vol_val_label, 0.0, 1.0, 0.01, _on_vol_changed)
+	_add_slider("master_volume", "Master volume", _vol_slider, _vol_val_label, 0.0, 1.0, 0.01, true)
 	_sfx_slider = HSlider.new(); _sfx_val_label = Label.new()
-	_add_slider_row("Sound effects volume", _sfx_slider, _sfx_val_label, 0.0, 1.0, 0.01, _on_sfx_changed)
+	_add_slider("sfx_volume", "Sound effects volume", _sfx_slider, _sfx_val_label, 0.0, 1.0, 0.01, true)
 	_voice_slider = HSlider.new(); _voice_val_label = Label.new()
-	_add_slider_row("Voice volume", _voice_slider, _voice_val_label, 0.0, 1.0, 0.01, _on_voice_changed)
-	_captions_btn = CheckButton.new(); _add_check_button(_captions_btn, "Captions", _on_captions_toggled)
-	_contrast_btn = CheckButton.new(); _add_check_button(_contrast_btn, "High contrast", _on_contrast_toggled)
-	_shadows_btn = CheckButton.new(); _add_check_button(_shadows_btn, "Shadows (turn off on slow machines)", _on_shadows_toggled)
-	_hide_hud_btn = CheckButton.new(); _add_check_button(_hide_hud_btn, "Hide HUD (for screenshots)", _on_hide_hud_toggled)
-	_fullscreen_btn = CheckButton.new(); _add_check_button(_fullscreen_btn, "Fullscreen (F11)", _on_fullscreen_toggled)
-	_vsync_btn = CheckButton.new(); _add_check_button(_vsync_btn, "VSync", _on_vsync_toggled)
-	_fps_btn = CheckButton.new(); _add_check_button(_fps_btn, "Show FPS", _on_fps_toggled)
+	_add_slider("voice_volume", "Voice volume", _voice_slider, _voice_val_label, 0.0, 1.0, 0.01, true)
+	_captions_btn = _add_check("captions", "Captions")
+	_contrast_btn = _add_check("high_contrast", "High contrast")
+	_shadows_btn = _add_check("shadows", "Shadows (turn off on slow machines)")
+	_hide_hud_btn = _add_check("hide_hud", "Hide HUD (for screenshots)")
+	_fullscreen_btn = _add_check("fullscreen", "Fullscreen (F11)")
+	_vsync_btn = _add_check("vsync", "VSync")
+	_fps_btn = _add_check("show_fps", "Show FPS")
 	_scale_slider = HSlider.new(); _scale_val_label = Label.new()
-	_add_slider_row("Text / UI size", _scale_slider, _scale_val_label, 0.8, 1.5, 0.05, _on_scale_changed)
+	_add_slider("ui_scale", "Text / UI size", _scale_slider, _scale_val_label, 0.8, 1.5, 0.05, false)
 
-
-func _add_slider_row(label_text: String, slider: HSlider, val_label: Label, min_v: float, max_v: float, step_v: float, callback: Callable) -> void:
+func _add_slider(key: String, label_text: String, slider: HSlider, val_label: Label, min_v: float, max_v: float, step_v: float, is_pct: bool) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	var lbl := Label.new()
-	lbl.text = label_text; lbl.custom_minimum_size = Vector2(140, 0)
+	lbl.text = label_text
+	lbl.custom_minimum_size = Vector2(140, 0)
 	row.add_child(lbl)
-	slider.min_value = min_v; slider.max_value = max_v; slider.step = step_v
+	slider.min_value = min_v
+	slider.max_value = max_v
+	slider.step = step_v
 	slider.custom_minimum_size = Vector2(160, 0)
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.value_changed.connect(callback)
+	slider.value_changed.connect(func(val: float) -> void:
+		val_label.text = ("%d%%" % roundi(val * 100.0)) if is_pct else ("%.2fx" % val)
+		if not _updating:
+			_save_setting(key, val)
+	)
 	row.add_child(slider)
 	val_label.custom_minimum_size = Vector2(50, 0)
 	row.add_child(val_label)
 	add_child(row)
 
-
-func _add_check_button(btn: CheckButton, text: String, callback: Callable) -> void:
-	btn.text = text; btn.toggled.connect(callback); add_child(btn)
-
+func _add_check(key: String, text: String) -> CheckButton:
+	var btn := CheckButton.new()
+	btn.text = text
+	btn.toggled.connect(func(pressed: bool) -> void:
+		if not _updating:
+			_save_setting(key, pressed)
+	)
+	add_child(btn)
+	return btn
 
 func _get_setting_val(key: String, default_val: Variant) -> Variant:
-	var s := get_node_or_null("/root/Settings")
+	var s: Node = get_node_or_null("/root/Settings")
 	if s != null and s.has_method("get_setting"):
 		var val: Variant = s.get_setting(key)
-		if val != null: return val
+		if val != null:
+			return val
 	return default_val
-
 
 func _load_values() -> void:
 	_updating = true
@@ -105,45 +125,7 @@ func _load_values() -> void:
 	_scale_slider.value = scale_v; _scale_val_label.text = "%.2fx" % scale_v
 	_updating = false
 
-
-func _on_sens_changed(val: float) -> void:
-	_sens_val_label.text = "%.2fx" % val; if not _updating: _save_setting("mouse_sensitivity", val)
-
-func _on_invert_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("invert_y", pressed)
-
-func _on_motion_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("reduce_motion", pressed)
-
-func _on_vol_changed(val: float) -> void:
-	_vol_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("master_volume", val)
-
-func _on_sfx_changed(val: float) -> void:
-	_sfx_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("sfx_volume", val)
-
-func _on_voice_changed(val: float) -> void:
-	_voice_val_label.text = "%d%%" % roundi(val * 100.0); if not _updating: _save_setting("voice_volume", val)
-
-func _on_captions_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("captions", pressed)
-func _on_contrast_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("high_contrast", pressed)
-func _on_shadows_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("shadows", pressed)
-func _on_hide_hud_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("hide_hud", pressed)
-func _on_fullscreen_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("fullscreen", pressed)
-func _on_vsync_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("vsync", pressed)
-func _on_fps_toggled(pressed: bool) -> void:
-	if not _updating: _save_setting("show_fps", pressed)
-func _on_scale_changed(val: float) -> void:
-	_scale_val_label.text = "%.2fx" % val; if not _updating: _save_setting("ui_scale", val)
-
 func _save_setting(key: String, value: Variant) -> void:
-	var s := get_node_or_null("/root/Settings")
-	if s != null and s.has_method("set_setting"): s.set_setting(key, value)
-
-func _on_settings_changed(_key: String, _val: Variant) -> void:
-	_load_values()
+	var s: Node = get_node_or_null("/root/Settings")
+	if s != null and s.has_method("set_setting"):
+		s.set_setting(key, value)

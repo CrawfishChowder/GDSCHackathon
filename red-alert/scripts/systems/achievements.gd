@@ -1,3 +1,5 @@
+# Tracks shift milestones and awards achievements persisted to SaveData.
+# Listened to by HUD achievement toast notifications and the achievements screen.
 extends Node
 
 signal unlocked(id: String, title: String)
@@ -17,27 +19,29 @@ var _toast_queue: Array[Dictionary] = []; var _showing_toast: bool = false
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
-	var sd := _get_save_data()
+	var sd: Node = _get_save_data()
 	if sd != null and sd.has_method("get_value"):
 		var raw: Variant = sd.get_value("achievements", [])
 		if raw is Array:
-			for item: Variant in raw:
-				if item is String and not _unlocked_ids.has(item): _unlocked_ids.append(item)
+			for item: Variant in (raw as Array):
+				if item is String and not _unlocked_ids.has(String(item)):
+					_unlocked_ids.append(String(item))
 	_build_toast_ui(); _connect_signals(); _check_historian()
 
 func _process(delta: float) -> void:
 	_connect_signals()
-	var mm := _get_mm()
-	if mm != null and mm.running:
-		var stress := _get_stress()
+	var mm: Node = _get_mm()
+	if mm != null and bool(mm.get("running")):
+		var stress: Node = _get_stress()
 		if stress != null:
-			if stress.heart_rate > _max_bpm: _max_bpm = stress.heart_rate
-			if stress.has_method("is_breathing") and stress.is_breathing():
+			var hr: float = float(stress.get("heart_rate"))
+			if hr > _max_bpm: _max_bpm = hr
+			if stress.has_method("is_breathing") and bool(stress.is_breathing()):
 				_breathing_seconds += delta
 				if _breathing_seconds >= 10.0: unlock("calm")
 
 func _connect_signals() -> void:
-	var mm := _get_mm(); var ml := _get_mission_log()
+	var mm: Node = _get_mm(); var ml: Node = _get_mission_log()
 	if mm != null:
 		if mm.has_signal("run_started") and not mm.run_started.is_connected(_on_run_started): mm.run_started.connect(_on_run_started)
 		if mm.has_signal("shift_completed") and not mm.shift_completed.is_connected(_on_shift_completed): mm.shift_completed.connect(_on_shift_completed)
@@ -45,43 +49,42 @@ func _connect_signals() -> void:
 	if ml != null and ml.has_signal("entry_added") and not ml.entry_added.is_connected(_on_entry_added): ml.entry_added.connect(_on_entry_added)
 
 func _on_run_started() -> void:
-	var stress := _get_stress()
-	_max_bpm = float(stress.heart_rate) if stress != null else 72.0; _breathing_seconds = 0.0
-
+	var stress: Node = _get_stress()
+	_max_bpm = float(stress.get("heart_rate")) if stress != null else 72.0
+	_breathing_seconds = 0.0
 func _on_shift_completed() -> void:
 	unlock("first_shift")
 	if _max_bpm <= 120.0: unlock("steady_hands")
-	var mm := _get_mm()
-	if mm != null and str(mm.mode) == "hard": unlock("by_the_book")
-
+	var mm: Node = _get_mm()
+	if mm != null and String(mm.get("mode")) == "hard": unlock("by_the_book")
 func _on_player_died(cause_id: String, _display_name: String) -> void:
-	var mm := _get_mm()
-	if (mm != null and mm.death_kind == "button") or cause_id == "do_not_press": unlock("curiosity")
+	var mm: Node = _get_mm()
+	if (mm != null and String(mm.get("death_kind")) == "button") or cause_id == "do_not_press": unlock("curiosity")
 	_check_historian()
-
-func _on_entry_added(_entry: Dictionary) -> void:
-	_check_historian()
+func _on_entry_added(_entry: Dictionary) -> void: _check_historian()
 
 func _check_historian() -> void:
 	if is_unlocked("historian"): return
-	var ml := _get_mission_log()
+	var ml: Node = _get_mission_log()
 	if ml == null: return
-	var incidents: Dictionary = ml.INCIDENTS if "INCIDENTS" in ml else {}
+	var incidents: Dictionary = ml.get("INCIDENTS") if (ml.get("INCIDENTS") is Dictionary) else {}
 	if incidents.is_empty(): return
-	var covered := {}; var entries_list: Array = ml.entries if "entries" in ml else []
+	var covered: Dictionary = {}; var entries_list: Array = ml.get("entries") if (ml.get("entries") is Array) else []
 	for entry: Variant in entries_list:
-		if entry is Dictionary and entry.has("cause_id"): covered[str(entry["cause_id"])] = true
+		if entry is Dictionary and (entry as Dictionary).has("cause_id"):
+			covered[String((entry as Dictionary)["cause_id"])] = true
 	for key: Variant in incidents.keys():
-		if not covered.has(str(key)): return
+		if not covered.has(String(key)): return
 	unlock("historian")
 
+# Unlocks an achievement by key, persisting it and queuing a popup toast.
 func unlock(id: Variant) -> void:
-	var sid := str(id)
+	var sid: String = String(id)
 	if not LIST.has(sid) or is_unlocked(sid): return
-	var sd := _get_save_data(); var arr: Array = []
+	var sd: Node = _get_save_data(); var arr: Array = []
 	if sd != null and sd.has_method("get_value"):
 		var raw: Variant = sd.get_value("achievements", [])
-		if raw is Array: arr = raw.duplicate()
+		if raw is Array: arr = (raw as Array).duplicate()
 	if not arr.has(sid): arr.append(sid)
 	if sd != null and sd.has_method("set_value"): sd.set_value("achievements", arr)
 	if not _unlocked_ids.has(sid): _unlocked_ids.append(sid)
@@ -89,14 +92,13 @@ func unlock(id: Variant) -> void:
 	unlocked.emit(sid, title); _queue_toast(title, desc)
 
 func is_unlocked(id: Variant) -> bool:
-	var sid := str(id); var sd := _get_save_data()
+	var sid: String = String(id); var sd: Node = _get_save_data()
 	if sd != null and sd.has_method("get_value"):
 		var raw: Variant = sd.get_value("achievements", null)
-		if raw is Array: return raw.has(sid)
+		if raw is Array: return (raw as Array).has(sid)
 	return _unlocked_ids.has(sid)
 
-func all_ids() -> Array:
-	return LIST.keys()
+func all_ids() -> Array: return LIST.keys()
 
 func _build_toast_ui() -> void:
 	_canvas_layer = CanvasLayer.new(); _canvas_layer.layer = 26; _canvas_layer.process_mode = PROCESS_MODE_ALWAYS; add_child(_canvas_layer)
@@ -113,14 +115,14 @@ func _build_toast_ui() -> void:
 	var hdr := Label.new(); hdr.text = "ACHIEVEMENT UNLOCKED"; hdr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hdr.add_theme_font_size_override("font_size", 13); hdr.add_theme_color_override("font_color", Color(0.2, 0.85, 1.0)); vbox.add_child(hdr)
 	_toast_title = Label.new(); _toast_title.mouse_filter = Control.MOUSE_FILTER_IGNORE; _toast_title.add_theme_font_size_override("font_size", 20); _toast_title.add_theme_color_override("font_color", Color.WHITE); vbox.add_child(_toast_title)
-	_toast_desc = Label.new(); _toast_desc.mouse_filter = Control.MOUSE_FILTER_IGNORE; _toast_desc.add_theme_font_size_override("font_size", 14); _toast_desc.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
-	_toast_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; vbox.add_child(_toast_desc)
+	_toast_desc = Label.new(); _toast_desc.mouse_filter = Control.MOUSE_FILTER_IGNORE; _toast_desc.add_theme_font_size_override("font_size", 14); _toast_desc.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85)); _toast_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; vbox.add_child(_toast_desc)
 	_canvas_layer.add_child(_toast_panel)
 
 func _queue_toast(title: String, desc: String) -> void:
 	_toast_queue.append({"title": title, "desc": desc})
 	if not _showing_toast: _show_next_toast()
 
+# Displays toast popup with slide animation; respects pause state via TWEEN_PAUSE_PROCESS.
 func _show_next_toast() -> void:
 	if _toast_queue.is_empty():
 		_showing_toast = false
@@ -132,7 +134,7 @@ func _show_next_toast() -> void:
 	if _toast_desc != null: _toast_desc.text = String(item.get("desc", ""))
 	if _toast_panel == null: _show_next_toast(); return
 	_toast_panel.offset_left = 20.0; _toast_panel.offset_right = 360.0; _toast_panel.visible = true
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	if tween == null: _showing_toast = false; return
 	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tween.tween_property(_toast_panel, "offset_left", -360.0, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)

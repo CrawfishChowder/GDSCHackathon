@@ -1,3 +1,6 @@
+# DemoHelper: Developer shortcut controller for presentations and testing.
+# Handles F4-F7 shortcuts and toggles F12 help overlay; disabled while paused.
+# Operates independently of standard input handling.
 class_name DemoHelper
 extends Node
 
@@ -13,6 +16,9 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
+	var tree := get_tree()
+	if tree != null and tree.paused:
+		return
 	var key_event := event as InputEventKey
 	var code: Key = key_event.physical_keycode if key_event.physical_keycode != KEY_NONE else key_event.keycode
 	if handle_key(code):
@@ -26,6 +32,10 @@ func overlay_visible() -> bool:
 
 
 func handle_key(keycode: Key) -> bool:
+	var tree := get_tree()
+	if tree != null and tree.paused:
+		return false
+
 	var host: Node = get_node_or_null("/root/MinigameHost") if is_inside_tree() else null
 	if host != null and host.has_method("is_open") and bool(host.call("is_open")):
 		return false
@@ -43,7 +53,9 @@ func handle_key(keycode: Key) -> bool:
 			return true
 		KEY_F6:
 			if mm != null:
-				var shift_len: float = float(mm.get("SHIFT_LENGTH")) if mm.get("SHIFT_LENGTH") != null else 300.0
+				var shift_len: float = 300.0
+				if mm.get("SHIFT_LENGTH") != null:
+					shift_len = float(mm.get("SHIFT_LENGTH"))
 				mm.set("survived_seconds", shift_len - 10.0)
 			return true
 		KEY_F7:
