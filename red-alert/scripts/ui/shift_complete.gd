@@ -54,7 +54,7 @@ func _build_ui() -> void:
 	center.add_child(vbox)
 	_create_label(vbox, "SHIFT COMPLETE", 52, Color.CYAN)
 	_summary_label = _create_label(vbox, "You kept the habitat alive for 0:00 and fixed 0 failures.", 20, Color(0.9, 0.9, 0.9))
-	_o2_label = _create_label(vbox, "You breathed about 0.0 g of oxygen. NASA plans for about 0.82 kg per crew member per day.", 16, Color(0.75, 0.85, 0.9))
+	_o2_label = _create_label(vbox, "You breathed about 0.0 g of oxygen. NASA plans for about 0.84 kg per crew member per day.", 16, Color(0.75, 0.85, 0.9))
 	_people_label = _create_label(vbox, "", 16, Color(0.75, 0.75, 0.75))
 	_grade_label = _create_label(vbox, "", 32, Color(1.0, 0.9, 0.3))
 	_new_best_label = _create_label(vbox, "", 18, Color(0.4, 1.0, 0.4))
@@ -122,7 +122,7 @@ func _update_stats() -> void:
 	_notes_label.text = ", ".join(PackedStringArray(notes)) if not notes.is_empty() else ""
 	_notes_label.visible = not notes.is_empty()
 
-	_o2_label.text = "You breathed about %.1f g of oxygen. NASA plans for about 0.82 kg per crew member per day." % (820.0 * surv_secs_float / 86400.0)
+	_o2_label.text = "You breathed about %.1f g of oxygen. NASA plans for about 0.84 kg per crew member per day." % (840.0 * surv_secs_float / 86400.0)
 	var pis: Node = get_node_or_null("/root/PeopleInSpace")
 	if pis != null:
 		_people_label.text = pis.summary_line()

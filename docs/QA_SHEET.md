@@ -36,7 +36,7 @@ Red Alert is a first-person survival game in a habitat module. Over one 5-minute
   - Open Notify gives the live number and names of people in space, shown on the title and end screens.
   - Both are fetched with Godot's `HTTPRequest`, with an 8 s timeout. Tests never touch the network.
 - **Likely Q: "API limit?"** We use exactly 2 external APIs (DONKI and Open Notify). ElevenLabs is a sponsor API, so it doesn't count.
-- **Likely Q: "Where do the numbers come from?"** The NASA planning figure of about 0.82 kg of oxygen per crew member per day, and about 1 kg of CO2 exhaled per day. They're used in the gauges' footnotes and on the end screen.
+- **Likely Q: "Where do the numbers come from?"** The NASA planning figure of about 0.84 kg of oxygen per crew member per day, and about 1 kg of CO2 exhaled per day. They're used in the gauges' footnotes and on the end screen.
 
 ## Brandon: UX, accessibility, voices, history content
 - **Files:** `scripts/ui/*` (title, pause, settings, HUD, game over, shift complete, survival cards), `scripts/systems/voice.gd`, `data/voice_lines.json`, `scripts/systems/mission_log.gd`, `scripts/stage1/tutorial_director.gd`

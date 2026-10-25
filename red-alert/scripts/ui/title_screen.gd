@@ -9,6 +9,10 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	set_anchors_preset(PRESET_FULL_RECT)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# No run may continue behind the title screen (covers every path back here).
+	var mm := get_node_or_null("/root/MalfunctionManager")
+	if mm != null:
+		mm.stop_run()
 	_build_ui()
 	_update_people()
 	var pis := get_node_or_null("/root/PeopleInSpace")

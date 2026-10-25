@@ -3,7 +3,7 @@
 First-person survival game in a habitat module (Godot 4.7, GDScript). Survive a 5-minute shift: systems fail, you fix them with minigames, one mistake kills you and the mission log names the real spaceflight disaster it mirrors.
 
 ## Run / test
-- Play: open `red-alert/project.godot` in Godot 4.7, F5. Demo keys F1/F2/F3 trigger reactor/power/O2.
+- Play: open `red-alert/project.godot` in Godot 4.7, F5 (starts at the title screen; Practice = no deaths). Demo keys: F1 reactor, F2 power, F3 O2, F4 CO2, F5 dust storm, F6 skip to shift end, F7 instant death, F12 key list.
 - All tests + smoke run: `tools/run_tests.sh` (prints one PASS/FAIL line per test).
 - Godot binary: `godot` (`/usr/local/bin/godot`).
 

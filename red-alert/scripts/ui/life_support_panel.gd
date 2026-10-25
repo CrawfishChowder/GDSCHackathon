@@ -1,7 +1,7 @@
 extends Control
 
 const FOOTNOTES: Array[String] = [
-	"NASA plans for about 0.82 kg of oxygen per crew member per day.",
+	"NASA plans for about 0.84 kg of oxygen per crew member per day.",
 	"Each crew member exhales about 1 kg of carbon dioxide per day.",
 	"When the scrubbers lose power, carbon dioxide builds up in the cabin.",
 	"Apollo 13's crew had to build an improvised CO2 scrubber adapter to survive.",

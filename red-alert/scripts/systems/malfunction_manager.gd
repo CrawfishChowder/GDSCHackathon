@@ -43,6 +43,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not running:
 		return
+	# Keep counting through a minigame (it pauses the tree on purpose), but freeze
+	# for anything else that pauses it, like the pause menu.
+	if get_tree().paused:
+		var host := get_node_or_null("/root/MinigameHost")
+		if host == null or not host.is_open():
+			return
 
 	survived_seconds += delta
 

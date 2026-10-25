@@ -14,7 +14,7 @@ const INCIDENTS := {
 	"power": {
 		"title": "Apollo 1 fire",
 		"year": "1967",
-		"summary": "During a launch rehearsal, a spark from damaged wiring ignited the pure-oxygen cabin of Apollo 1. Gus Grissom, Ed White and Roger Chaffee died within seconds.",
+		"summary": "During a launch rehearsal, a spark from damaged wiring ignited the pure-oxygen cabin of Apollo 1. Gus Grissom, Ed White and Roger Chaffee were killed in the fire.",
 		"lesson": "In oxygen-rich air, one electrical fault can become a fire faster than anyone can react.",
 	},
 	"o2": {
@@ -32,7 +32,7 @@ const INCIDENTS := {
 	"dust_storm": {
 		"title": "Opportunity rover lost (2018)",
 		"year": "2018",
-		"summary": "In June 2018 a planet-wide dust storm blotted out the sun over the Opportunity rover's solar panels. Its batteries ran down and NASA never heard from it again; the mission was declared over in February 2019, almost 15 years after landing.",
+		"summary": "In June 2018 a planet-wide dust storm blotted out the sun over the Opportunity rover's solar panels. Its batteries ran down and NASA never heard from it again; the mission was declared over in February 2019, about 15 years after landing.",
 		"lesson": "On Mars, power depends on the weather, and a storm can last for months.",
 	},
 	"do_not_press": {
