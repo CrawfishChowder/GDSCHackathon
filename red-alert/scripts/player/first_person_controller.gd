@@ -36,6 +36,7 @@ var _bob_time: float = 0.0
 var _shake_strength: float = 0.0
 var _shake_duration: float = 0.0
 var _shake_timer: float = 0.0
+var _reduce_motion: bool = false
 
 enum MouseLookMode {
 	CAPTURED,
@@ -54,6 +55,7 @@ func _ready() -> void:
 	camera.position = Vector3.ZERO
 	_target_yaw = rotation.y
 	_target_pitch = 0.0
+	_update_reduce_motion()
 	_set_mouse_look_active(true)
 	_connect_malfunction_manager()
 
@@ -92,6 +94,7 @@ func _process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, _target_yaw, smoothing_weight)
 	head.rotation.x = lerp_angle(head.rotation.x, _target_pitch, smoothing_weight)
 
+	_update_reduce_motion()
 	_update_head_bob(delta)
 	_update_shake(delta)
 
@@ -276,7 +279,18 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 
+func _update_reduce_motion() -> void:
+	var settings := get_node_or_null("/root/Settings")
+	if settings != null and settings.has_method("get_setting"):
+		_reduce_motion = bool(settings.get_setting("reduce_motion"))
+	else:
+		_reduce_motion = false
+
+
 func shake(strength: float, duration: float) -> void:
+	_update_reduce_motion()
+	if _reduce_motion:
+		return
 	if strength <= 0.0 or duration <= 0.0:
 		return
 	_shake_strength = strength
@@ -296,6 +310,11 @@ func shake(strength: float, duration: float) -> void:
 
 func _update_shake(delta: float) -> void:
 	if camera == null:
+		return
+	if _reduce_motion:
+		if camera.rotation != Vector3.ZERO:
+			camera.rotation = Vector3.ZERO
+		_shake_timer = 0.0
 		return
 	if _shake_timer <= 0.0:
 		if camera.rotation != Vector3.ZERO:
@@ -318,6 +337,10 @@ func _update_shake(delta: float) -> void:
 
 func _update_head_bob(delta: float) -> void:
 	if camera == null:
+		return
+	if _reduce_motion:
+		_bob_time = 0.0
+		camera.position = Vector3.ZERO
 		return
 	if is_seated():
 		_bob_time = 0.0

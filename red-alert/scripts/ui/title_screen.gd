@@ -3,6 +3,7 @@ extends Control
 var _people_label: Label
 var _settings_panel: SettingsPanel
 var _mission_log_screen: Control
+var _credits_screen: Control
 
 
 func _ready() -> void:
@@ -76,6 +77,7 @@ func _build_ui() -> void:
 	_add_btn(vbox, "Hard (half the time)", func() -> void: _start_shift("hard"))
 	_add_btn(vbox, "Mission log", _open_mission_log)
 	_add_btn(vbox, "Settings", _toggle_settings)
+	_add_btn(vbox, "Credits", _open_credits)
 	_add_btn(vbox, "Quit", func() -> void: get_tree().quit())
 
 	_settings_panel = SettingsPanel.new()
@@ -89,6 +91,14 @@ func _build_ui() -> void:
 		if _mission_log_screen.has_signal("closed"):
 			_mission_log_screen.connect("closed", func() -> void: _mission_log_screen.visible = false)
 		add_child(_mission_log_screen)
+
+	var cs_script := load("res://scripts/ui/credits_screen.gd") as GDScript
+	if cs_script != null:
+		_credits_screen = cs_script.new()
+		_credits_screen.visible = false
+		if _credits_screen.has_signal("closed"):
+			_credits_screen.connect("closed", func() -> void: _credits_screen.visible = false)
+		add_child(_credits_screen)
 
 
 func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
@@ -107,6 +117,11 @@ func _open_mission_log() -> void:
 		if _mission_log_screen.has_method("refresh"):
 			_mission_log_screen.call("refresh")
 		_mission_log_screen.visible = true
+
+
+func _open_credits() -> void:
+	if _credits_screen != null:
+		_credits_screen.visible = true
 
 
 func _toggle_settings() -> void:

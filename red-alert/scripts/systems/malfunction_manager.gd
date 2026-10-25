@@ -35,6 +35,8 @@ var death_kind: String = ""
 var death_detail: String = ""
 
 var _next_in: float = 0.0
+# Last malfunction started, so the random pick never repeats it back to back.
+var _last_id: String = ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -64,6 +66,7 @@ func _process(delta: float) -> void:
 		_next_in -= delta
 		if _next_in <= 0.0:
 			var keys := MALFUNCTIONS.keys()
+			keys.erase(_last_id)
 			if not keys.is_empty():
 				var random_id: String = keys[randi() % keys.size()]
 				trigger(random_id)
@@ -96,6 +99,7 @@ func trigger(id: String) -> void:
 	if not MALFUNCTIONS.has(id):
 		return
 	active_id = id
+	_last_id = id
 	var info: Dictionary = MALFUNCTIONS[id]
 	var limit: float = float(info["time_limit"])
 	var sw: Node = get_node_or_null("/root/SpaceWeather") if is_inside_tree() else null

@@ -42,6 +42,9 @@ func _initialize() -> void:
 		return _fail("prompt did not update after opening, got '%s'" % prompt_label.text)
 
 	# Parent-walk lookup: the key's collision shape resolves to the Interactable.
+	# The emergency key is disabled in play (relief-crew ending); enable it here
+	# just to exercise the parent-walk lookup.
+	key.enabled = true
 	var key_shape := key.get_node("CollisionShape3D")
 	if interactor._find_interactable(key_shape) != key:
 		return _fail("lookup did not resolve the console key")

@@ -15,21 +15,16 @@ var _base_offset_right: float = 320.0
 var _base_offset_bottom: float = 210.0
 var _base_captured: bool = false
 
-
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
-
 
 func _process(_delta: float) -> void:
 	if _panel == null:
 		_panel = get_node_or_null("MinigamePanel") as PanelContainer
 		if _panel != null and not _base_captured:
-			_base_offset_left = _panel.offset_left
-			_base_offset_top = _panel.offset_top
-			_base_offset_right = _panel.offset_right
-			_base_offset_bottom = _panel.offset_bottom
+			_base_offset_left = _panel.offset_left; _base_offset_top = _panel.offset_top
+			_base_offset_right = _panel.offset_right; _base_offset_bottom = _panel.offset_bottom
 			_base_captured = true
-
 	if _panel == null:
 		return
 
@@ -47,14 +42,22 @@ func _process(_delta: float) -> void:
 	_panel.offset_bottom = _base_offset_bottom + oy
 
 
-func complete() -> void:
-	completed.emit()
+func complete() -> void: completed.emit()
+func cancel() -> void: cancelled.emit()
+func fail(reason: String) -> void: failed.emit(reason)
 
-func cancel() -> void:
-	cancelled.emit()
-
-func fail(reason: String) -> void:
-	failed.emit(reason)
+func add_instruction(content: VBoxContainer, text: String) -> void:
+	if content == null:
+		return
+	var label := Label.new()
+	label.name = "InstructionLabel"
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.2))
+	content.add_child(label)
+	content.move_child(label, 0)
 
 
 ## Builds the standard centered minigame modal panel.
@@ -68,18 +71,14 @@ func make_panel(title: String) -> VBoxContainer:
 	panel.name = "MinigamePanel"
 	panel.custom_minimum_size = Vector2(640, 420)
 	panel.set_anchors_preset(PRESET_CENTER)
-	panel.offset_left = -320.0
-	panel.offset_top = -210.0
-	panel.offset_right = 320.0
-	panel.offset_bottom = 210.0
+	panel.offset_left = -320.0; panel.offset_top = -210.0
+	panel.offset_right = 320.0; panel.offset_bottom = 210.0
 	panel.grow_horizontal = GROW_DIRECTION_BOTH
 	panel.grow_vertical = GROW_DIRECTION_BOTH
 
 	_panel = panel
-	_base_offset_left = panel.offset_left
-	_base_offset_top = panel.offset_top
-	_base_offset_right = panel.offset_right
-	_base_offset_bottom = panel.offset_bottom
+	_base_offset_left = panel.offset_left; _base_offset_top = panel.offset_top
+	_base_offset_right = panel.offset_right; _base_offset_bottom = panel.offset_bottom
 	_base_captured = true
 
 	var style := StyleBoxFlat.new()
@@ -88,8 +87,7 @@ func make_panel(title: String) -> VBoxContainer:
 	style.border_color = Color.CYAN
 	style.set_corner_radius_all(8)
 	style.set_content_margin_all(20.0)
-	style.content_margin_left = 24.0
-	style.content_margin_right = 24.0
+	style.content_margin_left = 24.0; style.content_margin_right = 24.0
 	panel.add_theme_stylebox_override("panel", style)
 	add_child(panel)
 
@@ -115,7 +113,7 @@ func make_panel(title: String) -> VBoxContainer:
 
 	var hint_label := Label.new()
 	hint_label.name = "HintLabel"
-	hint_label.text = "Esc to close"
+	hint_label.text = "Esc to close · keyboard shortcuts shown in [brackets]"
 	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint_label.add_theme_font_size_override("font_size", 14)
 	hint_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
@@ -142,7 +140,6 @@ func _start_panel_tween(panel: PanelContainer) -> void:
 		tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tween.parallel().tween_property(panel, "scale", Vector2.ONE, 0.18)
 		tween.parallel().tween_property(panel, "modulate:a", 1.0, 0.18)
-
 
 func _set_panel_pivot(panel: PanelContainer) -> void:
 	if is_instance_valid(panel):

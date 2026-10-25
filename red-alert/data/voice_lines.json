@@ -57,7 +57,7 @@
 	},
 	"crew_hint_o2": {
 		"speaker": "crew",
-		"text": "Oxygen leak! Hurry to the left console and enter the override code."
+		"text": "Oxygen leak! Hurry to the left console and enter the filter code."
 	},
 	"crew_fixed_reactor": {
 		"speaker": "crew",
@@ -65,7 +65,7 @@
 	},
 	"crew_fixed_power": {
 		"speaker": "crew",
-		"text": "Power grid restored! Nice work resetting those breakers."
+		"text": "Power grid restored! Nice work resetting that breaker."
 	},
 	"crew_fixed_o2": {
 		"speaker": "crew",
@@ -89,11 +89,11 @@
 	},
 	"crew_tutorial_1": {
 		"speaker": "crew",
-		"text": "Something is wrong with the oxygen. Do not panic, I will walk you through it. Follow the flashing marker to the left console."
+		"text": "Something's wrong with the oxygen. Don't panic, I'll walk you through it. Follow the flashing marker to the left console."
 	},
 	"crew_tutorial_2": {
 		"speaker": "crew",
-		"text": "That is it. Look at the keyboard and press E."
+		"text": "That's it. Look at the keyboard and press E."
 	},
 	"crew_tutorial_3": {
 		"speaker": "crew",
@@ -118,5 +118,13 @@
 	"crew_breathe": {
 		"speaker": "crew",
 		"text": "Hey. Breathe with me. In for four, out for four. Hold B."
+	},
+	"hal_relief": {
+		"speaker": "hal",
+		"text": "Shift complete. Relief crew docking at the north airlock. You may stand down."
+	},
+	"crew_relief": {
+		"speaker": "crew",
+		"text": "That's the relief crew! You did it. Go get some sleep, I've got it from here."
 	}
 }

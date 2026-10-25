@@ -20,27 +20,23 @@ var _finished: bool = false
 
 
 func _init() -> void:
-	if order.is_empty():
-		_init_order()
-
+	if order.is_empty(): _init_order()
 
 func _ready() -> void:
 	process_mode = PROCESS_MODE_ALWAYS
-	if order.is_empty():
-		_init_order()
+	if order.is_empty(): _init_order()
 
 	var content: VBoxContainer = make_panel("CO2: BUILD THE SCRUBBER ADAPTER")
 	if content == null:
-		content = VBoxContainer.new()
-		add_child(content)
+		content = VBoxContainer.new(); add_child(content)
+
+	add_instruction(content, "Follow the radio procedure on the left, in order. Skipping a step is fatal.")
 
 	var panel: PanelContainer = get_node_or_null("MinigamePanel") as PanelContainer
 	if panel != null:
 		panel.custom_minimum_size = Vector2(720, 440)
-		panel.offset_left = -360.0
-		panel.offset_top = -220.0
-		panel.offset_right = 360.0
-		panel.offset_bottom = 220.0
+		panel.offset_left = -360.0; panel.offset_top = -220.0
+		panel.offset_right = 360.0; panel.offset_bottom = 220.0
 
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -81,7 +77,7 @@ func _ready() -> void:
 	for i in range(order.size()):
 		var step_idx: int = order[i]
 		var btn := Button.new()
-		btn.text = STEPS[step_idx]
+		btn.text = "[%d] %s" % [i + 1, STEPS[step_idx]]
 		btn.custom_minimum_size = Vector2(280, 48)
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.focus_mode = Control.FOCUS_NONE
@@ -89,6 +85,32 @@ func _ready() -> void:
 		btn.pressed.connect(press_step.bind(step_idx))
 		btn_box.add_child(btn)
 		_buttons.append(btn)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _finished or not (event is InputEventKey):
+		return
+	var key_event := event as InputEventKey
+	if not key_event.pressed or key_event.echo:
+		return
+
+	var keycode := key_event.keycode
+	if keycode == KEY_NONE:
+		keycode = key_event.physical_keycode
+
+	var displayed_idx := -1
+	if keycode >= KEY_1 and keycode <= KEY_4:
+		displayed_idx = keycode - KEY_1
+	elif keycode >= KEY_KP_1 and keycode <= KEY_KP_4:
+		displayed_idx = keycode - KEY_KP_1
+
+	if displayed_idx >= 0 and displayed_idx < order.size():
+		var vp := get_viewport()
+		if vp != null:
+			vp.set_input_as_handled()
+		if displayed_idx < _buttons.size() and _buttons[displayed_idx] != null and _buttons[displayed_idx].disabled:
+			return
+		press_step(order[displayed_idx])
 
 
 func press_step(step_index: int) -> void:

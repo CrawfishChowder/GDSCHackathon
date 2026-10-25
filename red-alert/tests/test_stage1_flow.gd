@@ -2,6 +2,8 @@ extends SceneTree
 
 
 func _initialize() -> void:
+	await process_frame
+
 	var room_scene := load("res://scenes/stage1/stage_1_room.tscn") as PackedScene
 	if room_scene == null:
 		print("FAIL: Failed to load stage_1_room scene")
@@ -17,24 +19,29 @@ func _initialize() -> void:
 	root.add_child(room)
 	await process_frame
 
-	var key := room.get_node_or_null("MainConsole/CenterStation/EmergencyReleaseKey") as Interactable
-	if key == null:
-		print("FAIL: EmergencyReleaseKey not found")
-		quit(1)
-		return
-
-	var north_door := room.get_node_or_null("BulkheadDoors/NorthBulkheadDoor") as BulkheadDoor
-	var east_door := room.get_node_or_null("BulkheadDoors/EastBulkheadDoor") as BulkheadDoor
-	var west_door := room.get_node_or_null("BulkheadDoors/WestBulkheadDoor") as BulkheadDoor
+	var north_door := room.get_node_or_null("BulkheadDoors/NorthBulkheadDoor")
+	var east_door := room.get_node_or_null("BulkheadDoors/EastBulkheadDoor")
+	var west_door := room.get_node_or_null("BulkheadDoors/WestBulkheadDoor")
 
 	if north_door == null or east_door == null or west_door == null:
+		paused = false
 		print("FAIL: Bulkhead doors not found")
 		quit(1)
 		return
 
-	key.interact(null)
+	var mm: Node = root.get_node("MalfunctionManager")
+	if mm == null:
+		paused = false
+		print("FAIL: MalfunctionManager not found")
+		quit(1)
+		return
 
-	await create_timer(1.6).timeout
+	mm.start_run()
+	mm.set("survived_seconds", float(mm.get("SHIFT_LENGTH")) - 0.05)
+
+	await create_timer(0.3, true).timeout
+
+	paused = false
 
 	if north_door.is_sealed():
 		print("FAIL: North bulkhead door is still sealed")
@@ -53,4 +60,3 @@ func _initialize() -> void:
 
 	print("PASS")
 	quit(0)
-

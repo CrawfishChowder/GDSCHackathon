@@ -55,6 +55,7 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
     └─ HUD (hud.gd: prompt, alert banner, shift timer)
         ├─ GameOver       (death screen with mission log entry)
         ├─ HeartRateOverlay (BPM, "Hold B to breathe", red vignette)
+        ├─ ControlsPanel   (H: grouped controls, auto-shown on first shift)
         ├─ PauseMenu      (Esc: resume / settings / restart / quit to title)
         ├─ SurvivalCard   (real success story on each fix; practice "would have killed you")
         └─ ShiftComplete  (win screen with real-astronaut comparison)
@@ -66,7 +67,7 @@ Stage1IndustrialRoom (stage1_controller.gd: start_run, F1-F3, emergency key -> n
 - mistake → `kill("mistake")`
 - countdown expires → `kill("timeout")`
 
-`player_died` → MissionLog entry → GameOver. Surviving 300 s → `shift_completed` → ShiftComplete. R restarts by reloading the scene.
+`player_died` → MissionLog entry → GameOver. Surviving 300 s → `shift_completed` → north door opens for the relief crew (HAL + Sam lines) → ShiftComplete after 4 s. R restarts by reloading the scene.
 
 ## Tools
 - `tools/run_tests.sh`: runs all tests plus a smoke run.

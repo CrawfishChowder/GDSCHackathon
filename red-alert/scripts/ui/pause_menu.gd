@@ -2,6 +2,7 @@ extends CanvasLayer
 
 var _mode_label: Label
 var _settings_panel: SettingsPanel
+var _controls_panel: ControlsPanel
 
 
 func _ready() -> void:
@@ -23,11 +24,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	var parent_node := get_parent()
 	if parent_node != null:
 		var go := parent_node.get_node_or_null("GameOver")
-		if go != null and go.has_method("is_showing") and go.is_showing():
-			return
+		if go != null and go.has_method("is_showing") and go.is_showing(): return
 		var sc := parent_node.get_node_or_null("ShiftComplete")
-		if sc != null and sc.has_method("is_showing") and sc.is_showing():
-			return
+		if sc != null and sc.has_method("is_showing") and sc.is_showing(): return
 
 	# Ignore if the tree is already paused by something else
 	if get_tree().paused and not visible:
@@ -55,14 +54,10 @@ func _build_ui() -> void:
 	panel.custom_minimum_size = Vector2(460, 320)
 
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.06, 0.08, 0.95)
-	style.set_border_width_all(2)
-	style.border_color = Color(0.3, 0.8, 1.0)
+	style.bg_color = Color(0.04, 0.06, 0.08, 0.95); style.set_border_width_all(2); style.border_color = Color(0.3, 0.8, 1.0)
 	style.set_corner_radius_all(8)
-	style.content_margin_left = 24.0
-	style.content_margin_top = 20.0
-	style.content_margin_right = 24.0
-	style.content_margin_bottom = 20.0
+	style.content_margin_left = 24.0; style.content_margin_top = 20.0
+	style.content_margin_right = 24.0; style.content_margin_bottom = 20.0
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
 
@@ -91,12 +86,17 @@ func _build_ui() -> void:
 
 	_add_btn(vbox, "Resume", _resume)
 	_add_btn(vbox, "Settings", _toggle_settings)
+	_add_btn(vbox, "Controls", _toggle_controls)
 	_add_btn(vbox, "Restart shift", _restart_shift)
 	_add_btn(vbox, "Quit to title", _quit_to_title)
 
 	_settings_panel = SettingsPanel.new()
 	_settings_panel.visible = false
 	vbox.add_child(_settings_panel)
+
+	_controls_panel = ControlsPanel.new()
+	_controls_panel.visible = false
+	vbox.add_child(_controls_panel)
 
 
 func _add_btn(parent: Control, text: String, callback: Callable) -> Button:
@@ -125,26 +125,25 @@ func _resume() -> void:
 	visible = false
 	if _settings_panel != null:
 		_settings_panel.visible = false
+	if _controls_panel != null:
+		_controls_panel.visible = false
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _toggle_settings() -> void:
-	if _settings_panel != null:
-		_settings_panel.visible = not _settings_panel.visible
+	if _settings_panel != null: _settings_panel.visible = not _settings_panel.visible
 
+func _toggle_controls() -> void:
+	if _controls_panel != null: _controls_panel.toggle()
 
 func _restart_shift() -> void:
-	get_tree().paused = false
-	get_tree().reload_current_scene()
+	get_tree().paused = false; get_tree().reload_current_scene()
 
 func _quit_to_title() -> void:
 	get_tree().paused = false
-	# The manager is an autoload: stop the run or failures keep firing on the title screen.
 	var mm := get_node_or_null("/root/MalfunctionManager")
-	if mm != null:
-		mm.stop_run()
+	if mm != null: mm.stop_run()
 	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
 
-func is_showing() -> bool:
-	return visible
+func is_showing() -> bool: return visible
