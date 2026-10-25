@@ -140,6 +140,10 @@ func _restart_shift() -> void:
 
 func _quit_to_title() -> void:
 	get_tree().paused = false
+	# The manager is an autoload: stop the run or failures keep firing on the title screen.
+	var mm := get_node_or_null("/root/MalfunctionManager")
+	if mm != null:
+		mm.stop_run()
 	get_tree().change_scene_to_file("res://scenes/ui/title_screen.tscn")
 
 func is_showing() -> bool:

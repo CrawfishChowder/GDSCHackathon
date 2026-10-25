@@ -102,5 +102,21 @@
 	"crew_tutorial_done": {
 		"speaker": "crew",
 		"text": "Perfect. From now on HAL runs a countdown, so be quick."
+	},
+	"hal_alarm_dust_storm": {
+		"speaker": "hal",
+		"text": "Warning. Regional dust storm detected. Solar array output falling. Power reserves critical in 50 seconds."
+	},
+	"crew_hint_dust_storm": {
+		"speaker": "crew",
+		"text": "Dust storm! East wall, solar array panel. Balance the power so nothing drops below its minimum."
+	},
+	"crew_fixed_dust_storm": {
+		"speaker": "crew",
+		"text": "Power is balanced. We can ride this storm out."
+	},
+	"crew_breathe": {
+		"speaker": "crew",
+		"text": "Hey. Breathe with me. In for four, out for four. Hold B."
 	}
 }

@@ -17,6 +17,8 @@
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
 [ext_resource type="Script" path="res://scripts/stage1/event_director.gd" id="6_event_director"]
 [ext_resource type="Script" path="res://scripts/stage1/power_failure_event.gd" id="7_power_failure_event"]
+[ext_resource type="Script" path="res://scripts/stage1/solar_panel_station.gd" id="13_solar_panel_station"]
+[ext_resource type="Script" path="res://scripts/stage1/demo_helper.gd" id="14_demo_helper"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -56,6 +58,11 @@ position = Vector3(2.8, 1.55, -4.78)
 
 [node name="DoNotPressButton" parent="WallFixtures" instance=ExtResource("7_button")]
 position = Vector3(4.8, 0, 3.8)
+
+[node name="SolarPanelStation" type="Node3D" parent="WallFixtures"]
+position = Vector3(5.85, 0, -3.6)
+rotation = Vector3(0, -1.5708, 0)
+script = ExtResource("13_solar_panel_station")
 
 [node name="MainConsole" parent="." instance=ExtResource("4_console")]
 
@@ -107,3 +114,6 @@ script = ExtResource("6_event_director")
 
 [node name="PowerFailureEvent" type="Node" parent="EventDirector"]
 script = ExtResource("7_power_failure_event")
+
+[node name="DemoHelper" type="Node" parent="."]
+script = ExtResource("14_demo_helper")

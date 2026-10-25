@@ -9,19 +9,17 @@ signal practice_mistake(cause_id: String, detail: String)
 
 # One demo "shift". Survive this long (with nothing broken) to win.
 const SHIFT_LENGTH := 300.0
-
 const MALFUNCTIONS := {
 	"reactor": {"name": "Reactor meltdown", "time_limit": 45.0},
 	"power": {"name": "Power failure", "time_limit": 40.0},
 	"o2": {"name": "O2 depletion", "time_limit": 50.0},
 	"co2": {"name": "CO2 buildup", "time_limit": 45.0},
+	"dust_storm": {"name": "Dust storm", "time_limit": 50.0},
 }
-
 # Deaths that are not a malfunction timing out.
 const OTHER_CAUSES := {
 	"do_not_press": "Pressed the button",
 }
-
 var mode: String = "normal"
 var countdown_frozen: bool = false
 var running: bool = false
@@ -29,13 +27,14 @@ var active_id: String = ""
 var time_left: float = 0.0
 var survived_seconds: float = 0.0
 var fixes_count: int = 0
+var close_calls: int = 0
+var practice_mistakes: int = 0
 # How the last run ended: "timeout" (countdown ran out), "mistake" (failed a
 # minigame) or "button". death_detail is a short player-facing explanation.
 var death_kind: String = ""
 var death_detail: String = ""
 
 var _next_in: float = 0.0
-
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -44,6 +43,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not running:
 		return
+	# Keep counting through a minigame (it pauses the tree on purpose), but freeze
+	# for anything else that pauses it, like the pause menu.
+	if get_tree().paused:
+		var host := get_node_or_null("/root/MinigameHost")
+		if host == null or not host.is_open():
+			return
 
 	survived_seconds += delta
 
@@ -71,6 +76,8 @@ func start_run() -> void:
 	countdown_frozen = false
 	survived_seconds = 0.0
 	fixes_count = 0
+	close_calls = 0
+	practice_mistakes = 0
 	death_kind = ""
 	death_detail = ""
 	_next_in = 10.0
@@ -103,6 +110,8 @@ func trigger(id: String) -> void:
 func fix(id: String) -> void:
 	if active_id.is_empty() or id != active_id:
 		return
+	if time_left < 10.0:
+		close_calls += 1
 	fixes_count += 1
 	var fixed_id := active_id
 	active_id = ""
@@ -116,6 +125,7 @@ func kill(cause_id: String, kind: String, detail: String = "") -> void:
 	if not running:
 		return
 	if mode == "practice" and kind != "button":
+		practice_mistakes += 1
 		practice_mistake.emit(cause_id, detail)
 		if kind == "timeout":
 			var info: Dictionary = MALFUNCTIONS.get(cause_id, {})
