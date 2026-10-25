@@ -1,0 +1,29 @@
+extends Node3D
+
+@onready var sit_point: Marker3D = $SitPoint
+@onready var stand_point: Marker3D = $StandPoint
+
+var occupant: Node3D
+
+
+func interact(interactor: Node = null) -> void:
+	if interactor == null or not interactor.has_method("sit_in"):
+		return
+	if is_instance_valid(occupant) and occupant != interactor:
+		return
+
+	if interactor.sit_in(self):
+		occupant = interactor
+
+
+func get_sit_transform() -> Transform3D:
+	return sit_point.global_transform
+
+
+func get_stand_transform() -> Transform3D:
+	return stand_point.global_transform
+
+
+func release(interactor: Node) -> void:
+	if occupant == interactor:
+		occupant = null

@@ -1,9 +1,10 @@
-[gd_scene load_steps=26 format=3 uid="uid://4qvr2hc8f2k0"]
+[gd_scene load_steps=27 format=3 uid="uid://4qvr2hc8f2k0"]
 
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/industrial_room_shell.tscn" id="1_shell"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/sealed_bulkhead_door.tscn" id="2_door"]
 [ext_resource type="PackedScene" path="res://scenes/player/first_person_player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/stage1/components/breaker_box.tscn" id="4_breaker"]
+[ext_resource type="PackedScene" path="res://scenes/stage1/components/console_chair.tscn" id="5_chair"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -583,10 +584,24 @@ position = Vector3(2.1, 1.49, 4.405)
 scale = Vector3(1.48, 0.12, 0.035)
 mesh = SubResource("Mesh_accent_navy")
 
+[node name="ConsoleChairs" type="Node3D" parent="."]
+
+[node name="LeftConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(-2.1, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
+[node name="CenterConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(0, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
+[node name="RightConsoleChair" parent="ConsoleChairs" instance=ExtResource("5_chair")]
+position = Vector3(2.1, 0, 3.05)
+rotation = Vector3(0, 3.14159, 0)
+
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=1809252709]
 
 [node name="PlayerSpawn" type="Marker3D" parent="SpawnPoints" unique_id=1109936878]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)
 
 [node name="FirstPersonPlayer" parent="." unique_id=1815492691 instance=ExtResource("3_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 2.7)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.96, 1.2)

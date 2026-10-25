@@ -17,6 +17,7 @@ extends CharacterBody3D
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRay
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
 var _target_yaw: float = 0.0
@@ -28,6 +29,7 @@ var _mouse_look_active: bool = false
 var _mouse_look_mode: int = MouseLookMode.CAPTURED
 var _last_fallback_position: Vector2 = Vector2.ZERO
 var _has_fallback_position: bool = false
+var _active_seat: Node3D
 
 enum MouseLookMode {
 	CAPTURED,
@@ -52,7 +54,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("interact"):
-		_try_interact()
+		if is_instance_valid(_active_seat):
+			stand_up()
+		else:
+			_try_interact()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -88,6 +93,43 @@ func _try_interact() -> void:
 			interaction_target.interact(self)
 			return
 		interaction_target = interaction_target.get_parent()
+
+
+func sit_in(seat: Node3D) -> bool:
+	if is_instance_valid(_active_seat) or not seat.has_method("get_sit_transform"):
+		return false
+
+	_active_seat = seat
+	velocity = Vector3.ZERO
+	collision_shape.disabled = true
+	_apply_seat_transform(seat.get_sit_transform())
+	return true
+
+
+func stand_up() -> void:
+	if not is_instance_valid(_active_seat):
+		_active_seat = null
+		collision_shape.disabled = false
+		return
+
+	var seat := _active_seat
+	_active_seat = null
+	if seat.has_method("get_stand_transform"):
+		_apply_seat_transform(seat.get_stand_transform())
+	collision_shape.disabled = false
+	velocity = Vector3.ZERO
+	if seat.has_method("release"):
+		seat.release(self)
+
+
+func _apply_seat_transform(target_transform: Transform3D) -> void:
+	global_position = target_transform.origin
+	rotation.x = 0.0
+	rotation.y = target_transform.basis.get_euler().y
+	rotation.z = 0.0
+	head.rotation = Vector3.ZERO
+	_target_yaw = rotation.y
+	_target_pitch = 0.0
 
 
 func _apply_captured_mouse_motion(event: InputEventMouseMotion) -> void:
@@ -176,6 +218,15 @@ func _enable_fallback_mouse_look() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _active_seat != null and not is_instance_valid(_active_seat):
+		_active_seat = null
+		collision_shape.disabled = false
+
+	if is_instance_valid(_active_seat):
+		velocity = Vector3.ZERO
+		global_position = _active_seat.get_sit_transform().origin
+		return
+
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 
