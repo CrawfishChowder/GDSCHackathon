@@ -8,6 +8,7 @@ Rules for every task (on top of CLAUDE.md):
 - Build UI in code in `_ready()`. Each `.tscn` is a root node plus its script only.
 - UI style: dark panels like `scripts/minigames/minigame.gd` `make_panel`, with a cyan accent `Color(0.3, 0.8, 1.0)`. Never signal state with color alone. Every reacting script sets `process_mode = PROCESS_MODE_ALWAYS` and reaches autoloads with `get_node_or_null("/root/Name")`.
 - Tests: `extends SceneTree`; `await process_frame` first; look up autoloads with `root.get_node("Name")`; never cast to classes whose scripts use autoloads; no network; print `PASS` / `FAIL: <reason>`; `quit(0/1)`.
+- **GDScript lambdas capture local variables by value.** In tests, record signal results into a shared `var got := {}` (or an Array), never into a local bool. See `tests/test_manager_modes.gd`.
 - Facts: use ONLY the text given here.
 - Finish with a summary of at most 10 lines: files changed, anything unresolved, any deviation. Do not paste file contents.
 

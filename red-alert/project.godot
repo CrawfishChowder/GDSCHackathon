@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="Red Alert"
-run/main_scene="res://scenes/stage1/stage_1_room.tscn"
+run/main_scene="res://scenes/ui/title_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 SaveData="*res://scripts/systems/save_data.gd"
+Settings="*res://scripts/systems/settings.gd"
 MalfunctionManager="*res://scripts/systems/malfunction_manager.gd"
 MinigameHost="*res://scenes/ui/minigame_host.tscn"
 MissionLog="*res://scripts/systems/mission_log.gd"

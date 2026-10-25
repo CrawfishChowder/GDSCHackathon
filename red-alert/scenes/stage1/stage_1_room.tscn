@@ -13,6 +13,7 @@
 [ext_resource type="Script" path="res://scripts/stage1/lighting_director.gd" id="9_lighting_director"]
 [ext_resource type="Script" path="res://scripts/stage1/doorways.gd" id="10_doorways"]
 [ext_resource type="Script" path="res://scripts/stage1/room_props.gd" id="11_room_props"]
+[ext_resource type="Script" path="res://scripts/stage1/tutorial_director.gd" id="12_tutorial_director"]
 
 [sub_resource type="Environment" id="Environment_stage1"]
 background_mode = 1
@@ -79,3 +80,6 @@ script = ExtResource("10_doorways")
 
 [node name="RoomProps" type="Node3D" parent="Polish"]
 script = ExtResource("11_room_props")
+
+[node name="TutorialDirector" type="Node" parent="."]
+script = ExtResource("12_tutorial_director")

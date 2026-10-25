@@ -5,6 +5,7 @@ signal malfunction_fixed(id: String)
 signal player_died(cause_id: String, display_name: String)
 signal shift_completed
 signal run_started
+signal practice_mistake(cause_id: String, detail: String)
 
 # One demo "shift". Survive this long (with nothing broken) to win.
 const SHIFT_LENGTH := 300.0
@@ -13,6 +14,7 @@ const MALFUNCTIONS := {
 	"reactor": {"name": "Reactor meltdown", "time_limit": 45.0},
 	"power": {"name": "Power failure", "time_limit": 40.0},
 	"o2": {"name": "O2 depletion", "time_limit": 50.0},
+	"co2": {"name": "CO2 buildup", "time_limit": 45.0},
 }
 
 # Deaths that are not a malfunction timing out.
@@ -20,6 +22,8 @@ const OTHER_CAUSES := {
 	"do_not_press": "Pressed the button",
 }
 
+var mode: String = "normal"
+var countdown_frozen: bool = false
 var running: bool = false
 var active_id: String = ""
 var time_left: float = 0.0
@@ -44,9 +48,10 @@ func _process(delta: float) -> void:
 	survived_seconds += delta
 
 	if active_id != "":
-		time_left -= delta
-		if time_left <= 0.0:
-			kill(active_id, "timeout", "The countdown ran out.")
+		if not countdown_frozen:
+			time_left -= delta
+			if time_left <= 0.0:
+				kill(active_id, "timeout", "The countdown ran out.")
 	elif survived_seconds >= SHIFT_LENGTH:
 		running = false
 		shift_completed.emit()
@@ -63,6 +68,7 @@ func start_run() -> void:
 	running = true
 	active_id = ""
 	time_left = 0.0
+	countdown_frozen = false
 	survived_seconds = 0.0
 	fixes_count = 0
 	death_kind = ""
@@ -88,6 +94,8 @@ func trigger(id: String) -> void:
 	var sw: Node = get_node_or_null("/root/SpaceWeather") if is_inside_tree() else null
 	if sw != null and sw.has_method("difficulty_multiplier"):
 		limit *= float(sw.difficulty_multiplier())
+	if mode == "hard":
+		limit *= 0.5
 	time_left = limit
 	malfunction_started.emit(id, String(info["name"]), time_left)
 
@@ -106,6 +114,12 @@ func fix(id: String) -> void:
 # Ends the run immediately. kind: "timeout", "mistake" or "button".
 func kill(cause_id: String, kind: String, detail: String = "") -> void:
 	if not running:
+		return
+	if mode == "practice" and kind != "button":
+		practice_mistake.emit(cause_id, detail)
+		if kind == "timeout":
+			var info: Dictionary = MALFUNCTIONS.get(cause_id, {})
+			time_left = float(info.get("time_limit", 45.0))
 		return
 	running = false
 	death_kind = kind

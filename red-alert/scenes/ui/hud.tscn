@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="2_game_over"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shift_complete.tscn" id="3_shift_complete"]
 [ext_resource type="PackedScene" path="res://scenes/ui/life_support_panel.tscn" id="4_life_support_panel"]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="5_pause_menu"]
+[ext_resource type="Script" path="res://scripts/ui/survival_card.gd" id="6_survival_card"]
 
 [node name="HUD" type="CanvasLayer"]
 process_mode = 3
@@ -46,3 +48,15 @@ vertical_alignment = 1
 [node name="GameOver" parent="." instance=ExtResource("2_game_over")]
 
 [node name="ShiftComplete" parent="." instance=ExtResource("3_shift_complete")]
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+process_mode = 3
+visible = false
+layer = 25
+script = ExtResource("5_pause_menu")
+
+[node name="SurvivalCard" type="CanvasLayer" parent="."]
+process_mode = 3
+visible = false
+layer = 12
+script = ExtResource("6_survival_card")

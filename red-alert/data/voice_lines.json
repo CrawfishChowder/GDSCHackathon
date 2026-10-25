@@ -74,5 +74,33 @@
 	"crew_shift_done": {
 		"speaker": "crew",
 		"text": "Shift complete! You kept us alive for the whole five minutes, excellent work!"
+	},
+	"hal_alarm_co2": {
+		"speaker": "hal",
+		"text": "Warning. Carbon dioxide concentration rising. Crew impairment in 45 seconds."
+	},
+	"crew_hint_co2": {
+		"speaker": "crew",
+		"text": "CO2 is climbing! Right console. Build the scrubber adapter and follow the checklist in order."
+	},
+	"crew_fixed_co2": {
+		"speaker": "crew",
+		"text": "Scrubber is pulling the CO2 down. That was an Apollo 13 move right there."
+	},
+	"crew_tutorial_1": {
+		"speaker": "crew",
+		"text": "Something is wrong with the oxygen. Do not panic, I will walk you through it. Follow the flashing marker to the left console."
+	},
+	"crew_tutorial_2": {
+		"speaker": "crew",
+		"text": "That is it. Look at the keyboard and press E."
+	},
+	"crew_tutorial_3": {
+		"speaker": "crew",
+		"text": "Read the filter code and type it in. Careful. One wrong digit vents the air."
+	},
+	"crew_tutorial_done": {
+		"speaker": "crew",
+		"text": "Perfect. From now on HAL runs a countdown, so be quick."
 	}
 }
